@@ -1,0 +1,44 @@
+Finding Clones
+
+
+What is it?
+-----------
+
+Finding clones is a dissertation for the School of Informatics of University of Edinburgh. The main purpose 
+is to implement three efficient image algorithms for finding the same objects in a given 2-D image. The 
+implementation will be in ANSI C language. The source code of reading the images and evaluating them is provided 
+by the algorithm contest home page organised by SIG PRMU (Pattern Recognition and Media Understanding)
+of the IEICE (Institute of Electronics, Information and Communication Engineers), Japan in 2009. The site is 
+[http://www2c.comm.eng.osaka-u.ac.jp/~alcon2009/index.php].
+
+
+Documentation
+-------------
+
+
+
+
+Installation
+------------
+
+
+
+
+Source Files
+------------
+
+This project includes the following files:
+
+Filename        Type of file            Comment
+--------        ------------            -------
+alcon2009.h     Contest file            A general purpose header file with structures necessary 
+                                        for the other source files of the contest.
+evaluation.h    Contest file            A header file for evaluating the implemented algorithms.
+evaluation.c    Contest file            The source file for evaluating the implemented algorithms.
+pnm.h           Contest file            Header file for reading pnm images.
+pnm.c           Contest file            The source file for reading pnm images.
+main.c          Contest file            The main source file.
+my_alg.c        Contest file            The source file for implementing the algorithms.
+makefile        Contest file            The make file for building the project.
+
+
