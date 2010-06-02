@@ -1,3 +1,4 @@
+#define __PNM_C__
 #include "pnm.h"
 
 #include <stdio.h>

@@ -1,3 +1,38 @@
+/* ############################################################################
+Name           : evaluation.c
+Company        : ALCON 2009
+Project        : Finding Clones
+Programmer     : ALCON 2009
+Revisor        : S. Vagionitis
+Description    : Evaluation Functions
+
+Procedure                     Description
+============================= =================================================
+create_candidate_list         Create candidate lists of bounding boxes that 
+                              correspond to each correct bounding box. Thus, a 
+                              separage list is created for each correct bounding 
+                              box.
+backtrack                     Find the optimal correspondences by backtracking.
+find_correspondent_object     Find the object that gives the smallest total 
+                              distance from the correct bounding box.
+read_ground_truth             Load ground truth.
+calculate_f_measure           Calculate F-measure basend on the label 
+                              correspondences and the representative bounding 
+                              boxes.
+evaluate                      Evaluate function.
+
+
+Globals        Type           Description
+============== ============== =================================================
+
+
+Programmer     Date           Action
+============== ============== =================================================
+S. Vagionitis  02/06/2010     Creation
+
+############################################################################ */
+
+#define __EVALUATION_C__
 #include "evaluation.h"
 
 #include <stdio.h>
@@ -11,12 +46,25 @@
 #define EPSILON 1e-15
 
 
-/*------------------------------------------------------------*/
-/* Create candidate lists of bounding boxes that correspond   */
-/* to each correct bounding box.                              */
-/* Thus, a separage list is created for each correct bounding */
-/* box.                                                       */
-/*------------------------------------------------------------*/
+/* ############################################################################
+Name           : create_candidate_list
+Description    : Create candidate lists of bounding boxes that correspond to 
+                 each correct bounding box. Thus, a separage list is created 
+                 for each correct bounding box.
+
+Arguments      Type           Description
+============== ============== =================================================
+
+Return Values                 Description
+============================= =================================================
+
+Globals        Type           Description
+============== ============== =================================================
+
+Locals         Type           Description
+============== ============== =================================================
+
+############################################################################ */
 static void create_candidate_list(object *gt, int n_gt, object *c, int n_c, double **cand_list)
 {
 	double gt_r =  TRUE_NEGATIVE_AREA_RATE;
@@ -69,9 +117,23 @@ static void create_candidate_list(object *gt, int n_gt, object *c, int n_c, doub
 }
 
 
-/*------------------------------------------------------------*/
-/* Find the optimal correspondences by backtracking            */
-/*------------------------------------------------------------*/
+/* ############################################################################
+Name           : backtrack
+Description    : Find the optimal correspondences by backtracking.
+
+Arguments      Type           Description
+============== ============== =================================================
+
+Return Values                 Description
+============================= =================================================
+
+Globals        Type           Description
+============== ============== =================================================
+
+Locals         Type           Description
+============== ============== =================================================
+
+############################################################################ */
 static double backtrack(double **cand, int n_gt, int n_c, int curr, int *used, double d, double min_d, int *sol)
 {
 	int i;
@@ -109,10 +171,24 @@ static double backtrack(double **cand, int n_gt, int n_c, int curr, int *used, d
 }
 
 
-/*-------------------------------------------------------------*/
-/* Find the object that gives the smallest total distance from */
-/* the correct bounding box.                                   */
-/*-------------------------------------------------------------*/
+/* ############################################################################
+Name           : find_correspondent_object
+Description    : Find the object that gives the smallest total distance from 
+                 the correct bounding box.
+
+Arguments      Type           Description
+============== ============== =================================================
+
+Return Values                 Description
+============================= =================================================
+
+Globals        Type           Description
+============== ============== =================================================
+
+Locals         Type           Description
+============== ============== =================================================
+
+############################################################################ */
 static double find_correspondent_object(double **d, int n_gt, int n_c, int *sol)
 {
 	int i;
@@ -130,9 +206,24 @@ static double find_correspondent_object(double **d, int n_gt, int n_c, int *sol)
 }
 
 
-/*------------------------------------------------------------*/
-/* Load ground truth                                          */
-/*------------------------------------------------------------*/
+
+/* ############################################################################
+Name           : read_ground_truth
+Description    : Load ground truth.
+
+Arguments      Type           Description
+============== ============== =================================================
+
+Return Values                 Description
+============================= =================================================
+
+Globals        Type           Description
+============== ============== =================================================
+
+Locals         Type           Description
+============== ============== =================================================
+
+############################################################################ */
 static object *read_ground_truth(const char *filename, int *n)
 {
 	int c, i;
@@ -155,10 +246,24 @@ static object *read_ground_truth(const char *filename, int *n)
 }
 
 
-/*------------------------------------------------------------*/
-/* Calculate F-measure basend on the label correspondences    */
-/* and the representative bounding boxes                      *
-/*------------------------------------------------------------*/
+/* ############################################################################
+Name           : calculate_f_measure
+Description    : Calculate F-measure basend on the label correspondences and 
+                 the representative bounding boxes.
+
+Arguments      Type           Description
+============== ============== =================================================
+
+Return Values                 Description
+============================= =================================================
+
+Globals        Type           Description
+============== ============== =================================================
+
+Locals         Type           Description
+============== ============== =================================================
+
+############################################################################ */
 static int *calculate_f_measure(object *gt, int n_gt, object *c, int n_c, int *corr, double *F, int *n_lab, int *n_cls)
 {
 	int i, j, k;
@@ -273,6 +378,23 @@ static int *calculate_f_measure(object *gt, int n_gt, object *c, int n_c, int *c
 }
 
 
+/* ############################################################################
+Name           : evaluate
+Description    : Evaluate function.
+
+Arguments      Type           Description
+============== ============== =================================================
+
+Return Values                 Description
+============================= =================================================
+
+Globals        Type           Description
+============== ============== =================================================
+
+Locals         Type           Description
+============== ============== =================================================
+
+############################################################################ */
 void evaluate(object *c, int n_c, const char *filename)
 {
 	int i, j;

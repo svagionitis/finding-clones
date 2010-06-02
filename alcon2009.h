@@ -1,3 +1,18 @@
+/* ############################################################################
+Name           : alcon2009.h
+Company        : ALCON 2009
+Project        : Finding Clones
+Programmer     : ALCON 2009
+Revisor        : S. Vagionitis
+Description    : Description of basic structures and basic functions declaration.
+
+
+Programmer     Date           Action
+============== ============== =================================================
+S. Vagionitis  02/06/2010     Creation
+
+############################################################################ */
+
 #ifndef __ALCON2009_H__
 #define __ALCON2009_H__
 
@@ -8,8 +23,8 @@
 typedef struct object_t {
 	int label;	/* label */
 	int rep;	/* representative flag(1:yes,0:no) */
-	int x1, y1; /* upper-left corner */
-	int x2, y2; /* lower-right corner */
+	int x1, y1;	/* upper-left corner */
+	int x2, y2;	/* lower-right corner */
 } object;
 
 unsigned char *load_ppm(const char *filename, int *width, int *height);
