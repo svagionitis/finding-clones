@@ -19,7 +19,6 @@ S. Vagionitis  02/06/2010     Creation
 /* line width for boundingbox */
 #define LINE_WIDTH 4
 
-
 typedef struct object_t {
 	int label;	/* label */
 	int rep;	/* representative flag(1:yes,0:no) */

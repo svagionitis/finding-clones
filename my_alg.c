@@ -1,3 +1,25 @@
+/* ############################################################################
+Name           : my_alg.c
+Company        : ALCON 2009
+Project        : Finding Clones
+Programmer     : ALCON 2009
+Revisor        : S. Vagionitis
+Description    : Algorithm Functions
+
+Procedure                     Description
+============================= =================================================
+
+Globals        Type           Description
+============== ============== =================================================
+
+
+Programmer     Date           Action
+============== ============== =================================================
+S. Vagionitis  04/06/2010     Creation
+
+############################################################################ */
+
+#define __MY_ALG_C__
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
