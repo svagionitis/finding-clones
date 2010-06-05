@@ -23,4 +23,4 @@ my_alg.o: my_alg.c
 
 .PHONY: clean
 clean:
-	$(RM) $(objs)
+	$(RM) $(objs) $(program)
