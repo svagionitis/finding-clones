@@ -40,20 +40,35 @@ S. Vagionitis  04/06/2010     Creation
 
 /* ############################################################################
 Name           : read_pnm_header
-Description    : Read a PNM file header.
+Description    : Read a PNM file header. "P5" is header for PGM (grayscale), 
+                 "P6" is header for PPM (color).
+
 
 Arguments      Type           Description
 ============== ============== =================================================
+f(IN)          FILE *         File descriptor of the image.
+w(OUT)         int *          Width of the image.
+h(OUT)         int *          Height of the image.
+max(OUT)       int *          The maximum value of the colour components for 
+                              the pixels.
 
 Return Values                 Description
 ============================= =================================================
+FALSE                         If wrong "magic" ppm identifier.
+FALSE                         If width or height is less than zero.
+FALSE                         If the maximum value of colour components for 
+                              pixels is more than 255.
+ret                           The "magic" ppm identifier, could be 6 or 5, from 
+                              P6 or P5 respectively.
 
 Globals        Type           Description
 ============== ============== =================================================
 
 Locals         Type           Description
 ============== ============== =================================================
-
+buf            char[]         Buffer for image header.
+ret            int            The "magic" ppm identifier, could be 6 or 5, from 
+                              P6 or P5 respectively.
 ############################################################################ */
 static int read_pnm_header(FILE *f, int *w, int *h, int *max)
 {
@@ -87,19 +102,31 @@ static int read_pnm_header(FILE *f, int *w, int *h, int *max)
 
 /* ############################################################################
 Name           : load_ppm
-Description    : Read PPM binary file (needs to free the return pointer).
+Description    : Read PPM binary file (needs to free the return pointer). Load 
+                 the image data in memory.
 
-Arguments      Type           Description
-============== ============== =================================================
+Arguments      Type                 Description
+============== ===================  ===========================================
+filename(IN)   unsigned char *      Filename of the image file.
+width(OUT)     int *                Width of the image.
+height(OUT)    int *                Height of the image.
 
-Return Values                 Description
-============================= =================================================
+Return Values                       Description
+==================================  ===========================================
+data                                The image data.
 
-Globals        Type           Description
-============== ============== =================================================
+Globals        Type                 Description
+============== ===================  ===========================================
 
-Locals         Type           Description
-============== ============== =================================================
+Locals         Type                 Description
+============== ===================  ===========================================
+data           unsigned char *      The image data.
+max            int                  The maximum value of the colour components 
+                                    for the pixels.
+w              int                  The width of the image.
+h              int                  The height of the image.
+c              size_t               The total number of elements successfully 
+                                    read from image file.
 
 ############################################################################ */
 unsigned char *load_ppm(const char *filename, int *width, int *height)
@@ -133,19 +160,31 @@ unsigned char *load_ppm(const char *filename, int *width, int *height)
 
 /* ############################################################################
 Name           : load_pgm
-Description    : Read PGM binary file (needs to free the return pointer).
+Description    : Read PGM binary file (needs to free the return pointer).Load 
+                 the image data in memory.
 
-Arguments      Type           Description
-============== ============== =================================================
+Arguments      Type                 Description
+============== ===================  ===========================================
+filename(IN)   unsigned char *      Filename of the image file.
+width(OUT)     int *                Width of the image.
+height(OUT)    int *                Height of the image.
 
-Return Values                 Description
-============================= =================================================
+Return Values                       Description
+==================================  ===========================================
+data                                The image data.
 
-Globals        Type           Description
-============== ============== =================================================
+Globals        Type                 Description
+============== ===================  ===========================================
 
-Locals         Type           Description
-============== ============== =================================================
+Locals         Type                 Description
+============== ===================  ===========================================
+data           unsigned char *      The image data.
+max            int                  The maximum value of the colour components 
+                                    for the pixels.
+w              int                  The width of the image.
+h              int                  The height of the image.
+c              size_t               The total number of elements successfully 
+                                    read from image file.
 
 ############################################################################ */
 unsigned char *load_pgm(const char *filename, int *width, int *height)
@@ -181,17 +220,25 @@ unsigned char *load_pgm(const char *filename, int *width, int *height)
 Name           : save_ppm
 Description    : Save into PPM binary file.
 
-Arguments      Type           Description
-============== ============== =================================================
+Arguments      Type                 Description
+============== ===================  ===========================================
+filename(IN)   unsigned char *      Filename of the image file.
+width(IN)      int                  Width of the image.
+height(IN)     int                  Height of the image.
+data(IN)       unsigned char *      The image data.
 
-Return Values                 Description
-============================= =================================================
+Return Values                       Description
+==================================  ===========================================
+TRUE                                If everything OK.
+FALSE                               If file descriptor is not OK or could not 
+                                    write to the file.
 
-Globals        Type           Description
-============== ============== =================================================
+Globals        Type                 Description
+============== ===================  ===========================================
 
-Locals         Type           Description
-============== ============== =================================================
+Locals         Type                 Description
+============== ===================  ===========================================
+f              FILE *               The image file descriptor.
 
 ############################################################################ */
 int save_ppm(const char *filename, int width, int height, unsigned char *data)
@@ -211,17 +258,25 @@ int save_ppm(const char *filename, int width, int height, unsigned char *data)
 Name           : save_pgm
 Description    : Save into PGM binary file.
 
-Arguments      Type           Description
-============== ============== =================================================
+Arguments      Type                 Description
+============== ===================  ===========================================
+filename(IN)   unsigned char *      Filename of the image file.
+width(IN)      int                  Width of the image.
+height(IN)     int                  Height of the image.
+data(IN)       unsigned char *      The image data.
 
-Return Values                 Description
-============================= =================================================
+Return Values                       Description
+==================================  ===========================================
+TRUE                                If everything OK.
+FALSE                               If file descriptor is not OK or could not 
+                                    write to the file.
 
-Globals        Type           Description
-============== ============== =================================================
+Globals        Type                 Description
+============== ===================  ===========================================
 
-Locals         Type           Description
-============== ============== =================================================
+Locals         Type                 Description
+============== ===================  ===========================================
+f              FILE *               The image file descriptor.
 
 ############################################################################ */
 int save_pgm(const char *filename, int width, int height, unsigned char *data)

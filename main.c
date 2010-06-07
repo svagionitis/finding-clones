@@ -63,10 +63,43 @@ static unsigned char ALCON2009_COL_B[10] = {  0,   0, 255,   0, 255, 255,   0, 1
 	}
 #endif
 
-/*-----------------------------------------------------------
- * Draw a rectangle by specifying its color(r,g,b),
- * upper-left corner(x1, y1), and lower-right corner(x2, y2)
- *-----------------------------------------------------------*/
+/* ############################################################################
+Name           : alcon2009_draw_rectangle
+Description    : Draw a rectangle by specifying its color(r,g,b), upper-left 
+                 corner(x1, y1), and lower-right corner(x2, y2).
+
+Arguments      Type             Description
+============== ================ ===============================================
+image          unsigned char *  The image data.
+width          int              The width of the image.
+height         int              The height of the image.
+x1             int              The upper-left corner x-coordinate.
+y1             int              The upper-left corner y-coordinate.
+x2             int              The lower-left corner x-coordinate.
+y2             int              The lower-left corner y-coordinate.
+r, g, b        unsigned char    The red, green and blue values of the 
+                                rectangle.
+
+Return Values                   Description
+=============================== ===============================================
+
+Globals        Type             Description
+============== ================ ===============================================
+
+Locals         Type             Description
+============== ================ ===============================================
+i              int              Counter for y coordinates.
+w              int              Counter for the line width.
+xx1            int              The values of x-coordinate of upper-left 
+                                corner.
+xx2            int              The values of x-coordinate of lower-right 
+                                corner.
+yy1            int              The values of y-coordinate of upper-left 
+                                corner.
+yy2            int              The values of y-coordinate of lower-right 
+                                corner.
+
+############################################################################ */
 static void alcon2009_draw_rectangle
 	(unsigned char *image, int width, int height, 
 	 int x1, int y1, int x2, int y2, 

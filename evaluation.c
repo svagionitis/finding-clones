@@ -103,7 +103,7 @@ static void create_candidate_list(object *gt, int n_gt, object *c, int n_c, doub
 			d2 = sqrt((gt_x2-c_x2)*(gt_x2-c_x2) + (gt_y2-c_y2)*(gt_y2-c_y2));
 
 			/* Put the detected bounding box into a candiate list 
-			 * if it satisfies the fillowing conditions. Here 
+			 * if it satisfies the following conditions. Here 
 			 *    pro_a : area overlapped
 			 *    gt_a  : area of the correct bounding box
 			 *    c_a   : area of the detected bounding box
