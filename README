@@ -29,16 +29,18 @@ Source Files
 
 This project includes the following files:
 
-Filename        Type of file            Comment
---------        ------------            -------
-alcon2009.h     Contest file            A general purpose header file with structures necessary 
-                                        for the other source files of the contest.
-evaluation.h    Contest file            A header file for evaluating the implemented algorithms.
-evaluation.c    Contest file            The source file for evaluating the implemented algorithms.
-pnm.h           Contest file            Header file for reading pnm images.
-pnm.c           Contest file            The source file for reading pnm images.
-main.c          Contest file            The main source file.
-my_alg.c        Contest file            The source file for implementing the algorithms.
-makefile        Contest file            The make file for building the project.
+Filename                      Type of file            Description
+--------                      -------------           ------------
+alcon2009.h                   Contest file            A general purpose header file with structures necessary 
+                                                      for the other source files of the contest.
+evaluation.h                  Contest file            A header file for evaluating the implemented algorithms.
+evaluation.c                  Contest file            The source file for evaluating the implemented algorithms.
+pnm.h                         Contest file            Header file for reading pnm images.
+pnm.c                         Contest file            The source file for reading pnm images.
+main.c                        Contest file            The main source file.
+my_alg.c                      Contest file            The source file for implementing the algorithms.
+makefile                      Contest file            The make file for building the project.
+PPM_PGM_PBM_File_format.txt   Info/Text file          Information regarding the structure of PPM/PGM/PBM file
+                                                      format.
 
 
