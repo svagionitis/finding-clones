@@ -52,8 +52,13 @@ Description    : Create candidate lists of bounding boxes that correspond to
                  each correct bounding box. Thus, a separage list is created 
                  for each correct bounding box.
 
-Arguments      Type           Description
-============== ============== =================================================
+Arguments       Type           Description
+=============== ============== =================================================
+gt              object *       Correct objects from the groundtruth file.
+n_gt            int            Number of objects from groundtruth file.
+c               onject *       Detected objects.
+n_c             int            Number of detected objects.
+cand_list(OUT)  double **      Candidate list.
 
 Return Values                 Description
 ============================= =================================================
@@ -63,6 +68,9 @@ Globals        Type           Description
 
 Locals         Type           Description
 ============== ============== =================================================
+i, j           int            General purpose indexes.
+gt_r           double         True negative area rate.
+c_r            double         False positive area rate.
 
 ############################################################################ */
 static void create_candidate_list(object *gt, int n_gt, object *c, int n_c, double **cand_list)
@@ -102,7 +110,7 @@ static void create_candidate_list(object *gt, int n_gt, object *c, int n_c, doub
 			d1 = sqrt((gt_x1-c_x1)*(gt_x1-c_x1) + (gt_y1-c_y1)*(gt_y1-c_y1));
 			d2 = sqrt((gt_x2-c_x2)*(gt_x2-c_x2) + (gt_y2-c_y2)*(gt_y2-c_y2));
 
-			/* Put the detected bounding box into a candiate list 
+			/* Put the detected bounding box into a candidate list 
 			 * if it satisfies the following conditions. Here 
 			 *    pro_a : area overlapped
 			 *    gt_a  : area of the correct bounding box
@@ -123,9 +131,19 @@ Description    : Find the optimal correspondences by backtracking.
 
 Arguments      Type           Description
 ============== ============== =================================================
+cand           double **
+n_gt           int            Number of objects from groundtruth file.
+n_c            int            Number of detected objects.
+curr           int
+used           int *
+d              double
+min_d          double
+sol            int *
 
 Return Values                 Description
 ============================= =================================================
+mid_d
+d
 
 Globals        Type           Description
 ============== ============== =================================================
@@ -178,15 +196,25 @@ Description    : Find the object that gives the smallest total distance from
 
 Arguments      Type           Description
 ============== ============== =================================================
+d              double **
+n_gt           int            Number of objects in groundtruth file.
+n_c            int            Number of detected objects.
+sol            int *
 
 Return Values                 Description
 ============================= =================================================
+min                           Minimum distance between a detected object and a 
+                              correct object.
 
 Globals        Type           Description
 ============== ============== =================================================
 
 Locals         Type           Description
 ============== ============== =================================================
+i              int            General purpose index.
+used           int *
+min            double         Minimum distance between a detected object and a 
+                              correct object.
 
 ############################################################################ */
 static double find_correspondent_object(double **d, int n_gt, int n_c, int *sol)
@@ -209,19 +237,28 @@ static double find_correspondent_object(double **d, int n_gt, int n_c, int *sol)
 
 /* ############################################################################
 Name           : read_ground_truth
-Description    : Load ground truth.
+Description    : Load ground truth. Read the groundtruth files which include 
+                 the correct bounding boxes of the objects in the image.
 
 Arguments      Type           Description
 ============== ============== =================================================
+filename(IN)   const char *   The filename of the groundtruth file.
+n(OUT)         int *          The number of objects in the groundtruth file.
 
 Return Values                 Description
 ============================= =================================================
+obj                           Total objects read from file and loaded in 
+                              memory.
 
 Globals        Type           Description
 ============== ============== =================================================
 
 Locals         Type           Description
 ============== ============== =================================================
+c              int            The number of objects in the groundtruth file.
+i              int            Index of the objects in the groundtruth file.
+obj            object *       Total objects in memory.
+f              FILE *         File descriptor of groundtruth file.
 
 ############################################################################ */
 static object *read_ground_truth(const char *filename, int *n)
@@ -253,6 +290,14 @@ Description    : Calculate F-measure basend on the label correspondences and
 
 Arguments      Type           Description
 ============== ============== =================================================
+gt             object *
+n_gt           int
+c              object *
+n_c            int
+corr           int *
+F              double *
+n_lab          int *
+n_cls          int *
 
 Return Values                 Description
 ============================= =================================================
@@ -384,6 +429,9 @@ Description    : Evaluate function.
 
 Arguments      Type           Description
 ============== ============== =================================================
+c              object *       Detected objects.
+n_c            int            Number of detected objects.
+filename       const char *   Groundtruth filename.
 
 Return Values                 Description
 ============================= =================================================
@@ -393,6 +441,18 @@ Globals        Type           Description
 
 Locals         Type           Description
 ============== ============== =================================================
+i, j           int            General purpose indexes.
+n_class        int
+n_label        int
+corr           int *
+class_result   int *
+d              double **
+min            double         Minimum distance between a detected object and a 
+                              correct object.
+F              double
+class_corr     int *
+gt             object *       The objects from the groundtruth file.
+n_gt           int            The number of objects in the grountruth file.
 
 ############################################################################ */
 void evaluate(object *c, int n_c, const char *filename)
