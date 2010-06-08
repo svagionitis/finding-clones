@@ -54,11 +54,11 @@ Description    : Create candidate lists of bounding boxes that correspond to
 
 Arguments       Type           Description
 =============== ============== =================================================
-gt              object *       Correct objects from the groundtruth file.
-n_gt            int            Number of objects from groundtruth file.
-c               onject *       Detected objects.
-n_c             int            Number of detected objects.
-cand_list(OUT)  double **      Candidate list.
+gt(IN)          object *       Correct objects from the groundtruth file.
+n_gt(IN)        int            Number of objects from groundtruth file.
+c(IN)           onject *       Detected objects.
+n_c(IN)         int            Number of detected objects.
+cand_list(OUT)  double **      Candidate list of distances.
 
 Return Values                 Description
 ============================= =================================================
@@ -131,13 +131,14 @@ Description    : Find the optimal correspondences by backtracking.
 
 Arguments      Type           Description
 ============== ============== =================================================
-cand           double **
-n_gt           int            Number of objects from groundtruth file.
-n_c            int            Number of detected objects.
-curr           int
-used           int *
-d              double
-min_d          double
+cand(IN)       double **      Candidate list of distances.
+n_gt(IN)       int            Number of objects from groundtruth file.
+n_c(IN)        int            Number of detected objects.
+curr(IN)       int            Current index for correct objects.
+used           int *          List of used flag for detected objects.
+d(IN)          double
+min_d(IN)      double         Minimum distance between a detected object and a 
+                              correct object.
 sol            int *
 
 Return Values                 Description
@@ -150,6 +151,10 @@ Globals        Type           Description
 
 Locals         Type           Description
 ============== ============== =================================================
+i              int            General purpose index.
+dist           double
+m              double         Minimum distance between a detected object and a 
+                              correct object.
 
 ############################################################################ */
 static double backtrack(double **cand, int n_gt, int n_c, int curr, int *used, double d, double min_d, int *sol)
@@ -196,7 +201,7 @@ Description    : Find the object that gives the smallest total distance from
 
 Arguments      Type           Description
 ============== ============== =================================================
-d              double **
+d              double **      Candidate list of distances.
 n_gt           int            Number of objects in groundtruth file.
 n_c            int            Number of detected objects.
 sol            int *
@@ -212,7 +217,7 @@ Globals        Type           Description
 Locals         Type           Description
 ============== ============== =================================================
 i              int            General purpose index.
-used           int *
+used           int *          List of used flag for detected objects.
 min            double         Minimum distance between a detected object and a 
                               correct object.
 
@@ -290,14 +295,14 @@ Description    : Calculate F-measure basend on the label correspondences and
 
 Arguments      Type           Description
 ============== ============== =================================================
-gt             object *
-n_gt           int
-c              object *
-n_c            int
+gt(IN)         object *       Correct objects from the groundtruth file.
+n_gt(IN)       int            Number of objects in groundtruth file.
+c(IN)          object *       Detected objects.
+n_c(IN)        int            Number of detected objects.
 corr           int *
-F              double *
-n_lab          int *
-n_cls          int *
+F(OUT)         double *
+n_lab(OUT)     int *          Maximum number of detected labels.
+n_cls(OUT)     int *          Number of correct labels in groundtruth.
 
 Return Values                 Description
 ============================= =================================================
@@ -442,8 +447,8 @@ Globals        Type           Description
 Locals         Type           Description
 ============== ============== =================================================
 i, j           int            General purpose indexes.
-n_class        int
-n_label        int
+n_class        int            Number of correct labels in groundtruth.
+n_label        int            Maximum number of detected labels.
 corr           int *
 class_result   int *
 d              double **
