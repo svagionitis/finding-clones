@@ -136,10 +136,10 @@ n_gt(IN)       int            Number of objects from groundtruth file.
 n_c(IN)        int            Number of detected objects.
 curr(IN)       int            Current index for correct objects.
 used           int *          List of used flag for detected objects.
-d(IN)          double
-min_d(IN)      double         Minimum distance between a detected object and a 
+d(OUT)         double
+min_d(OUT)     double         Minimum distance between a detected object and a 
                               correct object.
-sol            int *
+sol(OUT)       int *
 
 Return Values                 Description
 ============================= =================================================
