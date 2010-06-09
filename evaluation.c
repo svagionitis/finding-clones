@@ -307,7 +307,7 @@ n_cls(OUT)     int *          Number of correct labels in groundtruth.
 
 Return Values                 Description
 ============================= =================================================
-class_corr
+class_corr                    Calculate F-score.
 
 Globals        Type           Description
 ============== ============== =================================================
@@ -316,11 +316,14 @@ Locals         Type           Description
 ============== ============== =================================================
 i, j, k        int            General purpose indexes.
 ic             int *          Array for finding correctly detected objects.
-class_corr     int *
-num            int **
-n_class        int
-n_label        int
-f              double *
+class_corr     int *          Calculate F-score.
+num            int **         A cross-reference table.
+n_class        int            Number of correct labels.
+n_label        int            Maximum number of detected labels.
+f              double *       Calculate the F-measures based on the 
+                              cross-reference table. If more than one label 
+                              correspond to the correct label, choose the one 
+                              that gives the highest F-measure.
 
 ############################################################################ */
 static int *calculate_f_measure(object *gt, int n_gt, object *c, int n_c, int *corr, double *F, int *n_lab, int *n_cls)
@@ -384,7 +387,7 @@ static int *calculate_f_measure(object *gt, int n_gt, object *c, int n_c, int *c
 	/* Calculate the F-measures based on the cross-reference table */
 	/* If more than one label correspond to the correct label,     */
 	/* choose the one that gives the highest F-measure.            */
-	f = (double *)malloc(n_class * sizeof(double));	
+	f = (double *)malloc(n_class * sizeof(double));
 	for (i = 0; i < n_class; i++) f[i] = 0.0;
 	for (i = 0; i < n_label; i++) {
 		double f_meas;
@@ -459,12 +462,12 @@ i, j           int            General purpose indexes.
 n_class        int            Number of correct labels in groundtruth.
 n_label        int            Maximum number of detected labels.
 corr           int *          A list of indexes of correct objects.
-class_result   int *
+class_result   int *          Correct labels for showing the result.
 d              double **      Candidate list of distances.
 min            double         Minimum distance between a detected object and a 
                               correct object.
 F              double         Calculate F-score.
-class_corr     int *
+class_corr     int *          Calculate F-score.
 gt             object *       The objects from the groundtruth file.
 n_gt           int            The number of objects in the grountruth file.
 
