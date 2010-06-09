@@ -16,7 +16,7 @@ backtrack                     Find the optimal correspondences by backtracking.
 find_correspondent_object     Find the object that gives the smallest total 
                               distance from the correct bounding box.
 read_ground_truth             Load ground truth.
-calculate_f_measure           Calculate F-measure basend on the label 
+calculate_f_measure           Calculate F-measure based on the label 
                               correspondences and the representative bounding 
                               boxes.
 evaluate                      Evaluate function.
@@ -136,15 +136,16 @@ n_gt(IN)       int            Number of objects from groundtruth file.
 n_c(IN)        int            Number of detected objects.
 curr(IN)       int            Current index for correct objects.
 used           int *          List of used flag for detected objects.
-d(OUT)         double
+d(OUT)         double         Distance...
 min_d(OUT)     double         Minimum distance between a detected object and a 
                               correct object.
-sol(OUT)       int *
+sol(OUT)       int *          A list of indexes of correct objects.
 
 Return Values                 Description
 ============================= =================================================
-mid_d
-d
+mid_d                         Minimum distance between a detected object and a 
+                              correct object.
+d                             Distance...
 
 Globals        Type           Description
 ============== ============== =================================================
@@ -152,7 +153,7 @@ Globals        Type           Description
 Locals         Type           Description
 ============== ============== =================================================
 i              int            General purpose index.
-dist           double
+dist           double         Distance...
 m              double         Minimum distance between a detected object and a 
                               correct object.
 
@@ -204,7 +205,7 @@ Arguments      Type           Description
 d              double **      Candidate list of distances.
 n_gt           int            Number of objects in groundtruth file.
 n_c            int            Number of detected objects.
-sol            int *
+sol            int *          A list of indexes of correct objects.
 
 Return Values                 Description
 ============================= =================================================
@@ -299,19 +300,27 @@ gt(IN)         object *       Correct objects from the groundtruth file.
 n_gt(IN)       int            Number of objects in groundtruth file.
 c(IN)          object *       Detected objects.
 n_c(IN)        int            Number of detected objects.
-corr           int *
-F(OUT)         double *
+corr           int *          A list of indexes of correct objects.
+F(OUT)         double *       Calculate F-score.
 n_lab(OUT)     int *          Maximum number of detected labels.
 n_cls(OUT)     int *          Number of correct labels in groundtruth.
 
 Return Values                 Description
 ============================= =================================================
+class_corr
 
 Globals        Type           Description
 ============== ============== =================================================
 
 Locals         Type           Description
 ============== ============== =================================================
+i, j, k        int            General purpose indexes.
+ic             int *          Array for finding correctly detected objects.
+class_corr     int *
+num            int **
+n_class        int
+n_label        int
+f              double *
 
 ############################################################################ */
 static int *calculate_f_measure(object *gt, int n_gt, object *c, int n_c, int *corr, double *F, int *n_lab, int *n_cls)
@@ -449,12 +458,12 @@ Locals         Type           Description
 i, j           int            General purpose indexes.
 n_class        int            Number of correct labels in groundtruth.
 n_label        int            Maximum number of detected labels.
-corr           int *
+corr           int *          A list of indexes of correct objects.
 class_result   int *
-d              double **
+d              double **      Candidate list of distances.
 min            double         Minimum distance between a detected object and a 
                               correct object.
-F              double
+F              double         Calculate F-score.
 class_corr     int *
 gt             object *       The objects from the groundtruth file.
 n_gt           int            The number of objects in the grountruth file.
