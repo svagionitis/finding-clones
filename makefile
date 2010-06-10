@@ -4,7 +4,7 @@ objs = main.o evaluation.o pnm.o my_alg.o
 CC = gcc
 CFLAGS = -Wall -ansi -O2
 LDFLAGS = -lm
-RM = rm
+RM = rm -f
 
 $(program): $(objs)
 	$(CC) $(LDFLAGS) $(CFLAGS) -o $(program) $(objs)

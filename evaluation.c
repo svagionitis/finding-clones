@@ -525,8 +525,8 @@ void evaluate(object *c, int n_c, const char *filename)
 		
 	/* display the result */
 	printf("\n");
-	printf("           Detected bounding boxes                             Correct bounding box\n");
-	printf("     Upper-left     Lower-right   Label  ->   Upper-left     Lower-right   Label  Result\n");
+	printf("       Detected bounding boxes                     Correct bounding box\n");
+	printf("   Upper-left   Lower-right   Label  ->  Upper-left   Lower-right   Label  Result\n");
 	for (i = 0; i < n_c; i++) {
 		int rep = (c[i].rep) ? 'o' : ' ';
 		int g = -1;

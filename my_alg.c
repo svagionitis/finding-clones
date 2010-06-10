@@ -181,6 +181,10 @@ Globals        Type             Description
 Locals         Type             Description
 ============== ================ ===============================================
 x, y           int              General purpose indexes.
+s              int              Object to be replaced.
+count
+val            int              Count new objects.
+u, l           int              Above pixel, left pixel.
 
 ############################################################################ */
 int assign_id(unsigned char *img, int width, int height, int **obj_id)
