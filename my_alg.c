@@ -8,6 +8,13 @@ Description    : Algorithm Functions
 
 Procedure                     Description
 ============================= =================================================
+replace_obj_id                Replace objects with IDs.
+assign_id                     Assign ID to each object(area).
+find_rect                     Find a bounding box for each object.
+calculate_area                Calculate the area of the object.
+calculate_length              Calculate the perimeter length.
+k_means                       Clustering by k-means algorithm.
+
 
 Globals        Type           Description
 ============== ============== =================================================
@@ -114,9 +121,29 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 }
 
 
-/*************************************************************
- * replace objects with IDs                                  *
- *************************************************************/
+/* ############################################################################
+Name           : replace_obj_id
+Description    : Replace objects with IDs.
+
+Arguments      Type             Description
+============== ================ ===============================================
+obj_id(IN,OUT) int **           The array of objects to be replaced.
+n(IN)          int              ID to replace object.
+t(IN)          int              Object to be replaced.
+width(IN)      int              Width of object area.
+height(IN)     int              Height of object area.
+
+Return Values                   Description
+=============================== ===============================================
+
+Globals        Type             Description
+============== ================ ===============================================
+
+Locals         Type             Description
+============== ================ ===============================================
+x, y           int              General purpose indexes.
+
+############################################################################ */
 void replace_obj_id(int **obj_id, int n, int t, int width, int height)
 {
 	int x, y;
@@ -133,6 +160,29 @@ void replace_obj_id(int **obj_id, int n, int t, int width, int height)
 /*************************************************************
  * Assign ID to each object(area)                            *
  *************************************************************/
+/* ############################################################################
+Name           : assign_id
+Description    : Assign ID to each object(area).
+
+Arguments      Type             Description
+============== ================ ===============================================
+img(IN)        unsigned char *  Pixel values.
+width(IN)      int              Width of object area.
+height(IN)     int              Height of object area.
+obj_id(IN)     int **           The array of objects to be replaced.
+
+Return Values                   Description
+=============================== ===============================================
+count
+
+Globals        Type             Description
+============== ================ ===============================================
+
+Locals         Type             Description
+============== ================ ===============================================
+x, y           int              General purpose indexes.
+
+############################################################################ */
 int assign_id(unsigned char *img, int width, int height, int **obj_id)
 {
 	int x, y, s;
