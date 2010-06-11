@@ -34,7 +34,9 @@ S. Vagionitis  04/06/2010     Creation
 #include <float.h>
 
 #include "alcon2009.h"
-
+#include "alg_lvl1.h"
+#include "alg_lvl2.h"
+#include "alg_lvl3.h"
 
 #define PI  3.1415926535897932384626433832795
 #define RT2 1.4142135623730950488016887242097 /* = sqrt(2.0) */
@@ -70,6 +72,20 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	int **obj_id = (int **)malloc(height*sizeof(int *));
 	for (i = 0; i < height; i++) obj_id[i] = (int *)malloc(width*sizeof(int));
+
+
+
+
+	unsigned char *****simg_data = NULL;
+	create_sub_images(image, width, height, M/2, simg_data);
+
+
+
+
+
+
+
+
 
 	/* assign ID to each object and returns the number of objects */
 	n = assign_id(mask, width, height, obj_id);

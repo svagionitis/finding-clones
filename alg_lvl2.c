@@ -21,4 +21,8 @@ S. Vagionitis  10/06/2010     Creation
 ############################################################################ */
 
 #define __ALG_LVL2_C__
+#include <stdio.h>
+#include <stdlib.h>
+
+#include "alg_lvl2.h"
 

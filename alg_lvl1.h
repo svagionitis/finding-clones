@@ -14,8 +14,6 @@ S. Vagionitis  10/06/2010     Creation
 ############################################################################ */
 #ifndef __ALG_LVL1_H__
 #define __ALG_LVL1_H__
-#include <stdio.h>
-#include <stdlib.h>
 
 #ifndef TRUE
 #define TRUE 1
