@@ -45,54 +45,82 @@ Globals            Type           Description
 
 Locals             Type           Description
 ================== ============== =============================================
-i, j, k, l         unsigned int
-steps              unsigned int
+i, j, k, l, m      unsigned int
+step_per_subimage  unsigned int
 width_subimages    unsigned int
 height_subimages   unsigned int
 
 ############################################################################ */
-int create_sub_images(unsigned char *image_data, int width, int height, unsigned int shift_step, unsigned char ****subimage_data)
+int create_sub_images(unsigned char *image_data, int width, int height, unsigned int shift_step, unsigned char *****subimage_data)
 {
-unsigned int i = 0, j = 0, k = 0, l = 0;
+unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
 
-unsigned int steps = M / shift_step;
-unsigned int width_subimages = steps * (width / M);
-unsigned int height_subimages = steps * (height / M);
+unsigned int step_per_subimage = M / shift_step;
+unsigned int width_subimages = step_per_subimage * (width / M);
+unsigned int height_subimages = step_per_subimage * (height / M);
 
-/* Allocate memory for subimge data*/
-subimage_data = (unsigned char ****)malloc(width_subimages * sizeof(unsigned char ***));
+/* Allocate memory for subimage data*/
+subimage_data = (unsigned char *****)malloc(width_subimages * sizeof(unsigned char ****));
 if (subimage_data == NULL){
-	printf("Could not allocate %d bytes.\n", (width_subimages * sizeof(unsigned char ***)));
+	printf("Could not allocate %d bytes.\n", (width_subimages * sizeof(unsigned char ****)));
 	return FALSE;
 	}
 else{
 	for (i = 0;i<width_subimages;i++){
-		subimage_data[i] = (unsigned char ***)malloc(height_subimages * sizeof(unsigned char **));
+		subimage_data[i] = (unsigned char ****)malloc(height_subimages * sizeof(unsigned char ***));
 		if (subimage_data[i] == NULL){
-			printf("Could not allocate %d bytes for i=%d index.\n", (height_subimages * sizeof(unsigned char **)), i);
+			printf("Could not allocate %d bytes for i=%d index.\n", (height_subimages * sizeof(unsigned char ***)), i);
 			return FALSE;
 			}
 		else{
 			for (j=0;j<height_subimages;j++){
-				subimage_data[i][j] = (unsigned char **)malloc(M * sizeof(unsigned char *));
+				subimage_data[i][j] = (unsigned char ***)malloc(M * sizeof(unsigned char **));
 				if (subimage_data[i][j] == NULL){
-					printf("Could not allocate %d bytes for j=%d index.\n", (M * sizeof(unsigned char *)), j);
+					printf("Could not allocate %d bytes for j=%d index.\n", (M * sizeof(unsigned char **)), j);
 					return FALSE;
 					}
 				else{
 					for(k=0;k<M;k++){
-						subimage_data[i][j][k] = (unsigned char *)malloc(M * sizeof(unsigned char));
+						subimage_data[i][j][k] = (unsigned char **)malloc(M * sizeof(unsigned char *));
 						if (subimage_data[i][j][k] == NULL){
 							printf("Could not allocate %d bytes for k=%d index.\n", (M * sizeof(unsigned char)), k);
 							return FALSE;
 							}
-						}//for k
-					}//else subimage_data[i][j]
-				}//for j
-			}//else subimage_data[i]
-		}//for i
-	}//else subimage_data
+						else{
+							for(l=0;l<M;l++){
+								subimage_data[i][j][k][l] = (unsigned char *)malloc(3 * sizeof(unsigned char));
+								if (subimage_data[i][j][k][l] == NULL){
+									printf("Could not allocate %d bytes for l=%d index.\n", (3 * sizeof(unsigned char)), l);
+									return FALSE;
+									}
+								}/*for l*/
+							}/*else subimage_data[i][j][k]*/
+						}/*for k*/
+					}/*else subimage_data[i][j]*/
+				}/*for j*/
+			}/*else subimage_data[i]*/
+		}/*for i*/
+
+	printf("Allocated %d bytes.\n", (width_subimages * height_subimages * M * M * sizeof(unsigned char)));
+	}/*else subimage_data*/
 
 
+unsigned int x = 0, y = 0;
+/* Populate subimage data*/
+for(i=0;i<width_subimages;i++){/*Width coordinate of subimage*/
+	for (j=0;j<height_subimages;j++){/*Height coordinate of subimage*/
+		for(k=0;k<M;k++){
+			for(l=0;l<M;l++){
+				for(m=0;m<M;m++){
+					x = k + shift_step*i;
+					y = l + shift_step*y;
+					subimage_data[i][j][k][l][m] = image_data[(x + y*width)*3+m];
+					}
+				}
+			}
+		}
+	}
 
+
+return TRUE;
 }

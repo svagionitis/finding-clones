@@ -17,12 +17,21 @@ S. Vagionitis  10/06/2010     Creation
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifndef TRUE
+#define TRUE 1
+#endif
+#ifndef FALSE
+#define FALSE 0
+#endif
+
 /*
  * M x M regions that image will be divided. 
  * We could use also 24, 18 and 12 as stated in the paper.
  */
 #define M 32
 
+
+int create_sub_images(unsigned char *, int, int, unsigned int, unsigned char *****);
 
 #endif
 
