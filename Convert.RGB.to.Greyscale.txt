@@ -1,0 +1,28 @@
+/*
+In this formula R, G and B stand for intensities of the red, green and blue,
+respectively. This formula also gives the impact of individual color changes
+on the overall grey level and indicates the significance of the green
+component.(This was used in my diploma thesis. Used for video processing.)
+*/
+GREY = 0.2110 ∗ R + 0.7150 ∗ G + 0.0740 ∗ B
+/*
+http://en.wikipedia.org/wiki/Luma_(video)
+*/
+GREY = 0.2126 * R + 0.7152 * G + 0.0722 * B
+
+
+/*
+There is no one "correct" conversion from RGB to grayscale, since it depends 
+on the sensitivity response curve of your detector to light as a function of 
+wavelength.(Used in the Gimp for greyscale conversion)
+The weights used to compute luminance are related to the monitor's phosphors. 
+The explanation for these weights is due to the fact that for equal amounts of 
+color the eye is most sensitive to green, then red, and then blue. This means that 
+for equal amounts of green and blue light the green will, nevertheless, seem much 
+brighter. Thus, the image obtained by the normal averaging of an image's three color 
+components produces a grayscale brightness that is not perceptually equivalent to the 
+brightness of the original color image. The weighted sum that defines GREY, however, does. 
+*/
+GREY = 0.3000 * R + 0.5900 * G + 0.1100 * B
+/*The formula below is used by Matlab for conversion*/
+GREY = 0.2989 * R + 0.5870 * G + 0.1140 * B
