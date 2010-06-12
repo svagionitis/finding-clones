@@ -29,7 +29,8 @@ S. Vagionitis  10/06/2010     Creation
 
 /* ############################################################################
 Name           : create_sub_images
-Description    : 
+Description    : Take as input the original image and create the subimages 
+                 according to the algorithm of the paper.
 
 
 Arguments          Type                Description
@@ -132,7 +133,7 @@ for(i=0;i<width_subimages;i++){/*Width coordinate of subimage*/
 					x = (k + ssi);
 					y = (l + ssj);
 					subimage_data[i][j][k][l][m] = image_data[(y + x*M)*3 + m];
-					printf("[%d %d %d %d %d] - [%d %d] %d\n", i, j, k, l, m, x, y, ((x*M + y)*3+m));
+					//printf("[%d %d %d %d %d] - [%d %d] %d\n", i, j, k, l, m, x, y, ((x*M + y)*3+m));
 					}/*m*/
 				}/*l*/
 			}/*k*/
@@ -142,3 +143,4 @@ for(i=0;i<width_subimages;i++){/*Width coordinate of subimage*/
 
 return TRUE;
 }
+
