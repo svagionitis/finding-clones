@@ -30,7 +30,8 @@ S. Vagionitis  10/06/2010     Creation
 /* ############################################################################
 Name           : create_sub_images
 Description    : Take as input the original image and create the subimages 
-                 according to the algorithm of the paper.
+                 according to the algorithm of the paper. The subimages are 
+                 colored.
 
 
 Arguments          Type                Description
@@ -44,16 +45,18 @@ subimage_data(OUT) unsigned char ***** Subimages data.
 
 Return Values                          Description
 ====================================== ========================================
+TRUE                                   If all goes well.
+FALSE                                  If memory allocation fails.
 
-Globals            Type            Description
-================== =============== ============================================
+Globals            Type                Description
+================== =================== ========================================
 
-Locals             Type            Description
-================== =============== ============================================
-i, j, k, l, m      unsigned int
-step_per_subimage  unsigned int
-width_subimages    unsigned int
-height_subimages   unsigned int
+Locals             Type                Description
+================== =================== ========================================
+i, j, k, l, m      unsigned int        General purpose indexes.
+step_per_subimage  unsigned int        Shift step per subimage.
+width_subimages    unsigned int        Width coordinate of subimage.
+height_subimages   unsigned int        Height coordinate of subimage.
 
 ############################################################################ */
 int create_sub_images(unsigned char *image_data, int width, int height, unsigned int shift_step, unsigned char *****subimage_data)
@@ -117,7 +120,7 @@ else{
 			}/*else subimage_data[i]*/
 		}/*for i*/
 
-	printf("Allocated %d bytes.\n", (width_subimages * height_subimages * M * M * sizeof(unsigned char)));
+	printf("Allocated %d bytes for RGB subimages data.\n", (width_subimages * height_subimages * M * M * 3 * sizeof(unsigned char)));
 	}/*else subimage_data*/
 
 unsigned int x = 0, y = 0;
@@ -133,12 +136,95 @@ for(i=0;i<width_subimages;i++){/*Width coordinate of subimage*/
 					x = (k + ssi);
 					y = (l + ssj);
 					subimage_data[i][j][k][l][m] = image_data[(y + x*M)*3 + m];
-					//printf("[%d %d %d %d %d] - [%d %d] %d\n", i, j, k, l, m, x, y, ((x*M + y)*3+m));
+					/*printf("[%d %d %d %d %d] - [%d %d] %d\n", i, j, k, l, m, x, y, ((x*M + y)*3+m));*/
 					}/*m*/
 				}/*l*/
 			}/*k*/
 		}/*j*/
 	}/*i*/
+
+
+return TRUE;
+}
+
+
+/* ############################################################################
+Name           : convert_subimages_to_greyscale
+Description    : Convert RGB values of subimages to greyscale values.
+
+
+Arguments               Type                Description
+======================= =================== ===================================
+subimage_data(IN)       unsigned char ***** Subimages data with RGB values.
+width_subimages(IN)     unsigned int        Width coordinate of subimages.
+height_subimages(IN)    unsigned int        Height coordinate of subimages.
+grey_subimage_data(OUT) unsigned char ****  Subimages data with greyscale 
+                                            values.
+
+Return Values                               Description
+=========================================== ===================================
+TRUE                                        If all goes well.
+FALSE                                       If memory allocation fails.
+
+Globals                 Type                Description
+======================= =================== ===================================
+
+Locals                  Type                Description
+======================= =================== ===================================
+i, j, k, l              unsigned int        General purpose indexes.
+r, g, b                 unsigned char       RGB values.
+
+############################################################################ */
+int convert_subimages_to_greyscale(unsigned char *****subimage_data, unsigned int width_subimages, unsigned int height_subimages, unsigned char ****grey_subimage_data)
+{
+unsigned int i = 0, j = 0, k = 0, l = 0;
+unsigned char r = 0, g = 0, b = 0;
+
+/* Allocate memory for grey subimage data*/
+grey_subimage_data = (unsigned char ****)malloc(width_subimages * sizeof(unsigned char ***));
+if (grey_subimage_data == NULL){
+	printf("Could not allocate %d bytes.\n", (width_subimages * sizeof(unsigned char ***)));
+	return FALSE;
+	}
+else{
+	for (i = 0;i<width_subimages;i++){
+		grey_subimage_data[i] = (unsigned char ***)malloc(height_subimages * sizeof(unsigned char **));
+		if (grey_subimage_data[i] == NULL){
+			printf("Could not allocate %d bytes for i=%d index.\n", (height_subimages * sizeof(unsigned char **)), i);
+			return FALSE;
+			}
+		else{
+			for (j=0;j<height_subimages;j++){
+				grey_subimage_data[i][j] = (unsigned char **)malloc(M * sizeof(unsigned char *));
+				if (grey_subimage_data[i][j] == NULL){
+					printf("Could not allocate %d bytes for j=%d index.\n", (M * sizeof(unsigned char *)), j);
+					return FALSE;
+					}
+				else{
+					for(k=0;k<M;k++){
+						grey_subimage_data[i][j][k] = (unsigned char *)malloc(M * sizeof(unsigned char));
+						if (grey_subimage_data[i][j][k] == NULL){
+							printf("Could not allocate %d bytes for k=%d index.\n", (M * sizeof(unsigned char)), k);
+							return FALSE;
+							}
+						else{
+							/*Populate grey subimages.*/
+							for(l=0;l<M;l++){
+								r = subimage_data[i][j][k][l][0];
+								g = subimage_data[i][j][k][l][1];
+								b = subimage_data[i][j][k][l][2];
+								
+								grey_subimage_data[i][j][k][l] = GREYSCALE1(r, g, b);
+								}/*for l*/
+							}/*else grey_subimage_data[i][j][k]*/
+						}/*for k*/
+					}/*else grey_subimage_data[i][j]*/
+				}/*for j*/
+			}/*else grey_subimage_data[i]*/
+		}/*for i*/
+
+	printf("Allocated %d bytes for greyscale subimages data.\n", (width_subimages * height_subimages * M * M * sizeof(unsigned char)));
+	}/*else grey_subimage_data*/
 
 
 return TRUE;

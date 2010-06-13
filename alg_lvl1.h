@@ -29,8 +29,15 @@ S. Vagionitis  10/06/2010     Creation
 #define MIN3(a,b,c)	((a)<=(b) ? (a)<=(c)?(a):(c) : (b)<=(c)?(b):(c) )
 #define MAX3(a,b,c)	((a)>=(b) ? (a)>=(c)?(a):(c) : (b)>=(c)?(b):(c) )
 
-#define GREYSCALE1(r, g, b)	((0.2126 * (r)) + (0.7152 * (g)) + (0.0722 * (b)))
-#define GREYSCALE2(r, g, b)	((0.2989 * (r)) + (0.5870 * (g)) + (0.1140 * (b)))
+
+#define GREYSCALE1(r, g, b)	((unsigned char)(0.2126 * (double)(r)) + \
+                                 (unsigned char)(0.7152 * (double)(g)) + \
+                                 (unsigned char)(0.0722 * (double)(b)))
+
+#define GREYSCALE2(r, g, b)	((unsigned char)(0.2989 * (double)(r)) + \
+                                 (unsigned char)(0.5870 * (double)(g)) + \
+                                 (unsigned char)(0.1140 * (double)(b)))
+
 
 /*
  * M x M regions that image will be divided. 
@@ -40,6 +47,7 @@ S. Vagionitis  10/06/2010     Creation
 
 
 int create_sub_images(unsigned char *, int, int, unsigned int, unsigned char *****);
+int convert_subimages_to_greyscale(unsigned char *****, unsigned int, unsigned int, unsigned char ****);
 
 #endif
 

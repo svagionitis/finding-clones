@@ -76,8 +76,8 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 
 
-	unsigned char *****simg_data = NULL;
-	create_sub_images(image, width, height, M/2, simg_data);
+	unsigned char *****subimg_data = NULL;
+	create_sub_images(image, width, height, M/2, subimg_data);
 
 
 
