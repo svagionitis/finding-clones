@@ -45,9 +45,17 @@ S. Vagionitis  10/06/2010     Creation
  */
 #define M 32
 
+/*
+ * Number of pixels to shift the M x M window.
+*/
+/*#define SHIFT_STEP (M/2)*/
+#define SHIFT_STEP (M)
 
-int create_sub_images(unsigned char *, int, int, unsigned int, unsigned char *****);
-int convert_subimages_to_greyscale(unsigned char *****, unsigned int, unsigned int, unsigned char ****);
+
+int create_sub_images(unsigned char *, int, int, unsigned int *, unsigned int *);
+int export_ppm_subimages_rgb(unsigned int, unsigned int);
+
+extern unsigned char *****subimage_data;
 
 #endif
 

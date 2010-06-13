@@ -76,8 +76,10 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 
 
-	unsigned char *****subimg_data = NULL;
-	create_sub_images(image, width, height, M/2, subimg_data);
+	unsigned int width_sub = 0, height_sub = 0;
+	create_sub_images(image, width, height, &width_sub, &height_sub);
+
+	export_ppm_subimages_rgb(width_sub, height_sub);
 
 
 
