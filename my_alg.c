@@ -79,9 +79,9 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	unsigned int width_sub = 0, height_sub = 0;
 	create_sub_images(image, width, height, &width_sub, &height_sub);
 
-	//export_ppm_subimages(width, height, width_sub, height_sub);
+	export_ppm_subimages(0, width, height, width_sub, height_sub);
 
-	calculate_histogram(3, width, height, width_sub, height_sub);
+	//calculate_histogram(3, width, height, width_sub, height_sub);
 
 
 

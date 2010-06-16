@@ -214,12 +214,11 @@ Description    : Take as input the original image and create the subimages
 
 Arguments             Type                Description
 ===================== =================== =====================================
-subimage_data(IN)     unsigned char ***** Subimages data. 
-                                          [Width-coodinate]
-                                          [Height-Coordinate]
-                                          [x-coordinate of subimage]
-                                          [y-cooddinate of subimage]
-                                          [RGB values + Greyscale value]
+type(IN)              unsigned char       0 for red value pixels
+                                          1 for green value pixels
+                                          2 for blue value pixels
+                                          3 for grey value pixels
+                                          4 for RGB value pixels
 width(IN)             int                 Width of image.
 height(IN)            int                 Height of image.
 width_subimages(IN)   unsigned int*       Width coordinate of subimage.
@@ -236,10 +235,10 @@ Globals               Type                Description
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l, m         unsigned int        General purpose indexes.
-r, g, b               unsigned char       RGB values.
+
 
 ############################################################################ */
-int export_ppm_subimages(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
+int export_ppm_subimages(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;
 unsigned int h_mem_alloc = 0;
@@ -287,9 +286,33 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 
 			for(l=0;l<w_mem_alloc;l++){
 				unsigned int lkwma = (l + k*w_mem_alloc)*3;
-				data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
-				data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
-				data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
+				switch(type){
+					case 0:/*Red values*/
+						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
+						data_buffer[lkwma + 1] = 0;
+						data_buffer[lkwma + 2] = 0;
+						break;
+					case 1:/*Green values*/
+						data_buffer[lkwma + 0] = 0;
+						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
+						data_buffer[lkwma + 2] = 0;
+						break;
+					case 2:/*Blue values*/
+						data_buffer[lkwma + 0] = 0;
+						data_buffer[lkwma + 1] = 0;
+						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
+						break;
+					case 3:/*Grey values*/
+						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][3];
+						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][3];
+						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][3];
+						break;
+					case 4:/*RGB values*/
+						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
+						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
+						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
+						break;
+					}
 				}/*l*/
 			}/*k*/
 		sprintf(filename,"%03u_%03u_Subimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
@@ -312,12 +335,10 @@ Description    : Take as input the original image and create the subimages
 
 Arguments             Type                Description
 ===================== =================== =====================================
-subimage_data(IN)     unsigned char ***** Subimages data. 
-                                          [Width-coodinate]
-                                          [Height-Coordinate]
-                                          [x-coordinate of subimage]
-                                          [y-cooddinate of subimage]
-                                          [RGB values + Greyscale value]
+type(IN)              unsigned char       0 for red value pixels
+                                          1 for green value pixels
+                                          2 for blue value pixels
+                                          3 for grey value pixels
 width(IN)             int                 Width of image.
 height(IN)            int                 Height of image.
 width_subimages(IN)   unsigned int        Width coordinate of subimage.
@@ -335,12 +356,13 @@ Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l            unsigned int        General purpose indexes.
 r, g, b               unsigned char       RGB values.
+gry                   unsigned char       Grey value.
 
 ############################################################################ */
 int calculate_histogram(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
-unsigned int pixel_value_counter[255];
+unsigned int pixel_value_counter[255], max_pixels = 0;
 memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
 
 unsigned int swdM = (width / SHIFT) - 1;
@@ -402,7 +424,7 @@ for (i=0;i<height_subimages;i++){
 			else
 				w_mem_alloc = swmM;
 			/*------------------------------------------------*/
-
+			max_pixels = (h_mem_alloc*w_mem_alloc);
 			for(l=0;l<w_mem_alloc;l++){
 				unsigned char r = 0, g = 0, b = 0, gry = 0;
 				switch(type){
@@ -427,7 +449,7 @@ for (i=0;i<height_subimages;i++){
 			}/*for k*/
 
 		for (m=0;m<255;m++){
-			hist_data[i][j][m] = ((float)pixel_value_counter[m] / (h_mem_alloc*w_mem_alloc));
+			hist_data[i][j][m] = ((float)pixel_value_counter[m] / max_pixels);
 			if (hist_data[i][j][m])
 				printf("[%d] [%u %u %u] %f\n", pixel_value_counter[m], i, j, m, hist_data[i][j][m]);
 			}
