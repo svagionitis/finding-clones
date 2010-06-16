@@ -52,8 +52,8 @@ S. Vagionitis  10/06/2010     Creation
 
 
 int create_sub_images(unsigned char *, int, int, unsigned int *, unsigned int *);
-int export_ppm_subimages_rgb(int, int, unsigned int, unsigned int);
-int alloc_mem_1D_array(unsigned char *, unsigned int);
+int export_ppm_subimages(int, int, unsigned int, unsigned int);
+int calculate_histogram(unsigned char, int, int, unsigned int, unsigned int);
 
 extern unsigned char *****subimage_data;
 

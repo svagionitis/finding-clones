@@ -23,6 +23,7 @@ S. Vagionitis  10/06/2010     Creation
 #define __ALG_LVL1_C__
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "alg_lvl1.h"
@@ -77,7 +78,7 @@ unsigned int w_mem_alloc = 0;
 unsigned int sub_hei = (*height_subimages);
 unsigned int sub_wid = (*width_subimages);
 
-printf("SHIFT= %d, width= %d,  height= %d, width_sub= %d, height_sub= %d\n", SHIFT, width, height, sub_wid, sub_hei);
+printf("SHIFT= %d, Width= %d, Height= %d, Width_Sub= %d, Height_Sub= %d\n", SHIFT, width, height, sub_wid, sub_hei);
 
 unsigned int swdM = (width / SHIFT) - 1;
 unsigned int swmM = width % SHIFT;
@@ -238,7 +239,7 @@ i, j, k, l, m         unsigned int        General purpose indexes.
 r, g, b               unsigned char       RGB values.
 
 ############################################################################ */
-int export_ppm_subimages_rgb(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
+int export_ppm_subimages(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;
 unsigned int h_mem_alloc = 0;
@@ -303,10 +304,139 @@ return TRUE;
 }
 
 
+/* ############################################################################
+Name           : export_ppm_subimages_rgb
+Description    : Take as input the original image and create the subimages 
+                 according to the algorithm of the paper. The subimages are 
+                 colored.
 
-/*
-int calculate_histogram(unsigned char type)
+Arguments             Type                Description
+===================== =================== =====================================
+subimage_data(IN)     unsigned char ***** Subimages data. 
+                                          [Width-coodinate]
+                                          [Height-Coordinate]
+                                          [x-coordinate of subimage]
+                                          [y-cooddinate of subimage]
+                                          [RGB values + Greyscale value]
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+width_subimages(IN)   unsigned int        Width coordinate of subimage.
+height_subimages(IN)  unsigned int        Height coordinate of subimage.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+FALSE                                     If memory allocation fails.
+
+Globals               Type                Description
+===================== =================== =====================================
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l            unsigned int        General purpose indexes.
+r, g, b               unsigned char       RGB values.
+
+############################################################################ */
+int calculate_histogram(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
+unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
+unsigned int pixel_value_counter[255];
+memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
+
+unsigned int swdM = (width / SHIFT) - 1;
+unsigned int swmM = width % SHIFT;
+unsigned int shdM = (height / SHIFT) - 1;
+unsigned int shmM = height % SHIFT;
+
+float ***hist_data;
+
+/* Allocate memory for subimage data*/
+hist_data = (float ***)malloc(height_subimages * sizeof(float **));
+if (hist_data == NULL){
+	printf("Could not allocate %d bytes.\n", (height_subimages * sizeof(float **)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<height_subimages;i++){
+		hist_data[i] = (float **)malloc(width_subimages * sizeof(float *));
+		if (hist_data[i] == NULL){
+			printf("Could not allocate %d bytes for i=%d index.\n", (width_subimages * sizeof(float *)), i);
+			return FALSE;
+			}
+		else{
+			for (j=0;j<width_subimages;j++){
+				hist_data[i][j] = (float *)malloc(255 * sizeof(float));
+				if (hist_data[i][j] == NULL){
+					printf("Could not allocate %d bytes for j=%d index.\n", (255 * sizeof(float)), j);
+					return FALSE;
+					}
+				else{
+					for(k=0;k<255;k++){
+						hist_data[i][j][k] = 0.0;
+						}/*for k*/
+					}/*else hist_data[i][j]*/
+				}/*for j*/
+			}/*else hist_data[i]*/
+		}/*for i*/
+	}/*else hist_data*/
+
+
+unsigned int h_mem_alloc = 0;
+unsigned int w_mem_alloc = 0;
+for (i=0;i<height_subimages;i++){
+	for (j=0;j<width_subimages;j++){
+
+		/*------------------------------------------------*/
+		if (i < shdM)
+			h_mem_alloc = M;
+		else
+			h_mem_alloc = shmM;
+		/*------------------------------------------------*/
+		
+		memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
+		for(k=0;k<h_mem_alloc;k++){
+
+			/*------------------------------------------------*/
+			if (j < swdM)
+				w_mem_alloc = M;
+			else
+				w_mem_alloc = swmM;
+			/*------------------------------------------------*/
+
+			for(l=0;l<w_mem_alloc;l++){
+				unsigned char r = 0, g = 0, b = 0, gry = 0;
+				switch(type){
+					case 0:/*Red Histogram*/
+						r = subimage_data[i][j][k][l][0];
+						pixel_value_counter[r]++;
+						break;
+					case 1:/*Green Histogram*/
+						g = subimage_data[i][j][k][l][1];
+						pixel_value_counter[g]++;
+						break;
+					case 2:/*Blue Histogram*/
+						b = subimage_data[i][j][k][l][2];
+						pixel_value_counter[b]++;
+						break;
+					case 3:/*Grey Histogram*/
+						gry = subimage_data[i][j][k][l][3];
+						pixel_value_counter[gry]++;
+						break;
+					}
+				}/*for l*/
+			}/*for k*/
+
+		for (m=0;m<255;m++){
+			hist_data[i][j][m] = ((float)pixel_value_counter[m] / (h_mem_alloc*w_mem_alloc));
+			if (hist_data[i][j][m])
+				printf("[%d] [%u %u %u] %f\n", pixel_value_counter[m], i, j, m, hist_data[i][j][m]);
+			}
+
+		}/*for j*/
+	}/*for i*/
+
+
+return TRUE;
 }
-*/
+
 
