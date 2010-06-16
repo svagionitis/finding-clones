@@ -30,6 +30,7 @@ S. Vagionitis  10/06/2010     Creation
 #include "alcon2009.h"/*For save_ppm function*/
 
 unsigned char *****subimage_data;
+float ***hist_data;
 
 /* ############################################################################
 Name           : create_sub_images
@@ -103,16 +104,13 @@ else{
 			for (j=0;j<sub_wid;j++){
 
 				/*------------------------------------------------*/
-				if (i < shdM){
+				if (i < shdM)
 					h_mem_alloc = M;
-					subimage_data[i][j] = (unsigned char ***)malloc(h_mem_alloc * sizeof(unsigned char **));
-					}
-				else{
+				else
 					h_mem_alloc = shmM;
-					subimage_data[i][j] = (unsigned char ***)malloc(h_mem_alloc * sizeof(unsigned char **));
-					}
 				/*------------------------------------------------*/
 
+				subimage_data[i][j] = (unsigned char ***)malloc(h_mem_alloc * sizeof(unsigned char **));
 				if (subimage_data[i][j] == NULL){
 					printf("Could not allocate %d bytes for j=%d index.\n", (h_mem_alloc * sizeof(unsigned char **)), j);
 					return FALSE;
@@ -121,16 +119,13 @@ else{
 					for(k=0;k<h_mem_alloc;k++){
 
 						/*------------------------------------------------*/
-						if (j < swdM){
+						if (j < swdM)
 							w_mem_alloc = M;
-							subimage_data[i][j][k] = (unsigned char **)malloc(w_mem_alloc * sizeof(unsigned char *));
-							}
-						else{
+						else
 							w_mem_alloc = swmM;
-							subimage_data[i][j][k] = (unsigned char **)malloc(w_mem_alloc * sizeof(unsigned char *));
-							}
 						/*------------------------------------------------*/
 
+						subimage_data[i][j][k] = (unsigned char **)malloc(w_mem_alloc * sizeof(unsigned char *));
 						if (subimage_data[i][j][k] == NULL){
 							printf("Could not allocate %d bytes for k=%d index.\n", (w_mem_alloc * sizeof(unsigned char)), k);
 							return FALSE;
@@ -205,6 +200,75 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 return TRUE;
 }
 
+
+/* ############################################################################
+Name           : free_sub_images_mem
+Description    : Free memory from subimages.
+
+Arguments             Type                Description
+===================== =================== =====================================
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+width_subimages(IN)   unsigned int*       Width coordinate of subimage.
+height_subimages(IN)  unsigned int*       Height coordinate of subimage.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+
+Globals               Type                Description
+===================== =================== =====================================
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l, m         unsigned int        General purpose indexes.
+
+############################################################################ */
+int free_sub_images_mem(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
+{
+unsigned int i = 0, j = 0, k = 0, l = 0;
+unsigned int h_mem_alloc = 0;
+unsigned int w_mem_alloc = 0;
+
+unsigned int swdM = (width / SHIFT) - 1;
+unsigned int swmM = width % SHIFT;
+unsigned int shdM = (height / SHIFT) - 1;
+unsigned int shmM = height % SHIFT;
+
+for (i=0;i<height_subimages;i++){
+	for (j=0;j<width_subimages;j++){
+
+		/*------------------------------------------------*/
+		if (i < shdM)
+			h_mem_alloc = M;
+		else
+			h_mem_alloc = shmM;
+		/*------------------------------------------------*/
+
+		for(k=0;k<h_mem_alloc;k++){
+
+			/*------------------------------------------------*/
+			if (j < swdM)
+				w_mem_alloc = M;
+			else
+				w_mem_alloc = swmM;
+			/*------------------------------------------------*/
+
+			for(l=0;l<w_mem_alloc;l++){
+				free(subimage_data[i][j][k][l]);
+				}
+			free(subimage_data[i][j][k]);
+			}
+		free(subimage_data[i][j]);
+		}
+	free(subimage_data[i]);
+	}
+
+free(subimage_data);
+
+return TRUE;
+}
 
 /* ############################################################################
 Name           : export_ppm_subimages_rgb
@@ -362,6 +426,10 @@ gry                   unsigned char       Grey value.
 int calculate_histogram(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
+unsigned int h_mem_alloc = 0;
+unsigned int w_mem_alloc = 0;
+unsigned char r = 0, g = 0, b = 0, gry = 0;
+
 unsigned int pixel_value_counter[255], max_pixels = 0;
 memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
 
@@ -369,8 +437,6 @@ unsigned int swdM = (width / SHIFT) - 1;
 unsigned int swmM = width % SHIFT;
 unsigned int shdM = (height / SHIFT) - 1;
 unsigned int shmM = height % SHIFT;
-
-float ***hist_data;
 
 /* Allocate memory for subimage data*/
 hist_data = (float ***)malloc(height_subimages * sizeof(float **));
@@ -400,11 +466,12 @@ else{
 				}/*for j*/
 			}/*else hist_data[i]*/
 		}/*for i*/
+	printf("Allocated %d bytes for Histogram data.\n", (height_subimages * width_subimages * 255 * sizeof(float)));
 	}/*else hist_data*/
 
 
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
+printf("[%d %d][%u %u][%u %u][%u %u]\n", width, height, width_subimages, height_subimages, swdM, swmM, shdM, shmM);
+
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 
@@ -426,7 +493,6 @@ for (i=0;i<height_subimages;i++){
 			/*------------------------------------------------*/
 			max_pixels = (h_mem_alloc*w_mem_alloc);
 			for(l=0;l<w_mem_alloc;l++){
-				unsigned char r = 0, g = 0, b = 0, gry = 0;
 				switch(type){
 					case 0:/*Red Histogram*/
 						r = subimage_data[i][j][k][l][0];
@@ -444,19 +510,18 @@ for (i=0;i<height_subimages;i++){
 						gry = subimage_data[i][j][k][l][3];
 						pixel_value_counter[gry]++;
 						break;
-					}
+					}/*switch*/
 				}/*for l*/
 			}/*for k*/
 
 		for (m=0;m<255;m++){
 			hist_data[i][j][m] = ((float)pixel_value_counter[m] / max_pixels);
-			if (hist_data[i][j][m])
-				printf("[%d] [%u %u %u] %f\n", pixel_value_counter[m], i, j, m, hist_data[i][j][m]);
-			}
-
+			/*if (hist_data[i][j][m])
+				printf("[%d] [%u %u %u] %f\n", pixel_value_counter[m], i, j, m, hist_data[i][j][m]);*/
+			}/*for m*/
+		/*printf("[%u %u]\n", i, j);*/
 		}/*for j*/
 	}/*for i*/
-
 
 return TRUE;
 }

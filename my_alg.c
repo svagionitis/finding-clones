@@ -75,25 +75,24 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 
 
+	/*********************************MYCODE*********************************/
+
 
 	unsigned int width_sub = 0, height_sub = 0;
 	create_sub_images(image, width, height, &width_sub, &height_sub);
 
-	export_ppm_subimages(0, width, height, width_sub, height_sub);
+	/*export_ppm_subimages(4, width, height, width_sub, height_sub);*/
 
-	//calculate_histogram(3, width, height, width_sub, height_sub);
+	calculate_histogram(0, width, height, width_sub, height_sub);
 
+	/*free_sub_images_mem(width, height, width_sub, height_sub);*/
 
-
-
-
-
-
+	/*********************************MYCODE*********************************/
 
 
 	/* assign ID to each object and returns the number of objects */
 	n = assign_id(mask, width, height, obj_id);
-	
+
 	/* allocate memories */
 	area = (int *)malloc(n * sizeof(int));
 	len  = (double *)malloc(n * sizeof(double));

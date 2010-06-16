@@ -33,7 +33,6 @@ S. Vagionitis  04/06/2010     Creation
 #include <stdlib.h>
 #include <string.h>
 
-
 /* buffer size of file input */
 #define BUF_SIZE 256
 
