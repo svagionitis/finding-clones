@@ -51,9 +51,6 @@ S. Vagionitis  10/06/2010     Creation
 #define SHIFT (M/2)
 
 
-#define STEP (M/SHIFT)
-
-
 int create_sub_images(unsigned char *, int, int, unsigned int *, unsigned int *);
 int export_ppm_subimages_rgb(int, int, unsigned int, unsigned int);
 int alloc_mem_1D_array(unsigned char *, unsigned int);
