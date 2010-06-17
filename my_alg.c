@@ -107,10 +107,29 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	/* allocate memories */
 	area = (int *)malloc(n * sizeof(int));
+	if (area == NULL){
+		printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(int)));
+		exit(-1);
+		}
+
 	len  = (double *)malloc(n * sizeof(double));
+	if (len == NULL){
+		printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+		exit(-1);
+		}
+
 	circ = (double *)malloc(n * sizeof(double));
+	if (circ == NULL){
+		printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+		exit(-1);
+		}
+
 	
 	obj  = (object *)malloc(n * sizeof(object));
+	if (obj == NULL){
+		printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(object)));
+		exit(-1);
+		}
 
 	/* calcuate areas */
 	calculate_area(obj_id, width, height, n, area);

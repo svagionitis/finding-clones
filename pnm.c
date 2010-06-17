@@ -72,7 +72,8 @@ ret            int            The "magic" ppm identifier, could be 6 or 5, from
 static int read_pnm_header(FILE *f, int *w, int *h, int *max)
 {
 	char buf[BUF_SIZE];
-	
+	memset(buf, 0, sizeof(buf));
+
 	int ret;
 
 	fgets(buf, BUF_SIZE, f);
@@ -143,6 +144,10 @@ unsigned char *load_ppm(const char *filename, int *width, int *height)
 	}
 
 	data = (unsigned char *)malloc(3*w*h);
+	if (data == NULL){
+		printf("Cannot allocate %d bytes for memory.\n", (3*w*h));
+		exit(-1);
+		}
 	c = fread(data, 1, 3*w*h, f);
 
 	if (c != w*h*3) {
@@ -201,6 +206,10 @@ unsigned char *load_pgm(const char *filename, int *width, int *height)
 	}
 
 	data = (unsigned char *)malloc(w*h);
+	if (data == NULL){
+		printf("Cannot allocate %d bytes for memory.\n", (w*h));
+		exit(-1);
+		}
 	c = fread(data, 1, w*h, f);
 
 	if (c != w*h) {

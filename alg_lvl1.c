@@ -80,11 +80,10 @@ unsigned int sub_wid = (*width_subimages);
 
 printf("SHIFT= %d, Width= %d, Height= %d, Width_Sub= %d, Height_Sub= %d\n", SHIFT, width, height, sub_wid, sub_hei);
 
-unsigned int swdM = (width / SHIFT) - 1;
-unsigned int swmM = width % SHIFT;
-unsigned int shdM = (height / SHIFT) - 1;
-unsigned int shmM = height % SHIFT;
-
+unsigned int wdS = (width / SHIFT) - 1;
+unsigned int wmS = width % SHIFT;
+unsigned int hdS = (height / SHIFT) - 1;
+unsigned int hmS = height % SHIFT;
 
 /* Allocate memory for subimage data*/
 subimage_data = (unsigned char *****)malloc(sub_hei * sizeof(unsigned char ****));
@@ -103,10 +102,10 @@ else{
 			for (j=0;j<sub_wid;j++){
 
 				/*------------------------------------------------*/
-				if (i < shdM)
+				if (i < hdS)
 					h_mem_alloc = M;
 				else
-					h_mem_alloc = shmM;
+					h_mem_alloc = hmS;
 				/*------------------------------------------------*/
 
 				subimage_data[i][j] = (unsigned char ***)malloc(h_mem_alloc * sizeof(unsigned char **));
@@ -118,10 +117,10 @@ else{
 					for(k=0;k<h_mem_alloc;k++){
 
 						/*------------------------------------------------*/
-						if (j < swdM)
+						if (j < wdS)
 							w_mem_alloc = M;
 						else
-							w_mem_alloc = swmM;
+							w_mem_alloc = wmS;
 						/*------------------------------------------------*/
 
 						subimage_data[i][j][k] = (unsigned char **)malloc(w_mem_alloc * sizeof(unsigned char *));
@@ -150,7 +149,7 @@ else{
 			}/*else subimage_data[i]*/
 		}/*for i*/
 
-	printf("Allocated %d bytes for RGB+Greyscale subimages data.\n", (((swdM * M) + swmM) * ((shdM * M) + shmM) * 4 * sizeof(unsigned char)));
+	printf("Allocated %d bytes for RGB+Greyscale subimages data.\n", (((wdS * M) + wmS) * ((hdS * M) + hmS) * 4 * sizeof(unsigned char)));
 	}/*else subimage_data*/
 
 
@@ -161,19 +160,19 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 		unsigned int ssj = SHIFT*j;
 		
 		/*------------------------------------------------*/
-		if (i < shdM)
+		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = shmM;
+			h_mem_alloc = hmS;
 		/*------------------------------------------------*/
 
 		for(k=0;k<h_mem_alloc;k++){
 			unsigned int x = (k + ssi);
 			/*------------------------------------------------*/
-			if (j < swdM)
+			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = swmM;
+				w_mem_alloc = wmS;
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
@@ -228,28 +227,28 @@ unsigned int i = 0, j = 0, k = 0, l = 0;
 unsigned int h_mem_alloc = 0;
 unsigned int w_mem_alloc = 0;
 
-unsigned int swdM = (width / SHIFT) - 1;
-unsigned int swmM = width % SHIFT;
-unsigned int shdM = (height / SHIFT) - 1;
-unsigned int shmM = height % SHIFT;
+unsigned int wdS = (width / SHIFT) - 1;
+unsigned int wmS = width % SHIFT;
+unsigned int hdS = (height / SHIFT) - 1;
+unsigned int hmS = height % SHIFT;
 
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 
 		/*------------------------------------------------*/
-		if (i < shdM)
+		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = shmM;
+			h_mem_alloc = hmS;
 		/*------------------------------------------------*/
 
 		for(k=0;k<h_mem_alloc;k++){
 
 			/*------------------------------------------------*/
-			if (j < swdM)
+			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = swmM;
+				w_mem_alloc = wmS;
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
@@ -307,10 +306,10 @@ unsigned int w_mem_alloc = 0;
 unsigned int data_mem_alloc = 0;
 char filename[128];
 
-unsigned int swdM = (width / SHIFT) - 1;
-unsigned int swmM = width % SHIFT;
-unsigned int shdM = (height / SHIFT) - 1;
-unsigned int shmM = height % SHIFT;
+unsigned int wdS = (width / SHIFT) - 1;
+unsigned int wmS = width % SHIFT;
+unsigned int hdS = (height / SHIFT) - 1;
+unsigned int hmS = height % SHIFT;
 
 unsigned char *data_buffer=NULL;
 data_mem_alloc = (3 * M * M);
@@ -330,19 +329,19 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 	for (j=0;j<width_subimages;j++){/*Width coordinate of subimage*/
 
 		/*------------------------------------------------*/
-		if (i < shdM)
+		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = shmM;
+			h_mem_alloc = hmS;
 		/*------------------------------------------------*/
 
 		for(k=0;k<h_mem_alloc;k++){
 
 			/*------------------------------------------------*/
-			if (j < swdM)
+			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = swmM;
+				w_mem_alloc = wmS;
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
@@ -389,10 +388,8 @@ return TRUE;
 
 
 /* ############################################################################
-Name           : export_ppm_subimages_rgb
-Description    : Take as input the original image and create the subimages 
-                 according to the algorithm of the paper. The subimages are 
-                 colored.
+Name           : calculate_histogram
+Description    : 
 
 Arguments             Type                Description
 ===================== =================== =====================================
@@ -429,10 +426,10 @@ unsigned int w_mem_alloc = 0;
 unsigned int pixel_value_counter[COLORS], max_pixels = 0;
 memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
 
-unsigned int swdM = (width / SHIFT) - 1;
-unsigned int swmM = width % SHIFT;
-unsigned int shdM = (height / SHIFT) - 1;
-unsigned int shmM = height % SHIFT;
+unsigned int wdS = (width / SHIFT) - 1;
+unsigned int wmS = width % SHIFT;
+unsigned int hdS = (height / SHIFT) - 1;
+unsigned int hmS = height % SHIFT;
 
 /* Allocate memory for subimage data*/
 hist_data = (float ***)malloc(height_subimages * sizeof(float **));
@@ -466,26 +463,26 @@ else{
 	}/*else hist_data*/
 
 
-printf("[%d %d][%u %u][%u %u][%u %u]\n", width, height, width_subimages, height_subimages, swdM, swmM, shdM, shmM);
+printf("[%d %d][%u %u][%u %u][%u %u]\n", width, height, width_subimages, height_subimages, wdS, wmS, hdS, hmS);
 
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 
 		/*------------------------------------------------*/
-		if (i < shdM)
+		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = shmM;
+			h_mem_alloc = hmS;
 		/*------------------------------------------------*/
 		
 		memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
 		for(k=0;k<h_mem_alloc;k++){
 
 			/*------------------------------------------------*/
-			if (j < swdM)
+			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = swmM;
+				w_mem_alloc = wmS;
 			/*------------------------------------------------*/
 			max_pixels = (h_mem_alloc*w_mem_alloc);
 			for(l=0;l<w_mem_alloc;l++){
@@ -522,3 +519,43 @@ return TRUE;
 }
 
 
+/* ############################################################################
+Name           : calculate_threshold
+Description    : 
+
+Arguments             Type                Description
+===================== =================== =====================================
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+width_subimages(IN)   unsigned int        Width coordinate of subimage.
+height_subimages(IN)  unsigned int        Height coordinate of subimage.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+FALSE                                     If memory allocation fails.
+
+Globals               Type                Description
+===================== =================== =====================================
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l            unsigned int        General purpose indexes.
+
+############################################################################ */
+int calculate_threshold(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
+{
+unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
+unsigned int h_mem_alloc = 0;
+unsigned int w_mem_alloc = 0;
+
+unsigned int wdS = (width / SHIFT) - 1;
+unsigned int wmS = width % SHIFT;
+unsigned int hdS = (height / SHIFT) - 1;
+unsigned int hmS = height % SHIFT;
+
+/* initialize random seed: */
+srand ( time(NULL) );
+
+
+}
