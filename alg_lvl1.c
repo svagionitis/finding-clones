@@ -70,7 +70,6 @@ step_per_subimage     unsigned int        Shift step per subimage.
 int create_sub_images(unsigned char *image_data, int width, int height, unsigned int *width_subimages, unsigned int *height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
-unsigned char r = 0, g = 0, b = 0;
 unsigned int h_mem_alloc = 0;
 unsigned int w_mem_alloc = 0;
 
@@ -178,17 +177,15 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
+				unsigned char r = 0, g = 0, b = 0;
 				unsigned int y = (l + ssj);
 
 				unsigned int xyM = (y + x * (width)) * 3;
 
-				subimage_data[i][j][k][l][0] = image_data[xyM + 0];
-				subimage_data[i][j][k][l][1] = image_data[xyM + 1];
-				subimage_data[i][j][k][l][2] = image_data[xyM + 2];
+				r = subimage_data[i][j][k][l][0] = image_data[xyM + 0];
+				g = subimage_data[i][j][k][l][1] = image_data[xyM + 1];
+				b = subimage_data[i][j][k][l][2] = image_data[xyM + 2];
 
-				r = subimage_data[i][j][k][l][0];
-				g = subimage_data[i][j][k][l][1];
-				b = subimage_data[i][j][k][l][2];
 				subimage_data[i][j][k][l][3] = GREYSCALE1(r, g, b);
 
 				}/*l*/
@@ -428,9 +425,8 @@ int calculate_histogram(unsigned char type, int width, int height, unsigned int 
 unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
 unsigned int h_mem_alloc = 0;
 unsigned int w_mem_alloc = 0;
-unsigned char r = 0, g = 0, b = 0, gry = 0;
 
-unsigned int pixel_value_counter[255], max_pixels = 0;
+unsigned int pixel_value_counter[COLORS], max_pixels = 0;
 memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
 
 unsigned int swdM = (width / SHIFT) - 1;
@@ -453,20 +449,20 @@ else{
 			}
 		else{
 			for (j=0;j<width_subimages;j++){
-				hist_data[i][j] = (float *)malloc(255 * sizeof(float));
+				hist_data[i][j] = (float *)malloc(COLORS * sizeof(float));
 				if (hist_data[i][j] == NULL){
-					printf("Could not allocate %d bytes for j=%d index.\n", (255 * sizeof(float)), j);
+					printf("Could not allocate %d bytes for j=%d index.\n", (COLORS * sizeof(float)), j);
 					return FALSE;
 					}
 				else{
-					for(k=0;k<255;k++){
+					for(k=0;k<COLORS;k++){
 						hist_data[i][j][k] = 0.0;
 						}/*for k*/
 					}/*else hist_data[i][j]*/
 				}/*for j*/
 			}/*else hist_data[i]*/
 		}/*for i*/
-	printf("Allocated %d bytes for Histogram data.\n", (height_subimages * width_subimages * 255 * sizeof(float)));
+	printf("Allocated %d bytes for Histogram data.\n", (height_subimages * width_subimages * COLORS * sizeof(float)));
 	}/*else hist_data*/
 
 
@@ -494,6 +490,7 @@ for (i=0;i<height_subimages;i++){
 			max_pixels = (h_mem_alloc*w_mem_alloc);
 			for(l=0;l<w_mem_alloc;l++){
 				switch(type){
+					unsigned char r = 0, g = 0, b = 0, gry = 0;
 					case 0:/*Red Histogram*/
 						r = subimage_data[i][j][k][l][0];
 						pixel_value_counter[r]++;
@@ -514,12 +511,10 @@ for (i=0;i<height_subimages;i++){
 				}/*for l*/
 			}/*for k*/
 
-		for (m=0;m<255;m++){
+		for (m=0;m<COLORS;m++){
 			hist_data[i][j][m] = ((float)pixel_value_counter[m] / max_pixels);
-			/*if (hist_data[i][j][m])
-				printf("[%d] [%u %u %u] %f\n", pixel_value_counter[m], i, j, m, hist_data[i][j][m]);*/
 			}/*for m*/
-		/*printf("[%u %u]\n", i, j);*/
+
 		}/*for j*/
 	}/*for i*/
 

@@ -71,7 +71,19 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	object *obj;	/* for storing results */
 
 	int **obj_id = (int **)malloc(height*sizeof(int *));
-	for (i = 0; i < height; i++) obj_id[i] = (int *)malloc(width*sizeof(int));
+	if (obj_id == NULL){
+		printf("Could not allocate %d bytes.\n", height*sizeof(int *));
+		exit(0);
+		}
+	else{
+		for (i = 0; i < height; i++){
+			obj_id[i] = (int *)malloc(width*sizeof(int));
+			if (obj_id[i] == NULL){
+				printf("Could not allocate %d bytes for i=%d index.\n", width*sizeof(int), i);
+				exit(0);
+				}
+			}
+		}
 
 
 

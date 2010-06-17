@@ -47,9 +47,13 @@ S. Vagionitis  10/06/2010     Creation
 
 /*
  * Number of pixels to shift the M x M window.
-*/
+ */
 #define SHIFT (M/2)
 
+/*
+ * 8-bit colors
+ */
+#define COLORS 256
 
 int create_sub_images(unsigned char *, int, int, unsigned int *, unsigned int *);
 int free_sub_images_mem(int, int, unsigned int, unsigned int);
