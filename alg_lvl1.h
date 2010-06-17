@@ -55,6 +55,14 @@ S. Vagionitis  10/06/2010     Creation
  */
 #define COLORS 256
 
+
+/*
+ * For Step 5: Repeat steps 2 through 4 until the difference 
+ * in T in successive iterations is smaller than a predefined 
+ * parameter DIFF_T.
+ */
+#define DIFF_T 0.01
+
 /*Structure for histogram*/
 typedef struct histogram_t{
 	unsigned int num_pixels;
@@ -65,6 +73,7 @@ int create_sub_images(unsigned char *, int, int, unsigned int *, unsigned int *)
 int free_sub_images_mem(int, int, unsigned int, unsigned int);
 int export_ppm_subimages(unsigned char, int, int, unsigned int, unsigned int);
 int calculate_histogram(unsigned char, int, int, unsigned int, unsigned int);
+int calculate_threshold(int, int, unsigned int, unsigned int);
 
 extern unsigned char *****subimage_data;
 extern histogram ***hist_data;

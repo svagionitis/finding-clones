@@ -553,13 +553,6 @@ i, j, k, l            unsigned int        General purpose indexes.
 int calculate_threshold(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
-
-unsigned int wdS = (width / SHIFT) - 1;
-unsigned int wmS = width % SHIFT;
-unsigned int hdS = (height / SHIFT) - 1;
-unsigned int hmS = height % SHIFT;
 
 unsigned char **Ts;
 
@@ -593,6 +586,7 @@ srand (time(NULL));
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 
+		/*********************Begin Step 1*********************/
 		/*Find min and max value of histogram*/
 		unsigned char max_gry_level = 0, min_gry_level = 0;
 		unsigned int max_hist = 0, min_hist = UINT_MAX;
@@ -610,33 +604,39 @@ for (i=0;i<height_subimages;i++){
 
 
 		/*Initial value of T is the mean value of min and max of grey levels*/
-		unsigned char Tstart = (unsigned char)((float)(max_gry_level + min_gry_level) / 2);
+		float Tstart = ((float)(max_gry_level + min_gry_level) / 2);
 		/*Initial value of T is a random value between 0 and COLORS-1*/
 		/*unsigned char Tstart = (unsigned char)((float)(COLORS*rand())/(RAND_MAX+1.0));*/
-
-
-		/*
-		 * Calculate the average grey level values mi1 and mi2 for the pixels 
-		 * in regions G1 and G2.
-		 */
-		unsigned int mi1_values = 0, mi2_values = 0;
-		unsigned char count_mi1 = 0, count_mi2 = 0;
-		unsigned char mi1 = 0, mi2 = 0;
-		for (k=0;k<COLORS;k++){
-			if (k > Tstart){/*G1 region*/
-				mi1_values += hist_data[i][j][k].num_pixels;
-				count_mi1++;
-				}
-			else if (k <= Tstart){/*G2 region*/
-				mi2_values += hist_data[i][j][k].num_pixels;
-				count_mi2++;
-				}
-			}/*for k*/
-		mi1 = (unsigned char)((float)mi1_values / count_mi1);
-		mi2 = (unsigned char)((float)mi2_values / count_mi2);
-
-		unsigned char Tend = 0;
-		Tend = (unsigned char)((float)(mi1 + mi2) / 2);
+		/*********************End Step 1*********************/
+		float Tend = 0.0;
+		while(fabs(Tstart - Tend) > DIFF_T){/*Step 5*/
+			memcpy(&Tstart, &Tend, sizeof(Tend));
+			/*********************Begin Step 2 & 3*********************/
+			/*
+			* Calculate the average grey level values mi1 and mi2 for the pixels 
+			* in regions G1 and G2.
+			*/
+			unsigned int mi1_values = 0, mi2_values = 0;
+			unsigned int count_mi1 = 0, count_mi2 = 0;
+			unsigned char mi1 = 0, mi2 = 0;
+			for (k=0;k<COLORS;k++){
+				if (k > (unsigned int)Tstart){/*G1 region*/
+					mi1_values += hist_data[i][j][k].num_pixels;
+					count_mi1++;
+					}
+				else if (k <= (unsigned int)Tstart){/*G2 region*/
+					mi2_values += hist_data[i][j][k].num_pixels;
+					count_mi2++;
+					}
+				}/*for k*/
+			mi1 = (unsigned char)((float)mi1_values / count_mi1);
+			mi2 = (unsigned char)((float)mi2_values / count_mi2);
+			/*********************End Step 2 & 3*********************/
+	
+			/*********************Begin Step 4*********************/
+			Tend = ((float)(mi1 + mi2) / 2);
+			/*********************End Step 4*********************/
+			}/*while Step 5*/
 
 		}/*for j*/
 	}/*for i*/
