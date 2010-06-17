@@ -55,13 +55,19 @@ S. Vagionitis  10/06/2010     Creation
  */
 #define COLORS 256
 
+/*Structure for histogram*/
+typedef struct histogram_t{
+	unsigned int num_pixels;
+	float freq;
+	}histogram;
+
 int create_sub_images(unsigned char *, int, int, unsigned int *, unsigned int *);
 int free_sub_images_mem(int, int, unsigned int, unsigned int);
 int export_ppm_subimages(unsigned char, int, int, unsigned int, unsigned int);
 int calculate_histogram(unsigned char, int, int, unsigned int, unsigned int);
 
 extern unsigned char *****subimage_data;
-extern float ***hist_data;
+extern histogram ***hist_data;
 
 #endif
 

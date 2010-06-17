@@ -25,12 +25,14 @@ S. Vagionitis  10/06/2010     Creation
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
+#include <limits.h>/*UINT_MAX*/
 
 #include "alg_lvl1.h"
 #include "alcon2009.h"/*For save_ppm function*/
 
 unsigned char *****subimage_data;
-float ***hist_data;
+histogram ***hist_data;
 
 /* ############################################################################
 Name           : create_sub_images
@@ -431,35 +433,36 @@ unsigned int wmS = width % SHIFT;
 unsigned int hdS = (height / SHIFT) - 1;
 unsigned int hmS = height % SHIFT;
 
-/* Allocate memory for subimage data*/
-hist_data = (float ***)malloc(height_subimages * sizeof(float **));
+/* Allocate memory for histogram data*/
+hist_data = (histogram ***)malloc(height_subimages * sizeof(histogram **));
 if (hist_data == NULL){
-	printf("Could not allocate %d bytes.\n", (height_subimages * sizeof(float **)));
+	printf("Could not allocate %d bytes.\n", (height_subimages * sizeof(histogram **)));
 	return FALSE;
 	}
 else{
 	for (i=0;i<height_subimages;i++){
-		hist_data[i] = (float **)malloc(width_subimages * sizeof(float *));
+		hist_data[i] = (histogram **)malloc(width_subimages * sizeof(histogram *));
 		if (hist_data[i] == NULL){
-			printf("Could not allocate %d bytes for i=%d index.\n", (width_subimages * sizeof(float *)), i);
+			printf("Could not allocate %d bytes for i=%d index.\n", (width_subimages * sizeof(histogram *)), i);
 			return FALSE;
 			}
 		else{
 			for (j=0;j<width_subimages;j++){
-				hist_data[i][j] = (float *)malloc(COLORS * sizeof(float));
+				hist_data[i][j] = (histogram *)malloc(COLORS * sizeof(histogram));
 				if (hist_data[i][j] == NULL){
-					printf("Could not allocate %d bytes for j=%d index.\n", (COLORS * sizeof(float)), j);
+					printf("Could not allocate %d bytes for j=%d index.\n", (COLORS * sizeof(histogram)), j);
 					return FALSE;
 					}
 				else{
 					for(k=0;k<COLORS;k++){
-						hist_data[i][j][k] = 0.0;
+						hist_data[i][j][k].num_pixels = 0;
+						hist_data[i][j][k].freq = 0.0;
 						}/*for k*/
 					}/*else hist_data[i][j]*/
 				}/*for j*/
 			}/*else hist_data[i]*/
 		}/*for i*/
-	printf("Allocated %d bytes for Histogram data.\n", (height_subimages * width_subimages * COLORS * sizeof(float)));
+	printf("Allocated %d bytes for Histogram data.\n", (height_subimages * width_subimages * COLORS * sizeof(histogram)));
 	}/*else hist_data*/
 
 
@@ -509,7 +512,8 @@ for (i=0;i<height_subimages;i++){
 			}/*for k*/
 
 		for (m=0;m<COLORS;m++){
-			hist_data[i][j][m] = ((float)pixel_value_counter[m] / max_pixels);
+			hist_data[i][j][m].num_pixels = pixel_value_counter[m];
+			hist_data[i][j][m].freq = ((float)pixel_value_counter[m] / max_pixels);
 			}/*for m*/
 
 		}/*for j*/
@@ -521,7 +525,10 @@ return TRUE;
 
 /* ############################################################################
 Name           : calculate_threshold
-Description    : 
+Description    : Calculate threshold values according to the algorithm 
+                 from Gonzales, R.C, Woods, R.E., 2002. Digital Image 
+                 Processing, 2nd ed Prentice Hall, Upper Saddle River, NJ, 
+                 pp. 598-600(10.3.3 Basic Global Thresholding).
 
 Arguments             Type                Description
 ===================== =================== =====================================
@@ -554,8 +561,86 @@ unsigned int wmS = width % SHIFT;
 unsigned int hdS = (height / SHIFT) - 1;
 unsigned int hmS = height % SHIFT;
 
+unsigned char **Ts;
+
+/* Allocate memory for threshold data*/
+Ts = (unsigned char **)malloc(height_subimages * sizeof(unsigned char *));
+if (Ts == NULL){
+	printf("Could not allocate %d bytes.\n", (height_subimages * sizeof(unsigned char *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<height_subimages;i++){
+		Ts[i] = (unsigned char *)malloc(width_subimages * sizeof(unsigned char));
+		if (Ts[i] == NULL){
+			printf("Could not allocate %d bytes for i=%d index.\n", (width_subimages * sizeof(unsigned char)), i);
+			return FALSE;
+			}
+		else{
+			for (j=0;j<width_subimages;j++){
+				Ts[i][j] = 0;
+				}/*for j*/
+			}/*else hist_data[i]*/
+		}/*for i*/
+	printf("Allocated %d bytes for Threshold data.\n", (height_subimages * width_subimages * sizeof(unsigned char)));
+	}/*else hist_data*/
+
+
 /* initialize random seed: */
-srand ( time(NULL) );
+srand (time(NULL));
 
 
+for (i=0;i<height_subimages;i++){
+	for (j=0;j<width_subimages;j++){
+
+		/*Find min and max value of histogram*/
+		unsigned char max_gry_level = 0, min_gry_level = 0;
+		unsigned int max_hist = 0, min_hist = UINT_MAX;
+		for (k=0;k<COLORS;k++){
+			if (hist_data[i][j][k].num_pixels > max_hist){
+				max_hist = hist_data[i][j][k].num_pixels;
+				max_gry_level = k;
+				}
+			else if (hist_data[i][j][k].num_pixels <= min_hist){
+				min_hist = hist_data[i][j][k].num_pixels;
+				min_gry_level = k;
+				}
+			}/*for k*/
+		/*Find min and max value of histogram*/
+
+
+		/*Initial value of T is the mean value of min and max of grey levels*/
+		unsigned char Tstart = (unsigned char)((float)(max_gry_level + min_gry_level) / 2);
+		/*Initial value of T is a random value between 0 and COLORS-1*/
+		/*unsigned char Tstart = (unsigned char)((float)(COLORS*rand())/(RAND_MAX+1.0));*/
+
+
+		/*
+		 * Calculate the average grey level values mi1 and mi2 for the pixels 
+		 * in regions G1 and G2.
+		 */
+		unsigned int mi1_values = 0, mi2_values = 0;
+		unsigned char count_mi1 = 0, count_mi2 = 0;
+		unsigned char mi1 = 0, mi2 = 0;
+		for (k=0;k<COLORS;k++){
+			if (k > Tstart){/*G1 region*/
+				mi1_values += hist_data[i][j][k].num_pixels;
+				count_mi1++;
+				}
+			else if (k <= Tstart){/*G2 region*/
+				mi2_values += hist_data[i][j][k].num_pixels;
+				count_mi2++;
+				}
+			}/*for k*/
+		mi1 = (unsigned char)((float)mi1_values / count_mi1);
+		mi2 = (unsigned char)((float)mi2_values / count_mi2);
+
+		unsigned char Tend = 0;
+		Tend = (unsigned char)((float)(mi1 + mi2) / 2);
+
+		}/*for j*/
+	}/*for i*/
+
+return TRUE;
 }
+
