@@ -586,6 +586,8 @@ srand (time(NULL));
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 
+		/*if (j == 4) return TRUE;*/
+
 		/*********************Begin Step 1*********************/
 		/*Find min and max value of histogram*/
 		unsigned char max_gry_level = 0, min_gry_level = 0;
@@ -601,16 +603,22 @@ for (i=0;i<height_subimages;i++){
 				}
 			}/*for k*/
 		/*Find min and max value of histogram*/
-
+		printf("[%d %d] [max_hist:%d max_level:%d] [min_hist:%d min_level:%d]\n", i, j, max_hist, max_gry_level, min_hist, min_gry_level);
 
 		/*Initial value of T is the mean value of min and max of grey levels*/
 		float Tstart = ((float)(max_gry_level + min_gry_level) / 2);
+
 		/*Initial value of T is a random value between 0 and COLORS-1*/
-		/*unsigned char Tstart = (unsigned char)((float)(COLORS*rand())/(RAND_MAX+1.0));*/
+		/*float Tstart = rand()/(float)(((float)RAND_MAX + 1) / COLORS);*/
+
+		printf("Tstart:%f\n", Tstart);
 		/*********************End Step 1*********************/
 		float Tend = 0.0;
-		while(fabs(Tstart - Tend) > DIFF_T){/*Step 5*/
-			memcpy(&Tstart, &Tend, sizeof(Tend));
+		unsigned char first_run_flag = TRUE;
+		while(fabs(Tstart - Tend) > (float)DIFF_T){/*Step 5*/
+			if (!first_run_flag)
+				memcpy(&Tstart, &Tend, sizeof(Tend));
+
 			/*********************Begin Step 2 & 3*********************/
 			/*
 			* Calculate the average grey level values mi1 and mi2 for the pixels 
@@ -618,7 +626,7 @@ for (i=0;i<height_subimages;i++){
 			*/
 			unsigned int mi1_values = 0, mi2_values = 0;
 			unsigned int count_mi1 = 0, count_mi2 = 0;
-			unsigned char mi1 = 0, mi2 = 0;
+			float mi1 = 0, mi2 = 0;
 			for (k=0;k<COLORS;k++){
 				if (k > (unsigned int)Tstart){/*G1 region*/
 					mi1_values += hist_data[i][j][k].num_pixels;
@@ -629,13 +637,16 @@ for (i=0;i<height_subimages;i++){
 					count_mi2++;
 					}
 				}/*for k*/
-			mi1 = (unsigned char)((float)mi1_values / count_mi1);
-			mi2 = (unsigned char)((float)mi2_values / count_mi2);
+			mi1 = ((float)mi1_values / count_mi1);
+			mi2 = ((float)mi2_values / count_mi2);
 			/*********************End Step 2 & 3*********************/
 	
 			/*********************Begin Step 4*********************/
 			Tend = ((float)(mi1 + mi2) / 2);
 			/*********************End Step 4*********************/
+			first_run_flag = FALSE;
+
+			printf("Tstart:%f Tend:%f %f\n", Tstart, Tend, fabs(Tstart - Tend));
 			}/*while Step 5*/
 
 		}/*for j*/
