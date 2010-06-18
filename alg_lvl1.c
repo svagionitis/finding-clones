@@ -45,12 +45,6 @@ Arguments             Type                Description
 image_data(IN)        unsigned char *     Image data.
 width(IN)             int                 Width of image.
 height(IN)            int                 Height of image.
-subimage_data(OUT)    unsigned char ***** Subimages data. 
-                                          [Width-coodinate]
-                                          [Height-Coordinate]
-                                          [x-coordinate of subimage]
-                                          [y-cooddinate of subimage]
-                                          [RGB values + Greyscale value]
 width_subimages(OUT)  unsigned int*       Width coordinate of subimage.
 height_subimages(OUT) unsigned int*       Height coordinate of subimage.
 
@@ -61,6 +55,14 @@ FALSE                                     If memory allocation fails.
 
 Globals               Type                Description
 ===================== =================== =====================================
+subimage_data(OUT)    unsigned char ***** Subimages data. 
+                                          [Width-coodinate]
+                                          [Height-Coordinate]
+                                          [x-coordinate of subimage]
+                                          [y-cooddinate of subimage]
+                                          [RGB values(0, 1, 2) + 
+                                           Greyscale value(3) + 
+                                           Threshold Values(4)]
 
 Locals                Type                Description
 ===================== =================== =====================================
@@ -139,7 +141,7 @@ else{
 									}
 								else{
 									/*Initialize subimage data.*/
-									for(m=0;m<4;m++){
+									for(m=0;m<5;m++){
 										subimage_data[i][j][k][l][m] = 0;
 										}
 									}
@@ -151,7 +153,7 @@ else{
 			}/*else subimage_data[i]*/
 		}/*for i*/
 
-	printf("Allocated %d bytes for RGB+Greyscale subimages data.\n", (((wdS * M) + wmS) * ((hdS * M) + hmS) * 4 * sizeof(unsigned char)));
+	printf("Allocated %d bytes for RGB+Greyscale subimages data.\n", (((wdS * M) + wmS) * ((hdS * M) + hmS) * 5 * sizeof(unsigned char)));
 	}/*else subimage_data*/
 
 
@@ -583,14 +585,14 @@ srand (time(NULL));
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 
-		if (j == 4) return TRUE;
+		/*if (j == 4) return TRUE;*/
 
 		/*********************Begin Step 1*********************/
 		/*Find min and max value of histogram*/
 		unsigned char max_gry_lvl = 0, min_gry_lvl = 0;
 		calculate_min_max_hist_threshold(i, j, &max_gry_lvl, &min_gry_lvl);
 
-		printf("[%d %d] [max_level:%d min_level:%d]\n", i, j, max_gry_lvl, min_gry_lvl);
+		/*printf("[%d %d] [max_level:%d min_level:%d]\n", i, j, max_gry_lvl, min_gry_lvl);*/
 
 		/*Initial value of T is the mean value of min and max of grey levels*/
 		float Tstart = ((float)(max_gry_lvl + min_gry_lvl) / 2);
@@ -601,8 +603,9 @@ for (i=0;i<height_subimages;i++){
 		/*Initial value of T is a 0*/
 		/*float Tstart = 0.0;*/
 
-		printf("Tstart:%f\n", Tstart);
+		/*printf("Tstart:%f\n", Tstart);*/
 		/*********************End Step 1*********************/
+
 		basic_global_thresholding_algorithm(i, j, Tstart, &Ts[i][j]);
 
 		}/*for j*/
@@ -658,7 +661,7 @@ for (i=0;i<COLORS;i++){
 		}
 	}
 
-printf("[%u %u] [max_pix_hist:%u min_pix_hist:%u]\n", h_subim_index, w_subim_index, max_pix_hist, min_pix_hist);
+/*printf("[%u %u] [max_pix_hist:%u min_pix_hist:%u]\n", h_subim_index, w_subim_index, max_pix_hist, min_pix_hist);*/
 
 (*max_lvl_hist) = max_lvl;
 (*min_lvl_hist) = min_lvl;
@@ -702,7 +705,7 @@ while(fabs(Tstart - Tend) > (float)DIFF_T){/*Step 5*/
 	if (!first_run_flag)
 		memcpy(&Tstart, &Tend, sizeof(Tend));
 
-	printf("Tstart:%f Tend:%f\n", Tstart, Tend);
+	/*printf("Tstart:%f Tend:%f\n", Tstart, Tend);*/
 	/*********************Begin Step 2 & 3*********************/
 	/*
 	* Calculate the average grey level values mi1 and mi2 for the pixels 
@@ -729,17 +732,19 @@ while(fabs(Tstart - Tend) > (float)DIFF_T){/*Step 5*/
 
 	mi1 = ((float)mi1_values / count_mi1);
 	mi2 = ((float)mi2_values / count_mi2);
-	printf("[mi1:%f mi2:%f][mi1_values:%u mi2_values:%u] [count_mi1:%u count_mi2:%u]\n", mi1, mi2, mi1_values, mi2_values, count_mi1, count_mi2);
+	/*printf("[mi1:%f mi2:%f][mi1_values:%u mi2_values:%u] [count_mi1:%u count_mi2:%u]\n", mi1, mi2, mi1_values, mi2_values, count_mi1, count_mi2);*/
 	/*********************End Step 2 & 3*********************/
 
 	/*********************Begin Step 4*********************/
 	Tend = ((float)(mi1 + mi2) / 2);
-	printf("Tend:%f\n", Tend);
+	/*printf("Tend:%f\n", Tend);*/
 	/*********************End Step 4*********************/
 	first_run_flag = FALSE;
 	}/*while Step 5*/
 
+/*printf("[%u %u] Tend:%f\n", h_subim_index, w_subim_index, Tend);*/
 (*Ts) = (unsigned char)Tend;
 
 return TRUE;
 }
+
