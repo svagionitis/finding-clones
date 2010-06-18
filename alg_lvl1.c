@@ -466,8 +466,6 @@ else{
 	}/*else hist_data*/
 
 
-printf("[%d %d][%u %u][%u %u][%u %u]\n", width, height, width_subimages, height_subimages, wdS, wmS, hdS, hmS);
-
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 
@@ -552,7 +550,7 @@ i, j, k, l            unsigned int        General purpose indexes.
 ############################################################################ */
 int calculate_threshold(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
-unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
+unsigned int i = 0, j = 0;
 
 unsigned char **Ts;
 
@@ -582,72 +580,30 @@ else{
 /* initialize random seed: */
 srand (time(NULL));
 
-
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 
-		/*if (j == 4) return TRUE;*/
+		if (j == 4) return TRUE;
 
 		/*********************Begin Step 1*********************/
 		/*Find min and max value of histogram*/
-		unsigned char max_gry_level = 0, min_gry_level = 0;
-		unsigned int max_hist = 0, min_hist = UINT_MAX;
-		for (k=0;k<COLORS;k++){
-			if (hist_data[i][j][k].num_pixels > max_hist){
-				max_hist = hist_data[i][j][k].num_pixels;
-				max_gry_level = k;
-				}
-			else if (hist_data[i][j][k].num_pixels <= min_hist){
-				min_hist = hist_data[i][j][k].num_pixels;
-				min_gry_level = k;
-				}
-			}/*for k*/
-		/*Find min and max value of histogram*/
-		printf("[%d %d] [max_hist:%d max_level:%d] [min_hist:%d min_level:%d]\n", i, j, max_hist, max_gry_level, min_hist, min_gry_level);
+		unsigned char max_gry_lvl = 0, min_gry_lvl = 0;
+		calculate_min_max_hist_threshold(i, j, &max_gry_lvl, &min_gry_lvl);
+
+		printf("[%d %d] [max_level:%d min_level:%d]\n", i, j, max_gry_lvl, min_gry_lvl);
 
 		/*Initial value of T is the mean value of min and max of grey levels*/
-		float Tstart = ((float)(max_gry_level + min_gry_level) / 2);
+		float Tstart = ((float)(max_gry_lvl + min_gry_lvl) / 2);
 
 		/*Initial value of T is a random value between 0 and COLORS-1*/
 		/*float Tstart = rand()/(float)(((float)RAND_MAX + 1) / COLORS);*/
 
+		/*Initial value of T is a 0*/
+		/*float Tstart = 0.0;*/
+
 		printf("Tstart:%f\n", Tstart);
 		/*********************End Step 1*********************/
-		float Tend = 0.0;
-		unsigned char first_run_flag = TRUE;
-		while(fabs(Tstart - Tend) > (float)DIFF_T){/*Step 5*/
-			if (!first_run_flag)
-				memcpy(&Tstart, &Tend, sizeof(Tend));
-
-			/*********************Begin Step 2 & 3*********************/
-			/*
-			* Calculate the average grey level values mi1 and mi2 for the pixels 
-			* in regions G1 and G2.
-			*/
-			unsigned int mi1_values = 0, mi2_values = 0;
-			unsigned int count_mi1 = 0, count_mi2 = 0;
-			float mi1 = 0, mi2 = 0;
-			for (k=0;k<COLORS;k++){
-				if (k > (unsigned int)Tstart){/*G1 region*/
-					mi1_values += hist_data[i][j][k].num_pixels;
-					count_mi1++;
-					}
-				else if (k <= (unsigned int)Tstart){/*G2 region*/
-					mi2_values += hist_data[i][j][k].num_pixels;
-					count_mi2++;
-					}
-				}/*for k*/
-			mi1 = ((float)mi1_values / count_mi1);
-			mi2 = ((float)mi2_values / count_mi2);
-			/*********************End Step 2 & 3*********************/
-	
-			/*********************Begin Step 4*********************/
-			Tend = ((float)(mi1 + mi2) / 2);
-			/*********************End Step 4*********************/
-			first_run_flag = FALSE;
-
-			printf("Tstart:%f Tend:%f %f\n", Tstart, Tend, fabs(Tstart - Tend));
-			}/*while Step 5*/
+		basic_global_thresholding_algorithm(i, j, Tstart, &Ts[i][j]);
 
 		}/*for j*/
 	}/*for i*/
@@ -655,3 +611,135 @@ for (i=0;i<height_subimages;i++){
 return TRUE;
 }
 
+
+/* ############################################################################
+Name           : calculate_min_max_hist_threshold
+Description    : Calculate the minimum and maximum grey 
+                 level value of the histogram.
+
+Arguments             Type                Description
+===================== =================== =====================================
+h_subim_index(IN)     unsigned char
+w_subim_index(IN)     unsigned char
+max_lvl_hist(OUT)     unsigned char *
+min_lvl_hist(OUT)     unsigned char *
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+
+Globals               Type                Description
+===================== =================== =====================================
+hist_data             histogram ***       The histogram of the subimages.
+
+Locals                Type                Description
+===================== =================== =====================================
+i                     unsigned int        General purpose index.
+
+############################################################################ */
+int calculate_min_max_hist_threshold(unsigned int h_subim_index, unsigned int w_subim_index, unsigned char *max_lvl_hist, unsigned char *min_lvl_hist)
+{
+unsigned int i = 0;
+/*Number of pixels for each level*/
+unsigned int max_pix_hist = 0, min_pix_hist = UINT_MAX;
+unsigned char max_lvl = 0, min_lvl = 0;
+
+for (i=0;i<COLORS;i++){
+
+	if (hist_data[h_subim_index][w_subim_index][i].num_pixels > max_pix_hist){
+		max_pix_hist = hist_data[h_subim_index][w_subim_index][i].num_pixels;
+		max_lvl = i;
+		}
+
+	if (hist_data[h_subim_index][w_subim_index][i].num_pixels <= min_pix_hist){
+		min_pix_hist = hist_data[h_subim_index][w_subim_index][i].num_pixels;
+		min_lvl = i;
+		}
+	}
+
+printf("[%u %u] [max_pix_hist:%u min_pix_hist:%u]\n", h_subim_index, w_subim_index, max_pix_hist, min_pix_hist);
+
+(*max_lvl_hist) = max_lvl;
+(*min_lvl_hist) = min_lvl;
+
+return TRUE;
+}
+
+
+/* ############################################################################
+Name           : basic_global_thresholding_algorithm
+Description    : 
+
+
+Arguments             Type                Description
+===================== =================== =====================================
+h_subim_index(IN)     unsigned char
+w_subim_index(IN)     unsigned char
+Tstart(IN)            float
+Ts(OUT)               unsigned char *
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+
+Globals               Type                Description
+===================== =================== =====================================
+hist_data             histogram ***       The histogram of the subimages.
+
+Locals                Type                Description
+===================== =================== =====================================
+i                     unsigned int        General purpose index.
+
+############################################################################ */
+int basic_global_thresholding_algorithm(unsigned int h_subim_index, unsigned int w_subim_index, float Tstart, unsigned char *Ts)
+{
+unsigned int i = 0;
+float Tend = 0.0;
+unsigned char first_run_flag = TRUE;
+while(fabs(Tstart - Tend) > (float)DIFF_T){/*Step 5*/
+	if (!first_run_flag)
+		memcpy(&Tstart, &Tend, sizeof(Tend));
+
+	printf("Tstart:%f Tend:%f\n", Tstart, Tend);
+	/*********************Begin Step 2 & 3*********************/
+	/*
+	* Calculate the average grey level values mi1 and mi2 for the pixels 
+	* in regions G1 and G2.
+	*/
+	unsigned int mi1_values = 0, mi2_values = 0;
+	unsigned int count_mi1 = 0, count_mi2 = 0;
+	float mi1 = 0, mi2 = 0;
+	for (i=0;i<COLORS;i++){
+		if (i > (unsigned int)Tstart){/*G1 region*/
+			mi1_values += (i*hist_data[h_subim_index][w_subim_index][i].num_pixels);
+			count_mi1 += hist_data[h_subim_index][w_subim_index][i].num_pixels;
+			}
+		else if (i <= (unsigned int)Tstart){/*G2 region*/
+			mi2_values += (i*hist_data[h_subim_index][w_subim_index][i].num_pixels);
+			count_mi2 += hist_data[h_subim_index][w_subim_index][i].num_pixels;
+			}
+		}
+
+	if (!count_mi1)/*if count_mi1 == 0*/
+		count_mi1 = 1;
+	if (!count_mi2)/*if count_mi2 == 0*/
+		count_mi2 = 1;
+
+	mi1 = ((float)mi1_values / count_mi1);
+	mi2 = ((float)mi2_values / count_mi2);
+	printf("[mi1:%f mi2:%f][mi1_values:%u mi2_values:%u] [count_mi1:%u count_mi2:%u]\n", mi1, mi2, mi1_values, mi2_values, count_mi1, count_mi2);
+	/*********************End Step 2 & 3*********************/
+
+	/*********************Begin Step 4*********************/
+	Tend = ((float)(mi1 + mi2) / 2);
+	printf("Tend:%f\n", Tend);
+	/*********************End Step 4*********************/
+	first_run_flag = FALSE;
+	}/*while Step 5*/
+
+(*Ts) = (unsigned char)Tend;
+
+return TRUE;
+}

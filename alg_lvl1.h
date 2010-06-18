@@ -74,6 +74,8 @@ int free_sub_images_mem(int, int, unsigned int, unsigned int);
 int export_ppm_subimages(unsigned char, int, int, unsigned int, unsigned int);
 int calculate_histogram(unsigned char, int, int, unsigned int, unsigned int);
 int calculate_threshold(int, int, unsigned int, unsigned int);
+int calculate_min_max_hist_threshold(unsigned int, unsigned int, unsigned char *, unsigned char *);
+int basic_global_thresholding_algorithm(unsigned int, unsigned int, float, unsigned char *);
 
 extern unsigned char *****subimage_data;
 extern histogram ***hist_data;
