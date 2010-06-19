@@ -55,14 +55,16 @@ FALSE                                     If memory allocation fails.
 
 Globals               Type                Description
 ===================== =================== =====================================
-subimage_data(OUT)    unsigned char ***** Subimages data. 
-                                          [Width-coodinate]
-                                          [Height-Coordinate]
-                                          [x-coordinate of subimage]
-                                          [y-cooddinate of subimage]
-                                          [RGB values(0, 1, 2) + 
-                                           Greyscale value(3) + 
-                                           Threshold Values(4)]
+subimage_data(IN)     unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
 
 Locals                Type                Description
 ===================== =================== =====================================
@@ -219,6 +221,16 @@ TRUE                                      If all goes well.
 
 Globals               Type                Description
 ===================== =================== =====================================
+subimage_data(IN)     unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
 
 Locals                Type                Description
 ===================== =================== =====================================
@@ -295,6 +307,16 @@ FALSE                                     If memory allocation fails.
 
 Globals               Type                Description
 ===================== =================== =====================================
+subimage_data(IN)     unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
 
 Locals                Type                Description
 ===================== =================== =====================================
@@ -393,7 +415,7 @@ return TRUE;
 
 /* ############################################################################
 Name           : calculate_histogram
-Description    : 
+Description    : Calculate the histogram for each subimage.
 
 Arguments             Type                Description
 ===================== =================== =====================================
@@ -413,6 +435,18 @@ FALSE                                     If memory allocation fails.
 
 Globals               Type                Description
 ===================== =================== =====================================
+subimage_data(IN)     unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
+
+hist_data(OUT)        histogram ***       Histogram from subimages.
 
 Locals                Type                Description
 ===================== =================== =====================================
@@ -544,6 +578,7 @@ FALSE                                     If memory allocation fails.
 
 Globals               Type                Description
 ===================== =================== =====================================
+hist_data(IN)         histogram ***       Histogram from subimages.
 
 Locals                Type                Description
 ===================== =================== =====================================
