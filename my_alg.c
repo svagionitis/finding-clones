@@ -34,9 +34,9 @@ S. Vagionitis  04/06/2010     Creation
 #include <float.h>
 
 #include "alcon2009.h"
-#include "alg_lvl1.h"
-#include "alg_lvl2.h"
-#include "alg_lvl3.h"
+#include "alg1.h"
+#include "alg2.h"
+#include "alg3.h"
 
 #define PI  3.1415926535897932384626433832795
 #define RT2 1.4142135623730950488016887242097 /* = sqrt(2.0) */
