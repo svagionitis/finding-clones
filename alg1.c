@@ -944,10 +944,13 @@ return TRUE;
 
 
 
-int bilinear_interpolation_with_weights_propotional_to_square_of_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y)
+int bilinear_interpolation_with_weights_propotional_to_square_of_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y, unsigned char Ti)
 {
 unsigned char I1 = 0, I2 = 0, I3 = 0, I4 = 0;
 float R1POW2 = 0.0, R2POW2 = 0.0, R3POW2 = 0.0, R4POW2 = 0.0;
+float OneDivR1POW2 = 0.0, OneDivR2POW2 = 0.0, OneDivR3POW2 = 0.0, OneDivR4POW2 = 0.0;
+float I1DivR1POW2 = 0.0, I2DivR1POW2 = 0.0, I3DivR1POW2 = 0.0, I4DivR1POW2 = 0.0;
+float SumODR = 0.0, SumIDR = 0.0;
 
 I1 = subimage_data[h_subim_index][w_subim_index][0][0][4];
 I2 = subimage_data[h_subim_index][w_subim_index + 1][0][0][4];
@@ -958,6 +961,20 @@ R1POW2 = pow((x - 0), 2) + pow((y - 0), 2);
 R2POW2 = pow((x - 0), 2) + pow((M - y), 2);
 R3POW2 = pow((M - x), 2) + pow((M - y), 2);
 R4POW2 = pow((M - x), 2) + pow((y - 0), 2);
+
+OneDivR1POW2 = 1.0 / R1POW2;
+OneDivR2POW2 = 1.0 / R2POW2;
+OneDivR3POW2 = 1.0 / R3POW2;
+OneDivR4POW2 = 1.0 / R4POW2;
+
+SumODR = OneDivR1POW2 + OneDivR2POW2 + OneDivR3POW2 + OneDivR4POW2;
+
+I1DivR1POW2 = I1 / R1POW2;
+I2DivR1POW2 = I2 / R2POW2;
+I3DivR1POW2 = I3 / R3POW2;
+I4DivR1POW2 = I4 / R4POW2;
+
+SumIDR = I1DivR1POW2 + I2DivR1POW2 + I3DivR1POW2 + I4DivR1POW2;
 
 
 
