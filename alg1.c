@@ -204,15 +204,15 @@ return TRUE;
 
 
 /* ############################################################################
-Name           : free_sub_images_mem
+Name           : free_mem_subimages
 Description    : Free memory from subimages.
 
 Arguments             Type                Description
 ===================== =================== =====================================
 width(IN)             int                 Width of image.
 height(IN)            int                 Height of image.
-width_subimages(IN)   unsigned int*       Width coordinate of subimage.
-height_subimages(IN)  unsigned int*       Height coordinate of subimage.
+width_subimages(IN)   unsigned int        Width coordinate of subimage.
+height_subimages(IN)  unsigned int        Height coordinate of subimage.
 
 Return Values                             Description
 ========================================= =====================================
@@ -237,7 +237,7 @@ Locals                Type                Description
 i, j, k, l, m         unsigned int        General purpose indexes.
 
 ############################################################################ */
-int free_sub_images_mem(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
+int free_mem_subimages(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;
 unsigned int h_mem_alloc = 0;
@@ -555,6 +555,47 @@ for (i=0;i<height_subimages;i++){
 
 return TRUE;
 }
+
+
+/* ############################################################################
+Name           : free_mem_histogram
+Description    : Free memory from histogram.
+
+Arguments             Type                Description
+===================== =================== =====================================
+width_subimages(IN)   unsigned int        Width coordinate of subimage.
+height_subimages(IN)  unsigned int        Height coordinate of subimage.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+
+Globals               Type                Description
+===================== =================== =====================================
+hist_data(IN)         histogram ***       Histogram from subimages.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j                  unsigned int        General purpose indexes.
+
+############################################################################ */
+int free_mem_histogram(unsigned int width_subimages, unsigned int height_subimages)
+{
+unsigned int i = 0, j = 0;
+
+for (i=0;i<height_subimages;i++){
+	for (j=0;j<width_subimages;j++){
+		free(hist_data[i][j]);
+		}/*for j*/
+	free(hist_data[i]);
+	}/*for i*/
+
+free(hist_data);
+
+return TRUE;
+}
+
 
 
 /* ############################################################################

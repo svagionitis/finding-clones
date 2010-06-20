@@ -70,10 +70,11 @@ typedef struct histogram_t{
 	}histogram;
 
 int create_sub_images(unsigned char *, int, int, unsigned int *, unsigned int *);
-int free_sub_images_mem(int, int, unsigned int, unsigned int);
+int free_mem_subimages(int, int, unsigned int, unsigned int);
 int export_ppm_subimages(unsigned char, int, int, unsigned int, unsigned int);
 
 int calculate_histogram(unsigned char, int, int, unsigned int, unsigned int);
+int free_mem_histogram(unsigned int, unsigned int);
 
 int calculate_threshold(int, int, unsigned int, unsigned int);
 int calculate_min_max_hist_threshold(unsigned int, unsigned int, unsigned char *, unsigned char *);

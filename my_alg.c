@@ -97,7 +97,7 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	calculate_histogram(3, width, height, width_sub, height_sub);
 
-	/*free_sub_images_mem(width, height, width_sub, height_sub);*/
+	/*free_mem_subimages(width, height, width_sub, height_sub);*/
 
 	calculate_threshold(width, height, width_sub, height_sub);
 
