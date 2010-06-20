@@ -82,6 +82,7 @@ int basic_global_thresholding_algorithm(unsigned int, unsigned int, float, unsig
 
 extern unsigned char *****subimage_data;
 extern histogram ***hist_data;
+extern unsigned char **Ts;
 
 #endif
 

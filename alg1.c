@@ -33,6 +33,7 @@ S. Vagionitis  10/06/2010     Creation
 
 unsigned char *****subimage_data;
 histogram ***hist_data;
+unsigned char **Ts;
 
 /* ############################################################################
 Name           : create_sub_images
@@ -630,8 +631,6 @@ int calculate_threshold(int width, int height, unsigned int width_subimages, uns
 {
 unsigned int i = 0, j = 0;
 
-unsigned char **Ts;
-
 /* Allocate memory for threshold data*/
 Ts = (unsigned char **)malloc(height_subimages * sizeof(unsigned char *));
 if (Ts == NULL){
@@ -820,6 +819,154 @@ while(fabs(Tstart - Tend) > (float)DIFF_T){/*Step 5*/
 
 /*printf("[%u %u] Tend:%f\n", h_subim_index, w_subim_index, Tend);*/
 (*Ts) = (unsigned char)Tend;
+
+return TRUE;
+}
+
+
+
+/* ############################################################################
+Name           : calculate_threshold_with_interpolation
+Description    : Calculate thresholds using interpolation.
+
+Arguments             Type                Description
+===================== =================== =====================================
+type(IN)              unsigned char       0 bilinear interpolation with weights 
+                                            propotional to square of distance.
+                                          1 bilinear interpolation with weights 
+                                            propotional to distance.
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+width_subimages(IN)   unsigned int        Width coordinate of subimage.
+height_subimages(IN)  unsigned int        Height coordinate of subimage.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+subimage_data(OUT)    unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l            unsigned int        General purpose indexes.
+
+############################################################################ */
+int calculate_threshold_with_interpolation(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
+{
+unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
+unsigned int h_mem_alloc = 0;
+unsigned int w_mem_alloc = 0;
+
+unsigned int wdS = (width / SHIFT) - 1;
+unsigned int wmS = width % SHIFT;
+unsigned int hdS = (height / SHIFT) - 1;
+unsigned int hmS = height % SHIFT;
+
+
+/*
+ * Assign in (0,0) position in a subimage the 
+ * Threshold value that it was calculated before. 
+ * The others values will be calculated using interpolation.
+ */
+for (i=0;i<height_subimages;i++){
+	for (j=0;j<width_subimages;j++){
+		/*------------------------------------------------*/
+		if (i < hdS)
+			h_mem_alloc = M;
+		else
+			h_mem_alloc = hmS;
+		/*------------------------------------------------*/
+		for(k=0;k<h_mem_alloc;k++){
+			/*------------------------------------------------*/
+			if (j < wdS)
+				w_mem_alloc = M;
+			else
+				w_mem_alloc = wmS;
+			/*------------------------------------------------*/
+			for(l=0;l<w_mem_alloc;l++){
+				subimage_data[i][j][0][0][4] = Ts[i][j];
+				}/*for l*/
+			}/*for k*/
+		}/*for j*/
+	}/*for i*/
+
+
+for (i=0;i<height_subimages;i++){
+	for (j=0;j<width_subimages;j++){
+
+		/*------------------------------------------------*/
+		if (i < hdS)
+			h_mem_alloc = M;
+		else
+			h_mem_alloc = hmS;
+		/*------------------------------------------------*/
+		
+		for(k=0;k<h_mem_alloc;k++){
+
+			/*------------------------------------------------*/
+			if (j < wdS)
+				w_mem_alloc = M;
+			else
+				w_mem_alloc = wmS;
+			/*------------------------------------------------*/
+
+			for(l=0;l<w_mem_alloc;l++){
+
+				switch(type){
+					case 0:
+						
+						break;
+					case 1:
+
+						break;
+					}
+
+				}/*for l*/
+			}/*for k*/
+		}/*for j*/
+	}/*for i*/
+
+
+
+return TRUE;
+}
+
+
+
+int bilinear_interpolation_with_weights_propotional_to_square_of_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y)
+{
+unsigned char I1 = 0, I2 = 0, I3 = 0, I4 = 0;
+float R1POW2 = 0.0, R2POW2 = 0.0, R3POW2 = 0.0, R4POW2 = 0.0;
+
+I1 = subimage_data[h_subim_index][w_subim_index][0][0][4];
+I2 = subimage_data[h_subim_index][w_subim_index + 1][0][0][4];
+I3 = subimage_data[h_subim_index + 1][w_subim_index + 1][0][0][4];
+I4 = subimage_data[h_subim_index + 1][w_subim_index][0][0][4];
+
+R1POW2 = pow((x - 0), 2) + pow((y - 0), 2);
+R2POW2 = pow((x - 0), 2) + pow((M - y), 2);
+R3POW2 = pow((M - x), 2) + pow((M - y), 2);
+R4POW2 = pow((M - x), 2) + pow((y - 0), 2);
+
+
+
+return TRUE;
+}
+
+
+int bilinear_interpolation_with_weights_propotional_to_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y)
+{
 
 return TRUE;
 }
