@@ -901,42 +901,52 @@ for (i=0;i<height_subimages;i++){
 		}/*for j*/
 	}/*for i*/
 
-
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
-
+		if (i == 1) break;
 		/*------------------------------------------------*/
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
 			h_mem_alloc = hmS;
 		/*------------------------------------------------*/
-		
+		printf("[%u %u]\n", i, j);
 		for(k=0;k<h_mem_alloc;k++){
-
 			/*------------------------------------------------*/
 			if (j < wdS)
 				w_mem_alloc = M;
 			else
 				w_mem_alloc = wmS;
 			/*------------------------------------------------*/
-
 			for(l=0;l<w_mem_alloc;l++){
+
+				if (!k && !l)/*Don't compute the position (0,0)*/
+					continue;
 
 				switch(type){
 					case 0:
-						
+						if ((i < (height_subimages - 1)) && (j < (width_subimages - 1))){
+							bilinear_interpolation_with_weights_propotional_to_square_of_distance(i, j, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
+							}
+						else{
+							}
 						break;
 					case 1:
+						if ((i < (height_subimages - 1)) && (j < (width_subimages - 1))){
+							bilinear_interpolation_with_weights_propotional_to_distance(i, j, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
+							printf("%u ", subimage_data[i][j][k][l][4]);
+							}
+						else{
+							}
 
 						break;
 					}
 
 				}/*for l*/
 			}/*for k*/
+		printf("\n");
 		}/*for j*/
 	}/*for i*/
-
 
 
 return TRUE;
@@ -944,7 +954,7 @@ return TRUE;
 
 
 
-int bilinear_interpolation_with_weights_propotional_to_square_of_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y, unsigned char Ti)
+int bilinear_interpolation_with_weights_propotional_to_square_of_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y, unsigned int Max_x, unsigned int Max_y, unsigned char *Ti)
 {
 unsigned char I1 = 0, I2 = 0, I3 = 0, I4 = 0;
 float R1POW2 = 0.0, R2POW2 = 0.0, R3POW2 = 0.0, R4POW2 = 0.0;
@@ -957,10 +967,10 @@ I2 = subimage_data[h_subim_index][w_subim_index + 1][0][0][4];
 I3 = subimage_data[h_subim_index + 1][w_subim_index + 1][0][0][4];
 I4 = subimage_data[h_subim_index + 1][w_subim_index][0][0][4];
 
-R1POW2 = pow((x - 0), 2) + pow((y - 0), 2);
-R2POW2 = pow((x - 0), 2) + pow((M - y), 2);
-R3POW2 = pow((M - x), 2) + pow((M - y), 2);
-R4POW2 = pow((M - x), 2) + pow((y - 0), 2);
+R1POW2 = pow((x - 0), 2)     + pow((y - 0), 2);
+R2POW2 = pow((x - 0), 2)     + pow((Max_y - y), 2);
+R3POW2 = pow((Max_x - x), 2) + pow((Max_y - y), 2);
+R4POW2 = pow((Max_x - x), 2) + pow((y - 0), 2);
 
 OneDivR1POW2 = 1.0 / R1POW2;
 OneDivR2POW2 = 1.0 / R2POW2;
@@ -976,14 +986,31 @@ I4DivR1POW2 = I4 / R4POW2;
 
 SumIDR = I1DivR1POW2 + I2DivR1POW2 + I3DivR1POW2 + I4DivR1POW2;
 
-
+(*Ti) = (unsigned char)(SumIDR / SumODR);
 
 return TRUE;
 }
 
 
-int bilinear_interpolation_with_weights_propotional_to_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y)
+int bilinear_interpolation_with_weights_propotional_to_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y, unsigned int Max_x, unsigned int Max_y, unsigned char *Ti)
 {
+unsigned char I1 = 0, I2 = 0, I3 = 0, I4 = 0;
+float Alpha = 0.0, Beta = 0.0, OneMinusAlpha = 0.0, OneMinusBeta = 0.0;
+
+I1 = subimage_data[h_subim_index][w_subim_index][0][0][4];
+I2 = subimage_data[h_subim_index][w_subim_index + 1][0][0][4];
+I3 = subimage_data[h_subim_index + 1][w_subim_index + 1][0][0][4];
+I4 = subimage_data[h_subim_index + 1][w_subim_index][0][0][4];
+
+Alpha = ((float)(Max_x - x) / Max_x);
+Beta = ((float)(Max_y - y) / Max_y);
+OneMinusAlpha = 1.0 - Alpha;
+OneMinusBeta = 1.0 - Beta;
+
+(*Ti) = ((unsigned char)(Alpha*Beta*(float)I1)) + 
+	((unsigned char)(OneMinusAlpha*Beta*(float)I2)) + 
+	((unsigned char)(Alpha*OneMinusBeta*(float)I4)) +
+	((unsigned char)(OneMinusAlpha*OneMinusBeta*(float)I3));
 
 return TRUE;
 }
