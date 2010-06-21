@@ -83,7 +83,7 @@ int basic_global_thresholding_algorithm(unsigned int, unsigned int, float, unsig
 int calculate_threshold_with_interpolation(unsigned char, int, int, unsigned int, unsigned int);
 int bilinear_interpolation_with_weights_propotional_to_square_of_distance(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned char*);
 int bilinear_interpolation_with_weights_propotional_to_distance(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned char*);
-
+int linear_interpolation_in_2d_data(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned char*);
 
 
 extern unsigned char *****subimage_data;

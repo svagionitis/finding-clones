@@ -4,7 +4,7 @@ Company        : S. Vagionitis
 Project        : Finding Clones
 Programmer     : S. Vagionitis
 Revisor        : S. Vagionitis
-Description    : Functions for Algorithm Level 3.
+Description    : Functions for Algorithm 3.
 
 Procedure                     Description
 ============================= =================================================

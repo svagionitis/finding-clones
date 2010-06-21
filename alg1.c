@@ -4,15 +4,43 @@ Company        : S. Vagionitis
 Project        : Finding Clones
 Programmer     : S. Vagionitis
 Revisor        : S. Vagionitis
-Description    : Functions for Algorithm Level 1.
+Description    : Functions for Algorithm 1.
 
-Procedure                     Description
-============================= =================================================
+Procedure                                 Description
+========================================= =====================================
+create_sub_images
+free_mem_subimages
+export_ppm_subimages
+
+calculate_histogram
+free_mem_histogram
+
+calculate_threshold
+calculate_min_max_hist_threshold
+basic_global_thresholding_algorithm
+
+calculate_threshold_with_interpolation
+bilinear_interpolation_with_weights_...
+propotional_to_square_of_distance
+bilinear_interpolation_with_weights_...
+propotional_to_distance
+linear_interpolation_in_2d_data
 
 
-Globals        Type           Description
-============== ============== =================================================
-
+Globals               Type                Description
+===================== =================== =====================================
+subimage_data         unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
+hist_data             histogram ***       Histogram from subimages.
+Ts                    unsigned char **    Calculate one threshold per subimage.
 
 Programmer     Date           Action
 ============== ============== =================================================
@@ -71,7 +99,16 @@ Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l, m         unsigned int        General purpose indexes.
 r, g, b               unsigned char       RGB values.
-step_per_subimage     unsigned int        Shift step per subimage.
+h_mem_alloc           unsigned int        The maximum height of the subimage.
+w_mem_alloc           unsigned int        The maximum width of the subimage.
+wdS                   unsigned int        Number of subimages in the width of 
+                                          the image.
+wmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
+hdS                   unsigned int        Number of subimages in the height of 
+                                          the image.
+hmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
 
 ############################################################################ */
 int create_sub_images(unsigned char *image_data, int width, int height, unsigned int *width_subimages, unsigned int *height_subimages)
@@ -236,6 +273,16 @@ subimage_data(IN)     unsigned char ***** Subimages data.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l, m         unsigned int        General purpose indexes.
+h_mem_alloc           unsigned int        The maximum height of the subimage.
+w_mem_alloc           unsigned int        The maximum width of the subimage.
+wdS                   unsigned int        Number of subimages in the width of 
+                                          the image.
+wmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
+hdS                   unsigned int        Number of subimages in the height of 
+                                          the image.
+hmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
 
 ############################################################################ */
 int free_mem_subimages(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
@@ -296,6 +343,7 @@ type(IN)              unsigned char       0 for red value pixels
                                           2 for blue value pixels
                                           3 for grey value pixels
                                           4 for RGB value pixels
+                                          5 for threshold values
 width(IN)             int                 Width of image.
 height(IN)            int                 Height of image.
 width_subimages(IN)   unsigned int*       Width coordinate of subimage.
@@ -322,7 +370,16 @@ subimage_data(IN)     unsigned char ***** Subimages data.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l, m         unsigned int        General purpose indexes.
-
+h_mem_alloc           unsigned int        The maximum height of the subimage.
+w_mem_alloc           unsigned int        The maximum width of the subimage.
+wdS                   unsigned int        Number of subimages in the width of 
+                                          the image.
+wmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
+hdS                   unsigned int        Number of subimages in the height of 
+                                          the image.
+hmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
 
 ############################################################################ */
 int export_ppm_subimages(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
@@ -378,31 +435,41 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
 						data_buffer[lkwma + 1] = 0;
 						data_buffer[lkwma + 2] = 0;
+						sprintf(filename,"%03u_%03u_RedSubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
 						break;
 					case 1:/*Green values*/
 						data_buffer[lkwma + 0] = 0;
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
 						data_buffer[lkwma + 2] = 0;
+						sprintf(filename,"%03u_%03u_GreenSubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
 						break;
 					case 2:/*Blue values*/
 						data_buffer[lkwma + 0] = 0;
 						data_buffer[lkwma + 1] = 0;
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
+						sprintf(filename,"%03u_%03u_BlueSubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
 						break;
 					case 3:/*Grey values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][3];
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][3];
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][3];
+						sprintf(filename,"%03u_%03u_GreySubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
 						break;
 					case 4:/*RGB values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
+						sprintf(filename,"%03u_%03u_Subimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
+						break;
+					case 5:/*Threshold values*/
+						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][4];
+						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][4];
+						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][4];
+						sprintf(filename,"%03u_%03u_ThresholdSubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
 						break;
 					}
 				}/*l*/
 			}/*k*/
-		sprintf(filename,"%03u_%03u_Subimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
 		save_ppm(filename, w_mem_alloc, h_mem_alloc, data_buffer);
 		}/*j*/
 	}/*i*/
@@ -452,6 +519,16 @@ hist_data(OUT)        histogram ***       Histogram from subimages.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l            unsigned int        General purpose indexes.
+h_mem_alloc           unsigned int        The maximum height of the subimage.
+w_mem_alloc           unsigned int        The maximum width of the subimage.
+wdS                   unsigned int        Number of subimages in the width of 
+                                          the image.
+wmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
+hdS                   unsigned int        Number of subimages in the height of 
+                                          the image.
+hmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
 r, g, b               unsigned char       RGB values.
 gry                   unsigned char       Grey value.
 
@@ -621,6 +698,7 @@ FALSE                                     If memory allocation fails.
 Globals               Type                Description
 ===================== =================== =====================================
 hist_data(IN)         histogram ***       Histogram from subimages.
+Ts(OUT)               unsigned char **    Calculate one threshold per subimage.
 
 Locals                Type                Description
 ===================== =================== =====================================
@@ -697,15 +775,18 @@ Description    : Calculate the minimum and maximum grey
 
 Arguments             Type                Description
 ===================== =================== =====================================
-h_subim_index(IN)     unsigned char
-w_subim_index(IN)     unsigned char
-max_lvl_hist(OUT)     unsigned char *
-min_lvl_hist(OUT)     unsigned char *
+h_subim_index(IN)     unsigned int        Index for height coordinate of 
+                                          subimage.
+w_subim_index(IN)     unsigned int        Index for width coordinate of 
+                                          subimage.
+max_lvl_hist(OUT)     unsigned char *     The level of histogram that has the 
+                                          maximum value.
+min_lvl_hist(OUT)     unsigned char *     The level of histogram that has the 
+                                          minimum value.
 
 Return Values                             Description
 ========================================= =====================================
 TRUE                                      If all goes well.
-
 
 Globals               Type                Description
 ===================== =================== =====================================
@@ -714,6 +795,12 @@ hist_data             histogram ***       The histogram of the subimages.
 Locals                Type                Description
 ===================== =================== =====================================
 i                     unsigned int        General purpose index.
+max_pix_hist          unsigned int        The maximum value of histogram.
+min_pix_hist          unsigned int        The minimum value of histogram
+max_lvl               unsigned char       The level of histogram that has the 
+                                          maximum value.
+min_lvl               unsigned char       The level of histogram that has the 
+                                          minimum value.
 
 ############################################################################ */
 int calculate_min_max_hist_threshold(unsigned int h_subim_index, unsigned int w_subim_index, unsigned char *max_lvl_hist, unsigned char *min_lvl_hist)
@@ -747,20 +834,24 @@ return TRUE;
 
 /* ############################################################################
 Name           : basic_global_thresholding_algorithm
-Description    : 
+Description    : Calculate threshold values according to the algorithm 
+                 from Gonzales, R.C, Woods, R.E., 2002. Digital Image 
+                 Processing, 2nd ed Prentice Hall, Upper Saddle River, NJ, 
+                 pp. 598-600(10.3.3 Basic Global Thresholding).
 
 
 Arguments             Type                Description
 ===================== =================== =====================================
-h_subim_index(IN)     unsigned char
-w_subim_index(IN)     unsigned char
-Tstart(IN)            float
-Ts(OUT)               unsigned char *
+h_subim_index(IN)     unsigned int        Index for height coordinate of 
+                                          subimage.
+w_subim_index(IN)     unsigned int        Index for width coordinate of 
+                                          subimage.
+Tstart(IN)            float               The initial value for threshold.
+Ts(OUT)               unsigned char *     The output value for threshold.
 
 Return Values                             Description
 ========================================= =====================================
 TRUE                                      If all goes well.
-
 
 Globals               Type                Description
 ===================== =================== =====================================
@@ -769,6 +860,19 @@ hist_data             histogram ***       The histogram of the subimages.
 Locals                Type                Description
 ===================== =================== =====================================
 i                     unsigned int        General purpose index.
+Tend                  float               The output value of threshold.
+first_run_flag        unsigned char       A flag for getting into the loop for 
+                                          first time.
+mi1_values            unsigned int        Sum of pixel values in G1.
+mi2_values            unsigned int        Sum of pixel values in G2.
+count_mi1             unsigned int        Total number of pixels that are 
+                                          located in G1 region.
+count_mi2             unsigned int        Total number of pixels that are 
+                                          located in G2 region.
+mi1                   float               Average grey level value for 
+                                          region G1.
+mi2                   float               Average grey level value for 
+                                          region G2.
 
 ############################################################################ */
 int basic_global_thresholding_algorithm(unsigned int h_subim_index, unsigned int w_subim_index, float Tstart, unsigned char *Ts)
@@ -860,11 +964,21 @@ subimage_data(OUT)    unsigned char ***** Subimages data.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l            unsigned int        General purpose indexes.
+h_mem_alloc           unsigned int        The maximum height of the subimage.
+w_mem_alloc           unsigned int        The maximum width of the subimage.
+wdS                   unsigned int        Number of subimages in the width of 
+                                          the image.
+wmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
+hdS                   unsigned int        Number of subimages in the height of 
+                                          the image.
+hmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
 
 ############################################################################ */
 int calculate_threshold_with_interpolation(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
-unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
+unsigned int i = 0, j = 0, k = 0, l = 0;
 unsigned int h_mem_alloc = 0;
 unsigned int w_mem_alloc = 0;
 
@@ -903,14 +1017,13 @@ for (i=0;i<height_subimages;i++){
 
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
-		if (i == 1) break;
+		/*if (i == 1) return TRUE;*/
 		/*------------------------------------------------*/
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
 			h_mem_alloc = hmS;
 		/*------------------------------------------------*/
-		printf("[%u %u]\n", i, j);
 		for(k=0;k<h_mem_alloc;k++){
 			/*------------------------------------------------*/
 			if (j < wdS)
@@ -918,6 +1031,9 @@ for (i=0;i<height_subimages;i++){
 			else
 				w_mem_alloc = wmS;
 			/*------------------------------------------------*/
+			if (!k)
+				printf("[%u %u] MAX[%u %u]\n", i, j, h_mem_alloc, w_mem_alloc);
+
 			for(l=0;l<w_mem_alloc;l++){
 
 				if (!k && !l)/*Don't compute the position (0,0)*/
@@ -929,19 +1045,19 @@ for (i=0;i<height_subimages;i++){
 							bilinear_interpolation_with_weights_propotional_to_square_of_distance(i, j, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
 							}
 						else{
+							linear_interpolation_in_2d_data(i, j, height_subimages, width_subimages, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
 							}
 						break;
 					case 1:
 						if ((i < (height_subimages - 1)) && (j < (width_subimages - 1))){
 							bilinear_interpolation_with_weights_propotional_to_distance(i, j, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
-							printf("%u ", subimage_data[i][j][k][l][4]);
 							}
 						else{
+							linear_interpolation_in_2d_data(i, j, height_subimages, width_subimages, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
 							}
-
 						break;
 					}
-
+				printf("%u ", subimage_data[i][j][k][l][4]);
 				}/*for l*/
 			}/*for k*/
 		printf("\n");
@@ -953,7 +1069,44 @@ return TRUE;
 }
 
 
+/* ############################################################################
+Name           : bilinear_interpolation_with_weights_propotional_to_square_of_distance
+Description    : Bilinear interpolation with weights propotional to square of distance
 
+Arguments             Type                Description
+===================== =================== =====================================
+h_subim_index(IN)     unsigned int        Index of subimage in height 
+                                          coordinate.
+w_subim_index(IN)     unsigned int        Index of subimage in width 
+                                          coordinate.
+x(IN)                 unsigned int        Height coordinate in the subimage.
+y(IN)                 unsigned int        width coordinate in the subimage.
+Max_x(IN)             unsigned int        Height of the subimage.
+Max_y(IN)             unsigned int        Width of the subimage.
+Ti(OUT)               unsigned char *     The interpolated threshold.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+subimage_data(IN)     unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l            unsigned int        General purpose indexes.
+
+############################################################################ */
 int bilinear_interpolation_with_weights_propotional_to_square_of_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y, unsigned int Max_x, unsigned int Max_y, unsigned char *Ti)
 {
 unsigned char I1 = 0, I2 = 0, I3 = 0, I4 = 0;
@@ -992,6 +1145,44 @@ return TRUE;
 }
 
 
+/* ############################################################################
+Name           : bilinear_interpolation_with_weights_propotional_to_distance
+Description    : Bilinear interpolation with weights propotional to distance.
+
+Arguments             Type                Description
+===================== =================== =====================================
+h_subim_index(IN)     unsigned int        Index of subimage in height 
+                                          coordinate.
+w_subim_index(IN)     unsigned int        Index of subimage in width 
+                                          coordinate.
+x(IN)                 unsigned int        Height coordinate in the subimage.
+y(IN)                 unsigned int        width coordinate in the subimage.
+Max_x(IN)             unsigned int        Height of the subimage.
+Max_y(IN)             unsigned int        Width of the subimage.
+Ti(OUT)               unsigned char *     The interpolated threshold.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+subimage_data(IN)     unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l            unsigned int        General purpose indexes.
+
+############################################################################ */
 int bilinear_interpolation_with_weights_propotional_to_distance(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int x, unsigned int y, unsigned int Max_x, unsigned int Max_y, unsigned char *Ti)
 {
 unsigned char I1 = 0, I2 = 0, I3 = 0, I4 = 0;
@@ -1009,8 +1200,90 @@ OneMinusBeta = 1.0 - Beta;
 
 (*Ti) = ((unsigned char)(Alpha*Beta*(float)I1)) + 
 	((unsigned char)(OneMinusAlpha*Beta*(float)I2)) + 
-	((unsigned char)(Alpha*OneMinusBeta*(float)I4)) +
+	((unsigned char)(Alpha*OneMinusBeta*(float)I4)) + 
 	((unsigned char)(OneMinusAlpha*OneMinusBeta*(float)I3));
+
+return TRUE;
+}
+
+
+/* ############################################################################
+Name           : linear_interpolation_in_2d_data
+Description    : Linear interpolation in 2-D data.
+
+Arguments             Type                Description
+===================== =================== =====================================
+h_subim_index(IN)     unsigned int        Index of subimage in height 
+                                          coordinate.
+w_subim_index(IN)     unsigned int        Index of subimage in width 
+                                          coordinate.
+Max_Height_Subim(IN)  unsigned int        Number of subimages in the height of 
+                                          the image.
+Max_Width_Subim(IN)   unsigned int        Number of subimages in the width of 
+                                          the image.
+x(IN)                 unsigned int        Height coordinate in the subimage.
+y(IN)                 unsigned int        width coordinate in the subimage.
+Max_x(IN)             unsigned int        Height of the subimage.
+Max_y(IN)             unsigned int        Width of the subimage.
+Ti(OUT)               unsigned char *     The interpolated threshold.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+subimage_data(IN)     unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l            unsigned int        General purpose indexes.
+
+############################################################################ */
+int linear_interpolation_in_2d_data(unsigned int h_subim_index, unsigned int w_subim_index, unsigned int Max_Height_Subim, unsigned int Max_Width_Subim, unsigned int x, unsigned int y, unsigned int Max_x, unsigned int Max_y, unsigned char *Ti)
+{
+unsigned char I1 = 0, I2 = 0, I4 = 0;
+float Alpha = 0.0, OneMinusAlpha = 0.0;
+
+I1 = subimage_data[h_subim_index][w_subim_index][0][0][4];
+
+Alpha = ((float)(Max_x - x) / Max_x) / ((float)(Max_y - y) / Max_y);
+OneMinusAlpha = 1.0 - Alpha;
+
+
+if ((w_subim_index == (Max_Width_Subim - 1)) && 
+    (h_subim_index != (Max_Height_Subim - 1))){/*2 reference points*/
+
+	I4 = subimage_data[h_subim_index + 1][w_subim_index][0][0][4];
+
+	(*Ti) = ((unsigned char)(Alpha*(float)I1)) + 
+		((unsigned char)(OneMinusAlpha*(float)I4));
+
+	}
+else if((h_subim_index == (Max_Height_Subim - 1)) &&
+	(w_subim_index != (Max_Width_Subim - 1))){/*2 reference points*/
+
+	I2 = subimage_data[h_subim_index][w_subim_index + 1][0][0][4];
+
+	(*Ti) = ((unsigned char)(Alpha*(float)I1)) + 
+		((unsigned char)(OneMinusAlpha*(float)I2));
+
+	}
+else if ((h_subim_index == (Max_Height_Subim - 1)) &&
+	 (w_subim_index == (Max_Width_Subim - 1))){/*1 reference point*/
+
+	(*Ti) = I1;
+
+	}
 
 return TRUE;
 }

@@ -101,7 +101,7 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	calculate_threshold(width, height, width_sub, height_sub);
 
-	calculate_threshold_with_interpolation(1, width, height, width_sub, height_sub);
+	calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);
 
 	/*********************************MYCODE*********************************/
 
