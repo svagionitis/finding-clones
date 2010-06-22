@@ -95,14 +95,17 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	/*export_ppm_subimages(4, width, height, width_sub, height_sub);*/
 
-	calculate_histogram(3, width, height, width_sub, height_sub);
+	/*calculate_histogram(3, width, height, width_sub, height_sub);*/
 
 	/*free_mem_subimages(width, height, width_sub, height_sub);*/
 
-	calculate_threshold(width, height, width_sub, height_sub);
+	/*calculate_threshold(width, height, width_sub, height_sub);*/
 
-	calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);
+	/*calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);*/
 
+	/*export_ppm_subimages(5, width, height, width_sub, height_sub);*/
+
+	reconstruct_image_from_subimages(3, width, height, width_sub, height_sub);
 	/*********************************MYCODE*********************************/
 
 

@@ -174,9 +174,9 @@ else{
 							}
 						else{
 							for(l=0;l<w_mem_alloc;l++){
-								subimage_data[i][j][k][l] = (unsigned char *)malloc(4 * sizeof(unsigned char));
+								subimage_data[i][j][k][l] = (unsigned char *)malloc(5 * sizeof(unsigned char));
 								if (subimage_data[i][j][k][l] == NULL){
-									printf("Could not allocate %d bytes for l=%d index.\n", (4 * sizeof(unsigned char)), l);
+									printf("Could not allocate %d bytes for l=%d index.\n", (5 * sizeof(unsigned char)), l);
 									return FALSE;
 									}
 								else{
@@ -209,7 +209,7 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 		else
 			h_mem_alloc = hmS;
 		/*------------------------------------------------*/
-
+		/*printf("[%u %u]\n", i, j);*/
 		for(k=0;k<h_mem_alloc;k++){
 			unsigned int x = (k + ssi);
 			/*------------------------------------------------*/
@@ -230,9 +230,10 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 				b = subimage_data[i][j][k][l][2] = image_data[xyM + 2];
 
 				subimage_data[i][j][k][l][3] = GREYSCALE1(r, g, b);
-
+				/*printf("%03u ", subimage_data[i][j][k][l][3]);*/
 				}/*l*/
 			}/*k*/
+		/*printf("\n");*/
 		}/*j*/
 	}/*i*/
 
@@ -331,7 +332,7 @@ return TRUE;
 }
 
 /* ############################################################################
-Name           : export_ppm_subimages_rgb
+Name           : export_ppm_subimages
 Description    : Take as input the original image and create the subimages 
                  according to the algorithm of the paper. The subimages are 
                  colored.
@@ -1031,9 +1032,10 @@ for (i=0;i<height_subimages;i++){
 			else
 				w_mem_alloc = wmS;
 			/*------------------------------------------------*/
+/*
 			if (!k)
 				printf("[%u %u] MAX[%u %u]\n", i, j, h_mem_alloc, w_mem_alloc);
-
+*/
 			for(l=0;l<w_mem_alloc;l++){
 
 				if (!k && !l)/*Don't compute the position (0,0)*/
@@ -1057,10 +1059,10 @@ for (i=0;i<height_subimages;i++){
 							}
 						break;
 					}
-				printf("%u ", subimage_data[i][j][k][l][4]);
+				/*printf("%u ", subimage_data[i][j][k][l][4]);*/
 				}/*for l*/
 			}/*for k*/
-		printf("\n");
+		/*printf("\n");*/
 		}/*for j*/
 	}/*for i*/
 
@@ -1284,6 +1286,131 @@ else if ((h_subim_index == (Max_Height_Subim - 1)) &&
 	(*Ti) = I1;
 
 	}
+
+return TRUE;
+}
+
+
+
+
+int reconstruct_image_from_subimages(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
+{
+unsigned int i = 0, j = 0, k = 0, l = 0;
+unsigned int h_mem_alloc = 0;
+unsigned int w_mem_alloc = 0;
+unsigned int data_mem_alloc = 0;
+char filename[128];
+
+unsigned int wdS = (width / SHIFT) - 1;
+unsigned int wmS = width % SHIFT;
+unsigned int hdS = (height / SHIFT) - 1;
+unsigned int hmS = height % SHIFT;
+
+unsigned char *data_buffer=NULL;
+data_mem_alloc = (3 * width * height);
+data_buffer = (unsigned char *)malloc(data_mem_alloc * sizeof(unsigned char));
+if (data_buffer == NULL){
+	printf("Could not allocate %d bytes.\n", (data_mem_alloc * sizeof(unsigned char)));
+	return FALSE;
+	}
+else{/*Initialize data buffer*/
+	printf("Mem alloc %d bytes.\n", data_mem_alloc * sizeof(unsigned char));
+	for(i=0;i<data_mem_alloc;i++)
+		data_buffer[i] = 0;
+	}
+
+
+switch(type){
+	case 0:/*Red values*/
+		sprintf(filename,"RedImage.ppm");
+		break;
+	case 1:/*Green values*/
+		sprintf(filename,"GreenImage.ppm");
+		break;
+	case 2:/*Blue values*/
+		sprintf(filename,"BlueImage.ppm");
+		break;
+	case 3:/*Grey values*/
+		sprintf(filename,"GreyImage.ppm");
+		break;
+	case 4:/*RGB values*/
+		sprintf(filename,"RGBImage.ppm");
+		break;
+	case 5:/*Threshold values*/
+		sprintf(filename,"ThresholdImage.ppm");
+		break;
+	}
+
+
+for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
+	unsigned int ssi = SHIFT*i;
+	for (j=0;j<width_subimages;j++){/*Width coordinate of subimage*/
+		unsigned int ssj = SHIFT*j;
+
+		/*------------------------------------------------*/
+		if (i < hdS)
+			h_mem_alloc = M;
+		else
+			h_mem_alloc = hmS;
+		/*------------------------------------------------*/
+		for(k=0;k<h_mem_alloc;k++){
+			unsigned int x = (k + ssi);
+			/*------------------------------------------------*/
+			if (j < wdS)
+				w_mem_alloc = M;
+			else
+				w_mem_alloc = wmS;
+			/*------------------------------------------------*/
+
+			for(l=0;l<w_mem_alloc;l++){
+				unsigned int y = (l + ssj);
+				unsigned int xyM = (y + x * (width)) * 3;
+
+				if (!k && !l)
+					printf("[%u %u] %u\n", i, j, xyM);
+
+				switch(type){
+					case 0:/*Red values*/
+						data_buffer[xyM + 0] = subimage_data[i][j][k][l][0];
+						data_buffer[xyM + 1] = 0;
+						data_buffer[xyM + 2] = 0;
+						break;
+					case 1:/*Green values*/
+						data_buffer[xyM + 0] = 0;
+						data_buffer[xyM + 1] = subimage_data[i][j][k][l][1];
+						data_buffer[xyM + 2] = 0;
+						break;
+					case 2:/*Blue values*/
+						data_buffer[xyM + 0] = 0;
+						data_buffer[xyM + 1] = 0;
+						data_buffer[xyM + 2] = subimage_data[i][j][k][l][2];
+						break;
+					case 3:/*Grey values*/
+						printf("%03u ", subimage_data[i][j][k][l][3]);
+						data_buffer[xyM + 0] = subimage_data[i][j][k][l][3];
+						data_buffer[xyM + 1] = subimage_data[i][j][k][l][3];
+						data_buffer[xyM + 2] = subimage_data[i][j][k][l][3];
+						break;
+					case 4:/*RGB values*/
+						data_buffer[xyM + 0] = subimage_data[i][j][k][l][0];
+						data_buffer[xyM + 1] = subimage_data[i][j][k][l][1];
+						data_buffer[xyM + 2] = subimage_data[i][j][k][l][2];
+						break;
+					case 5:/*Threshold values*/
+						data_buffer[xyM + 0] = subimage_data[i][j][k][l][4];
+						data_buffer[xyM + 1] = subimage_data[i][j][k][l][4];
+						data_buffer[xyM + 2] = subimage_data[i][j][k][l][4];
+						break;
+					}
+				}/*l*/
+			}/*k*/
+		printf("\n");
+		}/*j*/
+	}/*i*/
+
+save_ppm(filename, width, height, data_buffer);
+
+free(data_buffer);
 
 return TRUE;
 }
