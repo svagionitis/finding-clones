@@ -52,46 +52,31 @@ void find_rect(int **obj_id, int width, int height, int n_object, object *obj);
 void calculate_area(int **obj_id, int width, int height, int n_object, int *area);
 void calculate_length(int **obj_id, int width, int height, int n_object, double *len, unsigned char *image);
 void k_means(double *x, object *obj, int N);
+object *baseline(unsigned char *, unsigned char *, int, int, int *);
 
 
 /* non-implemented for level 2 and level 3 */
-object *my_alg_level2(unsigned char *image, int width, int height, int *n_object) { return NULL; }
-object *my_alg_level3(unsigned char *image, int width, int height, int *n_object) { return NULL; }
+object *my_alg_level2(unsigned char *image, int width, int height, int *n_object) 
+{
+
+return NULL;
+}
+
+object *my_alg_level3(unsigned char *image, int width, int height, int *n_object) 
+{
+
+return NULL;
+}
 
 
 object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int height, int *n_object)
 {
-	int i, j;
-	int n;	/* number of objects */
-
-	int    *area;	/* area */
-	double *len;	/* perimeter length */
-	double *circ;	/* circularity index */
-
-	object *obj;	/* for storing results */
-
-	int **obj_id = (int **)malloc(height*sizeof(int *));
-	if (obj_id == NULL){
-		printf("Could not allocate %d bytes.\n", height*sizeof(int *));
-		exit(0);
-		}
-	else{
-		for (i = 0; i < height; i++){
-			obj_id[i] = (int *)malloc(width*sizeof(int));
-			if (obj_id[i] == NULL){
-				printf("Could not allocate %d bytes for i=%d index.\n", width*sizeof(int), i);
-				exit(0);
-				}
-			}
-		}
-
-
 
 	/*********************************MYCODE*********************************/
 
 
-	unsigned int width_sub = 0, height_sub = 0;
-	create_sub_images(image, width, height, &width_sub, &height_sub);
+	/*unsigned int width_sub = 0, height_sub = 0;*/
+	/*create_sub_images(image, width, height, &width_sub, &height_sub);*/
 
 	/*export_ppm_subimages(4, width, height, width_sub, height_sub);*/
 
@@ -105,78 +90,110 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	/*export_ppm_subimages(5, width, height, width_sub, height_sub);*/
 
-	reconstruct_image_from_subimages(3, width, height, width_sub, height_sub);
+	/*reconstruct_image_from_subimages(3, width, height, width_sub, height_sub);*/
 	/*********************************MYCODE*********************************/
 
 
-	/* assign ID to each object and returns the number of objects */
-	n = assign_id(mask, width, height, obj_id);
+	return baseline(image, mask, width, height, n_object);
+}
 
-	/* allocate memories */
-	area = (int *)malloc(n * sizeof(int));
-	if (area == NULL){
-		printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(int)));
-		exit(-1);
-		}
 
-	len  = (double *)malloc(n * sizeof(double));
-	if (len == NULL){
-		printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
-		exit(-1);
-		}
 
-	circ = (double *)malloc(n * sizeof(double));
-	if (circ == NULL){
-		printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
-		exit(-1);
-		}
+object *baseline(unsigned char *image, unsigned char *mask, int width, int height, int *n_object)
+{
+int i, j;
+int n;	/* number of objects */
 
-	
-	obj  = (object *)malloc(n * sizeof(object));
-	if (obj == NULL){
-		printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(object)));
-		exit(-1);
-		}
+int    *area;	/* area */
+double *len;	/* perimeter length */
+double *circ;	/* circularity index */
 
-	/* calcuate areas */
-	calculate_area(obj_id, width, height, n, area);
+object *obj;	/* for storing results */
 
-	/* calcuate perimeter length */
-	calculate_length(obj_id, width, height, n, len, image);
-
-	/* calcuate cirularity index */
-	for (i = 0; i < n; i++) {
-		circ[i] = 4.0*PI * area[i] / (len[i]*len[i]);
+int **obj_id = (int **)malloc(height*sizeof(int *));
+if (obj_id == NULL){
+	printf("Could not allocate %d bytes.\n", height*sizeof(int *));
+	exit(0);
 	}
-
-	/* k-means clustering */
-	k_means(circ, obj, n);
-
-	/* choose representatives (smallest number for each cluster) */
-	for (i = 0; i < n; i++) obj[i].rep = 0;
-	for (j = 0; j < NUM_CLASS; j++) {
-		for (i = 0; i < n; i++) {
-			if (obj[i].label == j) {
-				obj[i].rep = 1;
-				break;
+else{
+	for (i = 0; i < height; i++){
+		obj_id[i] = (int *)malloc(width*sizeof(int));
+		if (obj_id[i] == NULL){
+			printf("Could not allocate %d bytes for i=%d index.\n", width*sizeof(int), i);
+			exit(0);
 			}
 		}
 	}
 
-	/* find bounding box */
-	find_rect(obj_id, width, height, n, obj);
+/* assign ID to each object and returns the number of objects */
+n = assign_id(mask, width, height, obj_id);
 
-	for (i = 0; i < height; i++) free(obj_id[i]);
-	free(obj_id);
+/* allocate memories */
+area = (int *)malloc(n * sizeof(int));
+if (area == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(int)));
+	exit(-1);
+	}
 
-	free(area);
-	free(len);
-	free(circ);
+len  = (double *)malloc(n * sizeof(double));
+if (len == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
 
-	*n_object = n;
-	return obj;
+circ = (double *)malloc(n * sizeof(double));
+if (circ == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+
+	
+obj  = (object *)malloc(n * sizeof(object));
+if (obj == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(object)));
+	exit(-1);
+	}
+
+/* calcuate areas */
+calculate_area(obj_id, width, height, n, area);
+
+/* calcuate perimeter length */
+calculate_length(obj_id, width, height, n, len, image);
+
+/* calcuate cirularity index */
+for (i = 0; i < n; i++) {
+	circ[i] = 4.0*PI * area[i] / (len[i]*len[i]);
 }
 
+/* k-means clustering */
+k_means(circ, obj, n);
+
+/* choose representatives (smallest number for each cluster) */
+for (i = 0; i < n; i++) obj[i].rep = 0;
+for (j = 0; j < NUM_CLASS; j++) {
+	for (i = 0; i < n; i++) {
+		if (obj[i].label == j) {
+			obj[i].rep = 1;
+			break;
+		}
+	}
+}
+
+/* find bounding box */
+find_rect(obj_id, width, height, n, obj);
+
+for (i = 0; i < height; i++) free(obj_id[i]);
+free(obj_id);
+
+free(area);
+free(len);
+free(circ);
+
+*n_object = n;
+
+return obj;
+
+}
 
 /* ############################################################################
 Name           : replace_obj_id
