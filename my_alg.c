@@ -331,7 +331,7 @@ int assign_id(unsigned char *img, int width, int height, int **obj_id)
  * Find a bounding box for each object                       *
  *************************************************************/
 void find_rect(int **obj_id, int width, int height, int n_object, object *obj)
-{    
+{
 	int i, x, y;
 
 	for (i = 0; i < n_object; i++) {
@@ -359,7 +359,7 @@ void find_rect(int **obj_id, int width, int height, int n_object, object *obj)
  * Calculate the area of the object                          *
  *************************************************************/
 void calculate_area(int **obj_id, int width, int height, int n_object, int *area)
-{	    
+{
 	int i, x, y;
 
 	for (i = 0; i < n_object; i++) area[i] = 0;
@@ -441,6 +441,7 @@ void k_means(double *x, object *obj, int n_object)
 
 	srand((unsigned int)time(NULL));
 
+	/*Assign labels randomly to the objects*/
 	for (i = 0; i < n_object; i++) obj[i].label = (int)(rand()*R);
 
 	while (1) {
