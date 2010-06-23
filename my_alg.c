@@ -441,7 +441,7 @@ void k_means(double *x, object *obj, int n_object)
 
 	srand((unsigned int)time(NULL));
 
-	/*Assign labels randomly to the objects*/
+	/*Assign labels/clusters randomly to the objects*/
 	for (i = 0; i < n_object; i++) obj[i].label = (int)(rand()*R);
 
 	while (1) {
@@ -488,4 +488,19 @@ void k_means(double *x, object *obj, int n_object)
 	free(cen);
 }
 
+
+
+
+/*Input: area, perim, n Output: circ*/
+int morphological_feature_circularity_index(int *area, double *perim, int n_object, double *circ)
+{
+unsigned int i = 0;
+
+/* calcuate cirularity index */
+for (i = 0; i < n_object; i++){
+	circ[i] = 4.0*PI * area[i] / (perim[i]*perim[i]);
+	}
+
+return TRUE;
+}
 
