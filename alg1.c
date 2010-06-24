@@ -149,7 +149,7 @@ else{
 				if (i < hdS)
 					h_mem_alloc = M;
 				else
-					h_mem_alloc = hmS;
+					h_mem_alloc = SHIFT + hmS;
 				/*------------------------------------------------*/
 
 				subimage_data[i][j] = (unsigned char ***)malloc(h_mem_alloc * sizeof(unsigned char **));
@@ -164,7 +164,7 @@ else{
 						if (j < wdS)
 							w_mem_alloc = M;
 						else
-							w_mem_alloc = wmS;
+							w_mem_alloc = SHIFT + wmS;
 						/*------------------------------------------------*/
 
 						subimage_data[i][j][k] = (unsigned char **)malloc(w_mem_alloc * sizeof(unsigned char *));
@@ -207,8 +207,9 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = hmS;
+			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
+		unsigned int xyM = 0;
 		/*printf("[%u %u]\n", i, j);*/
 		for(k=0;k<h_mem_alloc;k++){
 			unsigned int x = (k + ssi);
@@ -216,14 +217,19 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = wmS;
+				w_mem_alloc = SHIFT + wmS;
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
 				unsigned char r = 0, g = 0, b = 0;
 				unsigned int y = (l + ssj);
 
-				unsigned int xyM = (y + x * (width)) * 3;
+				xyM = (y + x * (width)) * 3;
+
+/*
+				if (!l)
+					printf("\t[%u ", xyM);
+*/
 
 				r = subimage_data[i][j][k][l][0] = image_data[xyM + 0];
 				g = subimage_data[i][j][k][l][1] = image_data[xyM + 1];
@@ -232,6 +238,7 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 				subimage_data[i][j][k][l][3] = GREYSCALE1(r, g, b);
 				/*printf("%03u ", subimage_data[i][j][k][l][3]);*/
 				}/*l*/
+			/*printf("%u]\n", xyM);*/
 			}/*k*/
 		/*printf("\n");*/
 		}/*j*/
@@ -304,7 +311,7 @@ for (i=0;i<height_subimages;i++){
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = hmS;
+			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
 
 		for(k=0;k<h_mem_alloc;k++){
@@ -313,7 +320,7 @@ for (i=0;i<height_subimages;i++){
 			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = wmS;
+				w_mem_alloc = SHIFT + wmS;
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
@@ -417,7 +424,7 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = hmS;
+			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
 
 		for(k=0;k<h_mem_alloc;k++){
@@ -426,7 +433,7 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = wmS;
+				w_mem_alloc = SHIFT + wmS;
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
@@ -588,7 +595,7 @@ for (i=0;i<height_subimages;i++){
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = hmS;
+			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
 		
 		memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
@@ -598,7 +605,7 @@ for (i=0;i<height_subimages;i++){
 			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = wmS;
+				w_mem_alloc = SHIFT + wmS;
 			/*------------------------------------------------*/
 			max_pixels = (h_mem_alloc*w_mem_alloc);
 			for(l=0;l<w_mem_alloc;l++){
@@ -1000,14 +1007,14 @@ for (i=0;i<height_subimages;i++){
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = hmS;
+			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
 		for(k=0;k<h_mem_alloc;k++){
 			/*------------------------------------------------*/
 			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = wmS;
+				w_mem_alloc = SHIFT + wmS;
 			/*------------------------------------------------*/
 			for(l=0;l<w_mem_alloc;l++){
 				subimage_data[i][j][0][0][4] = Ts[i][j];
@@ -1018,24 +1025,19 @@ for (i=0;i<height_subimages;i++){
 
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
-		/*if (i == 1) return TRUE;*/
 		/*------------------------------------------------*/
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = hmS;
+			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
 		for(k=0;k<h_mem_alloc;k++){
 			/*------------------------------------------------*/
 			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = wmS;
+				w_mem_alloc = SHIFT + wmS;
 			/*------------------------------------------------*/
-/*
-			if (!k)
-				printf("[%u %u] MAX[%u %u]\n", i, j, h_mem_alloc, w_mem_alloc);
-*/
 			for(l=0;l<w_mem_alloc;l++){
 
 				if (!k && !l)/*Don't compute the position (0,0)*/
@@ -1059,10 +1061,8 @@ for (i=0;i<height_subimages;i++){
 							}
 						break;
 					}
-				/*printf("%u ", subimage_data[i][j][k][l][4]);*/
 				}/*for l*/
 			}/*for k*/
-		/*printf("\n");*/
 		}/*for j*/
 	}/*for i*/
 
@@ -1300,6 +1300,7 @@ unsigned int h_mem_alloc = 0;
 unsigned int w_mem_alloc = 0;
 unsigned int data_mem_alloc = 0;
 char filename[128];
+memset(filename, '\0', sizeof(filename));
 
 unsigned int wdS = (width / SHIFT) - 1;
 unsigned int wmS = width % SHIFT;
@@ -1341,7 +1342,6 @@ switch(type){
 		break;
 	}
 
-
 for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 	unsigned int ssi = SHIFT*i;
 	for (j=0;j<width_subimages;j++){/*Width coordinate of subimage*/
@@ -1351,7 +1351,7 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 		if (i < hdS)
 			h_mem_alloc = M;
 		else
-			h_mem_alloc = hmS;
+			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
 		for(k=0;k<h_mem_alloc;k++){
 			unsigned int x = (k + ssi);
@@ -1359,15 +1359,12 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 			if (j < wdS)
 				w_mem_alloc = M;
 			else
-				w_mem_alloc = wmS;
+				w_mem_alloc = SHIFT + wmS;
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
 				unsigned int y = (l + ssj);
-				unsigned int xyM = (y + x * (width)) * 3;
-
-				if (!k && !l)
-					printf("[%u %u] %u\n", i, j, xyM);
+				unsigned int xyM = (y + x * width) * 3;
 
 				switch(type){
 					case 0:/*Red values*/
@@ -1386,7 +1383,6 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 						data_buffer[xyM + 2] = subimage_data[i][j][k][l][2];
 						break;
 					case 3:/*Grey values*/
-						printf("%03u ", subimage_data[i][j][k][l][3]);
 						data_buffer[xyM + 0] = subimage_data[i][j][k][l][3];
 						data_buffer[xyM + 1] = subimage_data[i][j][k][l][3];
 						data_buffer[xyM + 2] = subimage_data[i][j][k][l][3];
@@ -1404,7 +1400,6 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 					}
 				}/*l*/
 			}/*k*/
-		printf("\n");
 		}/*j*/
 	}/*i*/
 

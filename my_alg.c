@@ -75,22 +75,25 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	/*********************************MYCODE*********************************/
 
 
-	/*unsigned int width_sub = 0, height_sub = 0;*/
-	/*create_sub_images(image, width, height, &width_sub, &height_sub);*/
+	unsigned int width_sub = 0, height_sub = 0;
+	create_sub_images(image, width, height, &width_sub, &height_sub);
 
-	/*export_ppm_subimages(4, width, height, width_sub, height_sub);*/
+	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
 
-	/*calculate_histogram(3, width, height, width_sub, height_sub);*/
+	calculate_histogram(3, width, height, width_sub, height_sub);
+
+	calculate_threshold(width, height, width_sub, height_sub);
+
+	calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);
+
+	reconstruct_image_from_subimages(0, width, height, width_sub, height_sub);
+	reconstruct_image_from_subimages(1, width, height, width_sub, height_sub);
+	reconstruct_image_from_subimages(2, width, height, width_sub, height_sub);
+	reconstruct_image_from_subimages(3, width, height, width_sub, height_sub);
+	reconstruct_image_from_subimages(4, width, height, width_sub, height_sub);
+	reconstruct_image_from_subimages(5, width, height, width_sub, height_sub);
 
 	/*free_mem_subimages(width, height, width_sub, height_sub);*/
-
-	/*calculate_threshold(width, height, width_sub, height_sub);*/
-
-	/*calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);*/
-
-	/*export_ppm_subimages(5, width, height, width_sub, height_sub);*/
-
-	/*reconstruct_image_from_subimages(3, width, height, width_sub, height_sub);*/
 	/*********************************MYCODE*********************************/
 
 
@@ -491,7 +494,10 @@ void k_means(double *x, object *obj, int n_object)
 
 
 
-/*Input: area, perim, n Output: circ*/
+/*
+Input: area, perim, n 
+Output: circ
+*/
 int morphological_feature_circularity_index(int *area, double *perim, int n_object, double *circ)
 {
 unsigned int i = 0;
