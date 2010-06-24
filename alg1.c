@@ -210,7 +210,6 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
 		unsigned int xyM = 0;
-		/*printf("[%u %u]\n", i, j);*/
 		for(k=0;k<h_mem_alloc;k++){
 			unsigned int x = (k + ssi);
 			/*------------------------------------------------*/
@@ -226,21 +225,13 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 
 				xyM = (y + x * (width)) * 3;
 
-/*
-				if (!l)
-					printf("\t[%u ", xyM);
-*/
-
 				r = subimage_data[i][j][k][l][0] = image_data[xyM + 0];
 				g = subimage_data[i][j][k][l][1] = image_data[xyM + 1];
 				b = subimage_data[i][j][k][l][2] = image_data[xyM + 2];
 
 				subimage_data[i][j][k][l][3] = GREYSCALE1(r, g, b);
-				/*printf("%03u ", subimage_data[i][j][k][l][3]);*/
 				}/*l*/
-			/*printf("%u]\n", xyM);*/
 			}/*k*/
-		/*printf("\n");*/
 		}/*j*/
 	}/*i*/
 
@@ -1292,7 +1283,56 @@ return TRUE;
 
 
 
+/* ############################################################################
+Name           : reconstruct_image_from_subimages
+Description    : Reconstruct the initial image from subimages
 
+Arguments             Type                Description
+===================== =================== =====================================
+type(IN)              unsigned char       0 for red value pixels
+                                          1 for green value pixels
+                                          2 for blue value pixels
+                                          3 for grey value pixels
+                                          4 for RGB value pixels
+                                          5 for threshold values
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+width_subimages(IN)   unsigned int*       Width coordinate of subimage.
+height_subimages(IN)  unsigned int*       Height coordinate of subimage.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+FALSE                                     If memory allocation fails.
+
+Globals               Type                Description
+===================== =================== =====================================
+subimage_data(IN)     unsigned char ***** Subimages data.
+                                          [Width-coodinate of subimage]
+                                          [Height-Coordinate of subimage]
+                                          [x-coordinate in subimage]
+                                          [y-cooddinate in subimage]
+                                          [0: Red from RGB value
+                                           1: Green from RGB value
+                                           2: Blue from RGB value
+                                           3: Grey value
+                                           4: Threshold value]
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l, m         unsigned int        General purpose indexes.
+h_mem_alloc           unsigned int        The maximum height of the subimage.
+w_mem_alloc           unsigned int        The maximum width of the subimage.
+wdS                   unsigned int        Number of subimages in the width of 
+                                          the image.
+wmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
+hdS                   unsigned int        Number of subimages in the height of 
+                                          the image.
+hmS                   unsigned int        The remainder of the above division 
+                                          if it's not exact.
+
+############################################################################ */
 int reconstruct_image_from_subimages(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;

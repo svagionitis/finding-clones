@@ -53,7 +53,7 @@ void calculate_area(int **obj_id, int width, int height, int n_object, int *area
 void calculate_length(int **obj_id, int width, int height, int n_object, double *len, unsigned char *image);
 void k_means(double *x, object *obj, int N);
 object *baseline(unsigned char *, unsigned char *, int, int, int *);
-
+int morphological_feature_circularity_index(int *, double *, int, double *);
 
 /* non-implemented for level 2 and level 3 */
 object *my_alg_level2(unsigned char *image, int width, int height, int *n_object) 
@@ -74,12 +74,13 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	/*********************************MYCODE*********************************/
 
-
+/*
 	unsigned int width_sub = 0, height_sub = 0;
 	create_sub_images(image, width, height, &width_sub, &height_sub);
-
+*/
 	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
 
+/*
 	calculate_histogram(3, width, height, width_sub, height_sub);
 
 	calculate_threshold(width, height, width_sub, height_sub);
@@ -92,7 +93,7 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	reconstruct_image_from_subimages(3, width, height, width_sub, height_sub);
 	reconstruct_image_from_subimages(4, width, height, width_sub, height_sub);
 	reconstruct_image_from_subimages(5, width, height, width_sub, height_sub);
-
+*/
 	/*free_mem_subimages(width, height, width_sub, height_sub);*/
 	/*********************************MYCODE*********************************/
 
@@ -164,9 +165,8 @@ calculate_area(obj_id, width, height, n, area);
 calculate_length(obj_id, width, height, n, len, image);
 
 /* calcuate cirularity index */
-for (i = 0; i < n; i++) {
-	circ[i] = 4.0*PI * area[i] / (len[i]*len[i]);
-}
+morphological_feature_circularity_index(area, len, n, circ);
+
 
 /* k-means clustering */
 k_means(circ, obj, n);
@@ -493,11 +493,34 @@ void k_means(double *x, object *obj, int n_object)
 
 
 
+/* ############################################################################
+Name           : morphological_feature_circularity_index
+Description    : Calculate the circularity index which is a morphological 
+                 feature. Values range from 1, for a perfect circle, to 0 
+                 for a line. It is useful to give an impression of elongation 
+                 as well as roughness of the object's shape. Other significant 
+                 characteristics of this feature are that it is invariant to 
+                 scale, translation and rotation.
 
-/*
-Input: area, perim, n 
-Output: circ
-*/
+Arguments      Type             Description
+============== ================ ===============================================
+area(IN)       int  *           Area covered by the objects.
+perim(IN)      double *         Perimeter of the objects.
+n_object(IN)   int              Number of objects from mask.
+circ(OUT)      double *         Circularity index of objects.
+
+Return Values                   Description
+=============================== ===============================================
+TRUE                            If everything is fine.
+
+Globals        Type             Description
+============== ================ ===============================================
+
+Locals         Type             Description
+============== ================ ===============================================
+i              unsigned in      General purpose index.
+
+############################################################################ */
 int morphological_feature_circularity_index(int *area, double *perim, int n_object, double *circ)
 {
 unsigned int i = 0;

@@ -294,11 +294,12 @@ f              FILE *               The image file descriptor.
 ############################################################################ */
 int save_pgm(const char *filename, int width, int height, unsigned char *data)
 {
+	int bytes2write = width*height;
 	FILE *f = fopen(filename, "wb");
 	if (!f) return FALSE;
 
 	fprintf(f, "P5\n%d %d\n255\n", width, height);
-	if (fwrite(data, 1, width*height, f) != width*height){
+	if (fwrite(data, 1, bytes2write, f) != bytes2write){
 		fclose(f);
 		return FALSE;
 		}
