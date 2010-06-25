@@ -166,7 +166,7 @@ return TRUE;
 
 int noise_reduction(int width, int height)
 {
-unsigned int i = 0, j = 0;
+int i = 0, j = 0;
 float Gaussian_Filter[5][5] = {{2/115,  4/115,  5/115,  4/115, 2/115},
 			       {4/115,  9/115, 12/115,  9/115, 4/115},
 			       {5/115, 12/115, 15/115, 12/115, 5/115},
@@ -176,15 +176,18 @@ float Gaussian_Filter[5][5] = {{2/115,  4/115,  5/115,  4/115, 2/115},
 
 printf("1\n");
 for(i=0;i<height;i++){
+	int im2 = (i-2), im1 = (i-1), ip2 = (i+2), ip1 = (i+1);
 	for(j=0;j<width;j++){
+		int jm2 = (j-2), jm1 = (j-1), jp2 = (j+2), jp1 = (j+1);
 		unsigned char grey = 0, filter_out = 0;
 		grey = GREYSCALE1(data2D[i][j][0], data2D[i][j][1], data2D[i][j][2]);
 		data2D[i][j][0] = data2D[i][j][1] = data2D[i][j][2] = grey;
 		
-		printf("%u %u\n", i, j);
+		printf("-[%d %d] %d +[%d %d] -[%d %d] %d +[%d %d]\n", im2, im1, i, ip1, ip2, jm2, jm1, j, jp1, jp2);
 
-		if (((i-2)<0) && ((i-1)<0) && ((j-2)<0) && ((j-1)<0)){/*Top-Left corner*/
-		printf("(((i-2)<0) && ((i-1)<0) && ((j-2)<0) && ((j-1)<0))\n");
+		if (((im2<0) && (im1<0) && (jm2<0) && (jm1<0)) &&
+                    ((ip2>=0) && (ip1>=0) && (jp2>=0) && (jp1>=0))){/*Top-Left corner*/
+		printf("((im2<0) && (im1<0) && (jm2<0) && (jm1<0))\n");
 		filter_out = (unsigned char)((float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
 			      (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
@@ -192,8 +195,9 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
                               (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
 			}
-		else if(((i-2)<0) && ((i-1)<0) && ((j-2)<0) && ((j-1)>=0)){
-		printf("(((i-2)<0) && ((i-1)<0) && ((j-2)<0) && ((j-1)>=0))\n");
+		else if(((im2<0) && (im1<0) && (jm2<0) && (jm1>=0)) &&
+                        ((ip2>=0) && (ip1>=0) && (jp2>=0) && (jp1<=(width-1)))){
+		printf("((im2<0) && (im1<0) && (jm2<0) && (jm1>=0))\n");
 		filter_out = (unsigned char)((float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
@@ -204,8 +208,9 @@ for(i=0;i<height;i++){
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
                               (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
 			}
-		else if(((i-2)<0) && ((i-1)<0) && ((j-2)>=0) && ((j-1)>=0)){
-		printf("(((i-2)<0) && ((i-1)<0) && ((j-2)>=0) && ((j-1)>=0))\n");
+		else if(((im2<0) && (im1<0) && (jm2>=0) && (jm1>=0)) &&
+                        ((ip2>=0) && (ip1>=0) && (jp2<=(width-1)) && (jp1<=(width-1)))){
+		printf("((im2<0) && (im1<0) && (jm2>=0) && (jm1>=0))\n");
 		filter_out = (unsigned char)((float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
@@ -216,8 +221,9 @@ for(i=0;i<height;i++){
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
                               (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
 			}
-		else if(((i-2)<0) && ((i-1)>=0) && ((j-2)<0) && ((j-1)<0)){
-		printf("(((i-2)<0) && ((i-1)>=0) && ((j-2)<0) && ((j-1)<0))\n");
+		else if(((im2<0) && (im1>=0) && (jm2<0) && (jm1<0)) &&
+                        ((ip2>=0) && (ip1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((im2<0) && (im1>=0) && (jm2<0) && (jm1<0))\n");
 		filter_out = (unsigned char)((float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
                               (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
 			      (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
@@ -227,8 +233,9 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
                               (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
 			}
-		else if(((i-2)>=0) && ((i-1)>=0) && ((j-2)<0) && ((j-1)<0)){
-		printf("(((i-2)>=0) && ((i-1)>=0) && ((j-2)<0) && ((j-1)<0))\n");
+		else if(((im2>=0) && (im1>=0) && (jm2<0) && (jm1<0)) &&
+                        ((ip2<=(height-1)) && (ip1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((im2>=0) && (im1>=0) && (jm2<0) && (jm1<0))\n");
 		filter_out = (unsigned char)((float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
                               (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
 			      (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
@@ -240,8 +247,28 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
                               (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
 			}
-		else if(((i-2)<0) && ((i-1)>=0) && ((j-2)<0) && ((j-1)>=0)){
-		printf("(((i-2)<0) && ((i-1)>=0) && ((j-2)<0) && ((j-1)>=0))\n");
+		else if(((im2>=0) && (im1>=0) && (jm2<0) && (jm1>=0)) &&
+                        ((ip2<=(height-1)) && (ip1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((im2>=0) && (im1>=0) && (jm2<0) && (jm1>=0))\n");
+		filter_out = (unsigned char)((float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
+                              (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
+                              (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
+			      (float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
+                              (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
+                              (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
+			      (float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
+                              (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
+                              (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
+			      (float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
+                              (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
+                              (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]+
+			      (float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
+                              (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
+                              (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
+			}
+		else if(((im2<0) && (im1>=0) && (jm2<0) && (jm1>=0)) &&
+                        ((ip2>=0) && (ip1<=(height-1)) && (jp2>=0) && (jp1<=(width-1)))){
+		printf("((im2<0) && (im1>=0) && (jm2<0) && (jm1>=0))\n");
 		filter_out = (unsigned char)((float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
                               (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
                               (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
@@ -254,8 +281,27 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
                               (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
+			}
+		else if(((im2<0) && (im1>=0) && (jm2>=0) && (jm1>=0)) &&
+                        ((ip2>=0) && (ip1<=(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1)))){
+		printf("((im2<0) && (im1>=0) && (jm2>=0) && (jm1>=0))\n");
+		filter_out = (unsigned char)((float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
+                              (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
+                              (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
+			      (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
+                              (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
+                              (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
+			      (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
+                              (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
+                              (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]+
+			      (float)data2D[i+2][j-2][0]*Gaussian_Filter[4][0]+(float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
+                              (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
+                              (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
+
 			}/********************************************************************************************************************/
-		else if (((i-2)<0) && ((i-1)<0) && ((j+2)>(width-1)) && ((j+1)>(width-1))){/*Top-Right corner*/
+		else if (((im2<0) && (im1<0) && (jp2>(width-1)) && (jp1>(width-1))) &&
+                         ((ip2>=0) && (ip1>=0) && (jm2<=(width-1)) && (jm1<=(width-1)))){/*Top-Right corner*/
+		printf("((im2<0) && (im1<0) && (jp2>(width-1)) && (jp1>(width-1)))\n");
 		filter_out = (unsigned char)((float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+
 			      (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
@@ -263,7 +309,9 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+2][j-2][0]*Gaussian_Filter[4][0]+(float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]);
 			}
-		else if (((i-2)<0) && ((i-1)<0) && ((j+2)>(width-1)) && ((j+1)<=(width-1))){
+		else if (((im2<0) && (im1<0) && (jp2>(width-1)) && (jp1<=(width-1))) &&
+                         ((ip2>=0) && (ip1>=0) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		printf("((im2<0) && (im1<0) && (jp2>(width-1)) && (jp1<=(width-1)))\n");
 		filter_out = (unsigned char)((float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+
 			      (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
@@ -271,7 +319,9 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+2][j-2][0]*Gaussian_Filter[4][0]+(float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]);
 			}
-		else if (((i-2)<0) && ((i-1)<0) && ((j+2)<=(width-1)) && ((j+1)<=(width-1))){
+		else if (((im2<0) && (im1<0) && (jp2<=(width-1)) && (jp1<=(width-1))) &&
+                         ((ip2>=0) && (ip1>=0) && (jm2>=0) && (jm1>=0))){
+		printf("((im2<0) && (im1<0) && (jp2<=(width-1)) && (jp1<=(width-1)))\n");
 		filter_out = (unsigned char)((float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
@@ -282,7 +332,26 @@ for(i=0;i<height;i++){
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
                               (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
 			}
-		else if (((i-2)<0) && ((i-1)>=0) && ((j+2)>(width-1)) && ((j+1)>(width-1))){
+		else if (((im2<0) && (im1>=0) && (jp2<=(width-1)) && (jp1<=(width-1))) &&
+                         ((ip2>=0) && (ip1>=0) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		printf("((im2<0) && (im1>=0) && (jp2<=(width-1)) && (jp1<=(width-1)))\n");
+		filter_out = (unsigned char)((float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
+                              (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
+                              (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
+			      (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
+                              (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
+                              (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
+			      (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
+                              (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
+                              (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]+
+			      (float)data2D[i+2][j-2][0]*Gaussian_Filter[4][0]+(float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
+                              (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
+                              (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
+
+			}
+		else if (((im2<0) && (im1>=0) && (jp2>(width-1)) && (jp1>(width-1))) &&
+                         ((ip2>=0) && (ip1>=0) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		printf("((im2<0) && (im1>=0) && (jp2>(width-1)) && (jp1>(width-1)))\n");
 		filter_out = (unsigned char)((float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
                               (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+
 			      (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
@@ -293,7 +362,9 @@ for(i=0;i<height;i++){
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]);
 
 			}
-		else if (((i-2)>=0) && ((i-1)>=0) && ((j+2)>(width-1)) && ((j+1)>(width-1))){
+		else if (((im2>=0) && (im1>=0) && (jp2>(width-1)) && (jp1>(width-1))) &&
+                         ((ip2>=0) && (ip1>=0) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		printf("((im2>=0) && (im1>=0) && (jp2>(width-1)) && (jp1>(width-1)))\n");
 		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+
 			      (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
@@ -305,7 +376,24 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+2][j-2][0]*Gaussian_Filter[4][0]+(float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]);
 			}
-		else if (((i-2)<0) && ((i-1)>=0) && ((j+2)>(width-1)) && ((j+1)<=(width-1))){
+		else if (((im2>=0) && (im1>=0) && (jp2>(width-1)) && (jp1<=(width-1))) &&
+                         ((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		printf("((im2>=0) && (im1>=0) && (jp2>(width-1)) && (jp1<=(width-1)))\n");
+		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
+                              (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
+                              (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
+                              (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
+                              (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
+                              (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
+                              (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
+                              (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
+                              (float)data2D[i+2][j-2][0]*Gaussian_Filter[4][0]+(float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
+                              (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]);
+
+			}
+		else if (((im2<0) && (im1>=0) && (jp2>(width-1)) && (jp1<=(width-1))) &&
+                         ((ip2>=0) && (ip1>=0) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		printf("((im2<0) && (im1>=0) && (jp2>(width-1)) && (jp1<=(width-1)))\n");
 		filter_out = (unsigned char)((float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
                               (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
                               (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
@@ -315,7 +403,9 @@ for(i=0;i<height;i++){
                               (float)data2D[i+2][j-2][0]*Gaussian_Filter[4][0]+(float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]);
 			}/********************************************************************************************************************/
-		else if (((i+2)>(height-1)) && ((i+1)>(height-1)) && ((j-2)<0) && ((j-1)<0)){/*Bottom-Left corner*/
+		else if (((ip2>(height-1)) && (ip1>(height-1)) && (jm2<0) && (jm1<0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){/*Bottom-Left corner*/
+		printf("((ip2>(height-1)) && (ip1>(height-1)) && (jm2<0) && (jm1<0))\n");
 		filter_out = (unsigned char)((float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
                               (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
 			      (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
@@ -323,7 +413,9 @@ for(i=0;i<height;i++){
 			      (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]);
 			}
-		else if (((i+2)>(height-1)) && ((i+1)>(height-1)) && ((j-2)<0) && ((j-1)>=0)){
+		else if (((ip2>(height-1)) && (ip1>(height-1)) && (jm2<0) && (jm1>=0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((ip2>(height-1)) && (ip1>(height-1)) && (jm2<0) && (jm1>=0))\n");
 		filter_out = (unsigned char)((float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
                               (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
@@ -334,7 +426,9 @@ for(i=0;i<height;i++){
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]);
 			}
-		else if (((i+2)>(height-1)) && ((i+1)>(height-1)) && ((j-2)>=0) && ((j-1)>=0)){
+		else if (((ip2>(height-1)) && (ip1>(height-1)) && (jm2>=0) && (jm1>=0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((ip2>(height-1)) && (ip1>(height-1)) && (jm2>=0) && (jm1>=0))\n");
 		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
                               (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
@@ -345,7 +439,9 @@ for(i=0;i<height;i++){
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]);
 			}
-		else if (((i+2)>(height-1)) && ((i+1)<=(height-1)) && ((j-2)<0) && ((j-1)<0)){
+		else if (((ip2>(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1<0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((ip2>(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1<0))\n");
 		filter_out = (unsigned char)((float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
                               (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
 			      (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
@@ -354,20 +450,10 @@ for(i=0;i<height;i++){
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
 			      (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
                               (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]);
-			}
-		else if (((i+2)<=(height-1)) && ((i+1)<=(height-1)) && ((j-2)<0) && ((j-1)<0)){
-		filter_out = (unsigned char)((float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
-                              (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
-			      (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
-                              (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
-			      (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
-                              (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
-			      (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
-                              (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]+
-			      (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
-                              (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
-			}
-		else if (((i+2)>(height-1)) && ((i+1)<=(height-1)) && ((j-2)<0) && ((j-1)>=0)){
+			}/**/
+		else if (((ip2>(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1>=0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((ip2>(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1>=0))\n");
 		filter_out = (unsigned char)((float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
                               (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
@@ -380,8 +466,58 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
                               (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
                               (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]);
+			}
+		else if (((ip2>(height-1)) && (ip1<=(height-1)) && (jm2>=0) && (jm1>=0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((ip2>(height-1)) && (ip1<=(height-1)) && (jm2>=0) && (jm1>=0))\n");
+		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
+                              (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
+                              (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
+			      (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
+                              (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
+                              (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
+			      (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
+                              (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
+                              (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
+			      (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
+                              (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
+                              (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]);
+			}
+		else if (((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1<0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1<0))\n");
+		filter_out = (unsigned char)((float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
+                              (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
+			      (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
+                              (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
+			      (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
+                              (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
+			      (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
+                              (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]+
+			      (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
+                              (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
+			}
+		else if (((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1>=0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		printf("((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1>=0))\n");
+		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
+                              (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
+                              (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
+			      (float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
+                              (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
+                              (float)data2D[i-1][j+2][0]*Gaussian_Filter[1][4]+
+			      (float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
+                              (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
+                              (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]+
+			      (float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
+                              (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]+ 
+                              (float)data2D[i+1][j+2][0]*Gaussian_Filter[3][4]+
+			      (float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
+                              (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]+(float)data2D[i+2][j+1][0]*Gaussian_Filter[4][3]+ 
+                              (float)data2D[i+2][j+2][0]*Gaussian_Filter[4][4]);
 			}/********************************************************************************************************************/
-		else if (((i+2)>(height-1)) && ((i+1)>(height-1)) && ((j+2)>(width-1)) && ((j+1)>(width-1))){/*Bottom-Right corner*/
+		else if (((ip2>(height-1)) && (ip1>(height-1)) && (jp2>(width-1)) && (jp1>(width-1))) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jm2<=(width-1)) && (jm1<=(width-1)))){/*Bottom-Right corner*/
 		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+
 			      (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
@@ -389,7 +525,8 @@ for(i=0;i<height;i++){
 			      (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]);
 			}
-		else if (((i+2)>(height-1)) && ((i+1)>(height-1)) && ((j+2)>(width-1)) && ((j+1)<=(width-1))){
+		else if (((ip2>(height-1)) && (ip1>(height-1)) && (jp2>(width-1)) && (jp1<=(width-1))) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jm2<=(width-1)) && (jm1<=(width-1)))){
 		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
                               (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
@@ -397,7 +534,8 @@ for(i=0;i<height;i++){
                               (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]);
 			}
-		else if (((i+2)>(height-1)) && ((i+1)>(height-1)) && ((j+2)<=(width-1)) && ((j+1)<=(width-1))){
+		else if (((ip2>(height-1)) && (ip1>(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1))) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jm2<=(width-1)) && (jm1<=(width-1)))){
 		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
                               (float)data2D[i-2][j+2][0]*Gaussian_Filter[0][4]+
@@ -408,7 +546,8 @@ for(i=0;i<height;i++){
                               (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
                               (float)data2D[i  ][j+2][0]*Gaussian_Filter[2][4]);
 			}
-		else if (((i+2)>(height-1)) && ((i+1)<=(height-1)) && ((j+2)>(width-1)) && ((j+1)>(width-1))){
+		else if (((ip2>(height-1)) && (ip1<=(height-1)) && (jp2>(width-1)) && (jp1>(width-1))) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jm2<=(width-1)) && (jm1<=(width-1)))){
 		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+
 			      (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
@@ -418,7 +557,19 @@ for(i=0;i<height;i++){
 			      (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
                               (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]);
 			}
-		else if (((i+2)<=(height-1)) && ((i+1)<=(height-1)) && ((j+2)>(width-1)) && ((j+1)>(width-1))){
+		else if (((ip2>(height-1)) && (ip1<=(height-1)) && (jp2>(width-1)) && (jp1<=(width-1))) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jm2>=0) && (jm1>=0))){
+		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
+                              (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
+                              (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
+                              (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
+                              (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
+                              (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
+                              (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
+                              (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]);
+			}
+		else if (((ip2<=(height-1)) && (ip1<=(height-1)) && (jp2>(width-1)) && (jp1>(width-1))) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jm2<=(width-1)) && (jm1<=(width-1)))){
 		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
                               (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+
 			      (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
@@ -429,16 +580,6 @@ for(i=0;i<height;i++){
                               (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+
 			      (float)data2D[i+2][j-2][0]*Gaussian_Filter[4][0]+(float)data2D[i+2][j-1][0]*Gaussian_Filter[4][1]+
                               (float)data2D[i+2][j  ][0]*Gaussian_Filter[4][2]);
-			}
-		else if (((i+2)>(height-1)) && ((i+1)<=(height-1)) && ((j+2)>(width-1)) && ((j+1)<=(width-1))){
-		filter_out = (unsigned char)((float)data2D[i-2][j-2][0]*Gaussian_Filter[0][0]+(float)data2D[i-2][j-1][0]*Gaussian_Filter[0][1]+ 
-                              (float)data2D[i-2][j  ][0]*Gaussian_Filter[0][2]+(float)data2D[i-2][j+1][0]*Gaussian_Filter[0][3]+
-                              (float)data2D[i-1][j-2][0]*Gaussian_Filter[1][0]+(float)data2D[i-1][j-1][0]*Gaussian_Filter[1][1]+
-                              (float)data2D[i-1][j  ][0]*Gaussian_Filter[1][2]+(float)data2D[i-1][j+1][0]*Gaussian_Filter[1][3]+ 
-                              (float)data2D[i  ][j-2][0]*Gaussian_Filter[2][0]+(float)data2D[i  ][j-1][0]*Gaussian_Filter[2][1]+
-                              (float)data2D[i  ][j  ][0]*Gaussian_Filter[2][2]+(float)data2D[i  ][j+1][0]*Gaussian_Filter[2][3]+ 
-                              (float)data2D[i+1][j-2][0]*Gaussian_Filter[3][0]+(float)data2D[i+1][j-1][0]*Gaussian_Filter[3][1]+
-                              (float)data2D[i+1][j  ][0]*Gaussian_Filter[3][2]+(float)data2D[i+1][j+1][0]*Gaussian_Filter[3][3]);
 			}/********************************************************************************************************************/
 		else{
 		printf("else\n");
