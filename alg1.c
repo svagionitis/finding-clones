@@ -209,7 +209,7 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 		else
 			h_mem_alloc = SHIFT + hmS;
 		/*------------------------------------------------*/
-		unsigned int xyM = 0;
+
 		for(k=0;k<h_mem_alloc;k++){
 			unsigned int x = (k + ssi);
 			/*------------------------------------------------*/
@@ -223,7 +223,7 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 				unsigned char r = 0, g = 0, b = 0;
 				unsigned int y = (l + ssj);
 
-				xyM = (y + x * (width)) * 3;
+				register unsigned int xyM = (y + x * (width)) * 3;
 
 				r = subimage_data[i][j][k][l][0] = image_data[xyM + 0];
 				g = subimage_data[i][j][k][l][1] = image_data[xyM + 1];
@@ -388,6 +388,7 @@ unsigned int h_mem_alloc = 0;
 unsigned int w_mem_alloc = 0;
 unsigned int data_mem_alloc = 0;
 char filename[128];
+memset(filename, '\0', sizeof(filename));
 
 unsigned int wdS = (width / SHIFT) - 1;
 unsigned int wmS = width % SHIFT;
@@ -428,7 +429,7 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 			/*------------------------------------------------*/
 
 			for(l=0;l<w_mem_alloc;l++){
-				unsigned int lkwma = (l + k*w_mem_alloc)*3;
+				register unsigned int lkwma = (l + k*w_mem_alloc)*3;
 				switch(type){
 					case 0:/*Red values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
@@ -1404,7 +1405,7 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 
 			for(l=0;l<w_mem_alloc;l++){
 				unsigned int y = (l + ssj);
-				unsigned int xyM = (y + x * width) * 3;
+				register unsigned int xyM = (y + x * width) * 3;
 
 				switch(type){
 					case 0:/*Red values*/

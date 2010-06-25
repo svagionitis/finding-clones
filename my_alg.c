@@ -59,6 +59,13 @@ int morphological_feature_circularity_index(int *, double *, int, double *);
 object *my_alg_level2(unsigned char *image, int width, int height, int *n_object) 
 {
 
+transform_1D_to_2D(image, width, height);
+
+/*export_ppm_from_2D(3, width, height);*/
+
+noise_reduction(width, height);
+export_ppm_from_2D(4, width, height);
+
 return NULL;
 }
 
