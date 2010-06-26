@@ -278,6 +278,24 @@ for(i=0;i<height;i++){
                               ((float)buffer[i+2][j  ])*Gaussian_Filter[4][2]+((float)buffer[i+2][j+1])*Gaussian_Filter[4][3]+ 
                               ((float)buffer[i+2][j+2])*Gaussian_Filter[4][4]);
 			}
+		else if(((im2<0) && (im1>=0) && (jm2>=0) && (jm1>=0)) &&
+                        ((ip2>=0) && (ip1<=(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1)))){
+		/*printf("((im2<0) && (im1>=0) && (jm2>=0) && (jm1>=0))\n");*/
+		filter_out = (unsigned char)(
+			      ((float)buffer[i-1][j-2])*Gaussian_Filter[1][0]+((float)buffer[i-1][j-1])*Gaussian_Filter[1][1]+
+                              ((float)buffer[i-1][j  ])*Gaussian_Filter[1][2]+((float)buffer[i-1][j+1])*Gaussian_Filter[1][3]+ 
+                              ((float)buffer[i-1][j+2])*Gaussian_Filter[1][4]+
+			      ((float)buffer[i  ][j-2])*Gaussian_Filter[2][0]+((float)buffer[i  ][j-1])*Gaussian_Filter[2][1]+
+                              ((float)buffer[i  ][j  ])*Gaussian_Filter[2][2]+((float)buffer[i  ][j+1])*Gaussian_Filter[2][3]+ 
+                              ((float)buffer[i  ][j+2])*Gaussian_Filter[2][4]+
+			      ((float)buffer[i+1][j-2])*Gaussian_Filter[3][0]+((float)buffer[i+1][j-1])*Gaussian_Filter[3][1]+
+                              ((float)buffer[i+1][j  ])*Gaussian_Filter[3][2]+((float)buffer[i+1][j+1])*Gaussian_Filter[3][3]+ 
+                              ((float)buffer[i+1][j+2])*Gaussian_Filter[3][4]+
+			      ((float)buffer[i+2][j-2])*Gaussian_Filter[4][0]+((float)buffer[i+2][j-1])*Gaussian_Filter[4][1]+
+                              ((float)buffer[i+2][j  ])*Gaussian_Filter[4][2]+((float)buffer[i+2][j+1])*Gaussian_Filter[4][3]+ 
+                              ((float)buffer[i+2][j+2])*Gaussian_Filter[4][4]);
+
+			}
 		else if(((im2<0) && (im1>=0) && (jm2<0) && (jm1<0)) &&
                         ((ip2>=0) && (ip1<=(height-1)) && (jp2>=0) && (jp1>=0))){
 		/*printf("((im2<0) && (im1>=0) && (jm2<0) && (jm1<0))\n");*/
@@ -307,7 +325,7 @@ for(i=0;i<height;i++){
                               ((float)buffer[i+2][j+2])*Gaussian_Filter[4][4]);
 			}
 		else if(((im2>=0) && (im1>=0) && (jm2<0) && (jm1>=0)) &&
-                        ((ip2<=(height-1)) && (ip1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+                        ((ip2<=(height-1)) && (ip1<=(height-1)) && (jp2>=0) && (jp1<=(width-1)))){
 		/*printf("((im2>=0) && (im1>=0) && (jm2<0) && (jm1>=0))\n");*/
 		filter_out = (unsigned char)(
 			      ((float)buffer[i-2][j-1])*Gaussian_Filter[0][1]+ 
@@ -342,24 +360,6 @@ for(i=0;i<height;i++){
 			      ((float)buffer[i+2][j-1])*Gaussian_Filter[4][1]+
                               ((float)buffer[i+2][j  ])*Gaussian_Filter[4][2]+((float)buffer[i+2][j+1])*Gaussian_Filter[4][3]+ 
                               ((float)buffer[i+2][j+2])*Gaussian_Filter[4][4]);
-			}
-		else if(((im2<0) && (im1>=0) && (jm2>=0) && (jm1>=0)) &&
-                        ((ip2>=0) && (ip1<=(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1)))){
-		/*printf("((im2<0) && (im1>=0) && (jm2>=0) && (jm1>=0))\n");*/
-		filter_out = (unsigned char)(
-			      ((float)buffer[i-1][j-2])*Gaussian_Filter[1][0]+((float)buffer[i-1][j-1])*Gaussian_Filter[1][1]+
-                              ((float)buffer[i-1][j  ])*Gaussian_Filter[1][2]+((float)buffer[i-1][j+1])*Gaussian_Filter[1][3]+ 
-                              ((float)buffer[i-1][j+2])*Gaussian_Filter[1][4]+
-			      ((float)buffer[i  ][j-2])*Gaussian_Filter[2][0]+((float)buffer[i  ][j-1])*Gaussian_Filter[2][1]+
-                              ((float)buffer[i  ][j  ])*Gaussian_Filter[2][2]+((float)buffer[i  ][j+1])*Gaussian_Filter[2][3]+ 
-                              ((float)buffer[i  ][j+2])*Gaussian_Filter[2][4]+
-			      ((float)buffer[i+1][j-2])*Gaussian_Filter[3][0]+((float)buffer[i+1][j-1])*Gaussian_Filter[3][1]+
-                              ((float)buffer[i+1][j  ])*Gaussian_Filter[3][2]+((float)buffer[i+1][j+1])*Gaussian_Filter[3][3]+ 
-                              ((float)buffer[i+1][j+2])*Gaussian_Filter[3][4]+
-			      ((float)buffer[i+2][j-2])*Gaussian_Filter[4][0]+((float)buffer[i+2][j-1])*Gaussian_Filter[4][1]+
-                              ((float)buffer[i+2][j  ])*Gaussian_Filter[4][2]+((float)buffer[i+2][j+1])*Gaussian_Filter[4][3]+ 
-                              ((float)buffer[i+2][j+2])*Gaussian_Filter[4][4]);
-
 			}/********************************************************************************************************************/
 		else if (((im2<0) && (im1<0) && (jp2>(width-1)) && (jp1>(width-1))) &&
                          ((ip2>=0) && (ip1>=0) && (jm2<=(width-1)) && (jm1<=(width-1)))){/*Top-Right corner*/
@@ -385,6 +385,8 @@ for(i=0;i<height;i++){
 			}
 		else if (((im2<0) && (im1<0) && (jp2<=(width-1)) && (jp1<=(width-1))) &&
                          ((ip2>=0) && (ip1>=0) && (jm2>=0) && (jm1>=0))){
+		/*No enter: The same with ((im2<0) && (im1<0) && (jm2>=0) && (jm1>=0)) &&
+                        ((ip2>=0) && (ip1>=0) && (jp2<=(width-1)) && (jp1<=(width-1)))*/
 		/*printf("((im2<0) && (im1<0) && (jp2<=(width-1)) && (jp1<=(width-1)))\n");*/
 		filter_out = (unsigned char)(
 			      ((float)buffer[i  ][j-2])*Gaussian_Filter[2][0]+((float)buffer[i  ][j-1])*Gaussian_Filter[2][1]+
@@ -399,6 +401,8 @@ for(i=0;i<height;i++){
 			}
 		else if (((im2<0) && (im1>=0) && (jp2<=(width-1)) && (jp1<=(width-1))) &&
                          ((ip2>=0) && (ip1>=0) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		/*No enter: The same with ((im2<0) && (im1>=0) && (jm2>=0) && (jm1>=0)) &&
+                        ((ip2>=0) && (ip1<=(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1)))*/
 		/*printf("((im2<0) && (im1>=0) && (jp2<=(width-1)) && (jp1<=(width-1)))\n");*/
 		filter_out = (unsigned char)(
 			      ((float)buffer[i-1][j-2])*Gaussian_Filter[1][0]+((float)buffer[i-1][j-1])*Gaussian_Filter[1][1]+
@@ -497,7 +501,7 @@ for(i=0;i<height;i++){
 			      ((float)buffer[i  ][j-1])*Gaussian_Filter[2][1]+
                               ((float)buffer[i  ][j  ])*Gaussian_Filter[2][2]+((float)buffer[i  ][j+1])*Gaussian_Filter[2][3]+ 
                               ((float)buffer[i  ][j+2])*Gaussian_Filter[2][4]);
-			}/**/
+			}
 		else if (((ip2>(height-1)) && (ip1>(height-1)) && (jm2>=0) && (jm1>=0)) &&
                          ((im2<=(height-1)) && (im1<=(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1)))){
 		/*printf("((ip2>(height-1)) && (ip1>(height-1)) && (jm2>=0) && (jm1>=0))\n");*/
@@ -511,6 +515,23 @@ for(i=0;i<height;i++){
 			      ((float)buffer[i  ][j-2])*Gaussian_Filter[2][0]+((float)buffer[i  ][j-1])*Gaussian_Filter[2][1]+
                               ((float)buffer[i  ][j  ])*Gaussian_Filter[2][2]+((float)buffer[i  ][j+1])*Gaussian_Filter[2][3]+ 
                               ((float)buffer[i  ][j+2])*Gaussian_Filter[2][4]);
+			}
+		else if (((ip2>(height-1)) && (ip1<=(height-1)) && (jm2>=0) && (jm1>=0)) &&
+                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1)))){
+		/*printf("((ip2>(height-1)) && (ip1<=(height-1)) && (jm2>=0) && (jm1>=0))\n");*/
+		filter_out = (unsigned char)(
+			      ((float)buffer[i-2][j-2])*Gaussian_Filter[0][0]+((float)buffer[i-2][j-1])*Gaussian_Filter[0][1]+ 
+                              ((float)buffer[i-2][j  ])*Gaussian_Filter[0][2]+((float)buffer[i-2][j+1])*Gaussian_Filter[0][3]+
+                              ((float)buffer[i-2][j+2])*Gaussian_Filter[0][4]+
+			      ((float)buffer[i-1][j-2])*Gaussian_Filter[1][0]+((float)buffer[i-1][j-1])*Gaussian_Filter[1][1]+
+                              ((float)buffer[i-1][j  ])*Gaussian_Filter[1][2]+((float)buffer[i-1][j+1])*Gaussian_Filter[1][3]+ 
+                              ((float)buffer[i-1][j+2])*Gaussian_Filter[1][4]+
+			      ((float)buffer[i  ][j-2])*Gaussian_Filter[2][0]+((float)buffer[i  ][j-1])*Gaussian_Filter[2][1]+
+                              ((float)buffer[i  ][j  ])*Gaussian_Filter[2][2]+((float)buffer[i  ][j+1])*Gaussian_Filter[2][3]+ 
+                              ((float)buffer[i  ][j+2])*Gaussian_Filter[2][4]+
+			      ((float)buffer[i+1][j-2])*Gaussian_Filter[3][0]+((float)buffer[i+1][j-1])*Gaussian_Filter[3][1]+
+                              ((float)buffer[i+1][j  ])*Gaussian_Filter[3][2]+((float)buffer[i+1][j+1])*Gaussian_Filter[3][3]+ 
+                              ((float)buffer[i+1][j+2])*Gaussian_Filter[3][4]);
 			}
 		else if (((ip2>(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1<0)) &&
                          ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
@@ -542,25 +563,9 @@ for(i=0;i<height;i++){
                               ((float)buffer[i+1][j  ])*Gaussian_Filter[3][2]+((float)buffer[i+1][j+1])*Gaussian_Filter[3][3]+ 
                               ((float)buffer[i+1][j+2])*Gaussian_Filter[3][4]);
 			}
-		else if (((ip2>(height-1)) && (ip1<=(height-1)) && (jm2>=0) && (jm1>=0)) &&
-                         ((im2<=(height-1)) && (im1<=(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1)))){
-		/*printf("((ip2>(height-1)) && (ip1<=(height-1)) && (jm2>=0) && (jm1>=0))\n");*/
-		filter_out = (unsigned char)(
-			      ((float)buffer[i-2][j-2])*Gaussian_Filter[0][0]+((float)buffer[i-2][j-1])*Gaussian_Filter[0][1]+ 
-                              ((float)buffer[i-2][j  ])*Gaussian_Filter[0][2]+((float)buffer[i-2][j+1])*Gaussian_Filter[0][3]+
-                              ((float)buffer[i-2][j+2])*Gaussian_Filter[0][4]+
-			      ((float)buffer[i-1][j-2])*Gaussian_Filter[1][0]+((float)buffer[i-1][j-1])*Gaussian_Filter[1][1]+
-                              ((float)buffer[i-1][j  ])*Gaussian_Filter[1][2]+((float)buffer[i-1][j+1])*Gaussian_Filter[1][3]+ 
-                              ((float)buffer[i-1][j+2])*Gaussian_Filter[1][4]+
-			      ((float)buffer[i  ][j-2])*Gaussian_Filter[2][0]+((float)buffer[i  ][j-1])*Gaussian_Filter[2][1]+
-                              ((float)buffer[i  ][j  ])*Gaussian_Filter[2][2]+((float)buffer[i  ][j+1])*Gaussian_Filter[2][3]+ 
-                              ((float)buffer[i  ][j+2])*Gaussian_Filter[2][4]+
-			      ((float)buffer[i+1][j-2])*Gaussian_Filter[3][0]+((float)buffer[i+1][j-1])*Gaussian_Filter[3][1]+
-                              ((float)buffer[i+1][j  ])*Gaussian_Filter[3][2]+((float)buffer[i+1][j+1])*Gaussian_Filter[3][3]+ 
-                              ((float)buffer[i+1][j+2])*Gaussian_Filter[3][4]);
-			}
 		else if (((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1<0)) &&
                          ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		/*No enter: The same with */ 
 		/*printf("((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1<0))\n");*/
 		filter_out = (unsigned char)(
 			      ((float)buffer[i-2][j  ])*Gaussian_Filter[0][2]+((float)buffer[i-2][j+1])*Gaussian_Filter[0][3]+
@@ -576,6 +581,7 @@ for(i=0;i<height;i++){
 			}
 		else if (((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1>=0)) &&
                          ((im2<=(height-1)) && (im1<=(height-1)) && (jp2>=0) && (jp1>=0))){
+		/*No enter: The same with */
 		/*printf("((ip2<=(height-1)) && (ip1<=(height-1)) && (jm2<0) && (jm1>=0))\n");*/
 		filter_out = (unsigned char)(
 			      ((float)buffer[i-2][j-2])*Gaussian_Filter[0][0]+((float)buffer[i-2][j-1])*Gaussian_Filter[0][1]+ 
@@ -618,6 +624,7 @@ for(i=0;i<height;i++){
 			}
 		else if (((ip2>(height-1)) && (ip1>(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1))) &&
                          ((im2<=(height-1)) && (im1<=(height-1)) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		/*No enter: The same with */
 		/*printf("((ip2>(height-1)) && (ip1>(height-1)) && (jp2<=(width-1)) && (jp1<=(width-1)))\n");*/
 		filter_out = (unsigned char)(
 			      ((float)buffer[i-2][j-2])*Gaussian_Filter[0][0]+((float)buffer[i-2][j-1])*Gaussian_Filter[0][1]+ 
@@ -658,6 +665,7 @@ for(i=0;i<height;i++){
 			}
 		else if (((ip2<=(height-1)) && (ip1<=(height-1)) && (jp2>(width-1)) && (jp1>(width-1))) &&
                          ((im2<=(height-1)) && (im1<=(height-1)) && (jm2<=(width-1)) && (jm1<=(width-1)))){
+		/*No enter: The same with */
 		/*printf("((ip2<=(height-1)) && (ip1<=(height-1)) && (jp2>(width-1)) && (jp1>(width-1)))\n");*/
 		filter_out = (unsigned char)(
 			      ((float)buffer[i-2][j-2])*Gaussian_Filter[0][0]+((float)buffer[i-2][j-1])*Gaussian_Filter[0][1]+ 
