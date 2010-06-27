@@ -63,12 +63,13 @@ transform_1D_to_2D(image, width, height);
 
 export_ppm_from_2D(3, width, height);
 
-noise_reduction(width, height);
+convert_to_greyscale(width, height);
+/*noise_reduction(width, height);*/
 export_ppm_from_2D(4, width, height);
-
-Sobel_operators(width,height);
+/*
+Sobel_operator(width,height);
 export_ppm_from_2D(4, width, height);
-
+*/
 return NULL;
 }
 
@@ -542,4 +543,5 @@ for (i = 0; i < n_object; i++){
 
 return TRUE;
 }
+
 

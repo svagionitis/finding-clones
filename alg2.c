@@ -164,6 +164,68 @@ free(data_buffer);
 return TRUE;
 }
 
+int convert_to_greyscale(int width, int height)
+{
+int i = 0, j = 0;
+
+/*Convert to greyscale*/
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		unsigned char grey = 0;
+		grey = GREYSCALE1(data2D[i][j][0], data2D[i][j][1], data2D[i][j][2]);
+		data2D[i][j][0] = grey;
+		data2D[i][j][1] = grey;
+		data2D[i][j][2] = grey;
+		}
+	}
+
+return TRUE;
+}
+
+int convert_to_red(int width, int height)
+{
+int i = 0, j = 0;
+
+/*Convert to red values*/
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		data2D[i][j][1] = 0;
+		data2D[i][j][2] = 0;
+		}
+	}
+
+return TRUE;
+}
+
+int convert_to_green(int width, int height)
+{
+int i = 0, j = 0;
+
+/*Convert to red values*/
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		data2D[i][j][0] = 0;
+		data2D[i][j][2] = 0;
+		}
+	}
+
+return TRUE;
+}
+
+int convert_to_blue(int width, int height)
+{
+int i = 0, j = 0;
+
+/*Convert to red values*/
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		data2D[i][j][0] = 0;
+		data2D[i][j][1] = 0;
+		}
+	}
+
+return TRUE;
+}
 
 int noise_reduction(int width, int height)
 {
@@ -206,16 +268,6 @@ else{
 	printf("noise_reduction: Allocated %d bytes.\n", (width * height * sizeof(unsigned char)));
 	}
 
-/*Convert to greyscale*/
-for(i=0;i<height;i++){
-	for(j=0;j<width;j++){
-		unsigned char grey = 0;
-		grey = GREYSCALE1(data2D[i][j][0], data2D[i][j][1], data2D[i][j][2]);
-		data2D[i][j][0] = grey;
-		data2D[i][j][1] = grey;
-		data2D[i][j][2] = grey;
-		}
-	}
 
 for(i=0;i<height;i++){
 	int im2 = (i-2), im1 = (i-1), ip2 = (i+2), ip1 = (i+1);
@@ -551,7 +603,7 @@ free(data_buffer);
 return TRUE;
 }
 
-int Sobel_operators(int width, int height)
+int Sobel_operator(int width, int height)
 {
 int i = 0, j = 0;
 

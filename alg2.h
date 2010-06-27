@@ -42,8 +42,12 @@ S. Vagionitis  10/06/2010     Creation
 
 int transform_1D_to_2D(unsigned char *, int, int);
 int export_ppm_from_2D(unsigned char, int, int);
+int convert_to_greyscale(int, int);
+int convert_to_red(int, int);
+int convert_to_green(int, int);
+int convert_to_blue(int, int);
 int noise_reduction(int, int);
-int Sobel_operators(int, int);
+int Sobel_operator(int, int);
 
 extern unsigned char ***data2D;
 
