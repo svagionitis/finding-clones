@@ -24,6 +24,7 @@ S. Vagionitis  10/06/2010     Creation
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 
 #include "alg2.h"
 #include "alcon2009.h"/*For save_ppm function*/
@@ -591,85 +592,164 @@ for(i=0;i<height;i++){
 		int jm1 = (j-1), jp1 = (j+1);
 		unsigned char filter_out = 0.0;
 		float sobelx_out = 0.0, sobely_out = 0.0;
+		float magnitude_x = 0.0, magnitude_y = 0.0, magnitude_ttl = 0.0;
+		float angle = 0.0, theta = 0.0;
 
 		if (((im1<0) && (jm1<0)) &&
                     ((ip1>=0) &&(jp1>=0))){/*Top-Left corner*/
+		sobelx_out =((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2]+
+                            ((float)data2D[i+1][j][0])*Gx[2][1]+((float)data2D[i+1][j+1][0])*Gx[2][2];
+
+		sobely_out =((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2]+
+                            ((float)data2D[i+1][j][0])*Gy[2][1]+((float)data2D[i+1][j+1][0])*Gy[2][2];
 			}
 		else if(((im1<0) && (jm1>=0)) &&
                         ((ip1>=0) && (jp1<=(width-1)))){
-			}
-		else if(((im1>=0) && (jm1>=0)) &&
-                        ((ip1<=(height-1)) && (jp1<=(width-1)))){
+		sobelx_out =((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2]+
+                            ((float)data2D[i+1][j-1][0])*Gx[2][0]+((float)data2D[i+1][j][0])*Gx[2][1]+((float)data2D[i+1][j+1][0])*Gx[2][2];
+
+		sobely_out =((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2]+
+                            ((float)data2D[i+1][j-1][0])*Gy[2][0]+((float)data2D[i+1][j][0])*Gy[2][1]+((float)data2D[i+1][j+1][0])*Gy[2][2];
 			}
 		else if(((im1>=0) && (jm1<0)) &&
                         ((ip1<=(height-1)) && (jp1>=0))){
-			}
-		else if(((im1>=0) && (jm1>=0)) &&
-                        ((ip1<=(height-1)) && (jp1<=(width-1)))){
+		sobelx_out =((float)data2D[i-1][j][0])*Gx[0][1]+((float)data2D[i-1][j+1][0])*Gx[0][2]+
+                            ((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2]+
+                            ((float)data2D[i+1][j][0])*Gx[2][1]+((float)data2D[i+1][j+1][0])*Gx[2][2];
+
+		sobely_out =((float)data2D[i-1][j][0])*Gy[0][1]+((float)data2D[i-1][j+1][0])*Gy[0][2]+
+                            ((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2]+
+                            ((float)data2D[i+1][j][0])*Gy[2][1]+((float)data2D[i+1][j+1][0])*Gy[2][2];
 			}/********************************************************************************************************************/
 		else if (((im1<0) && (jp1>(width-1))) &&
                          ((ip1>=0) && (jm1<=(width-1)))){/*Top-Right corner*/
+		sobelx_out =((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1]+
+                            ((float)data2D[i+1][j-1][0])*Gx[2][0]+((float)data2D[i+1][j][0])*Gx[2][1];
+
+		sobely_out =((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1]+
+                            ((float)data2D[i+1][j-1][0])*Gy[2][0]+((float)data2D[i+1][j][0])*Gy[2][1];
 			}
 		else if (((im1<0) && (jp1<=(width-1))) &&
                          ((ip1>=0) && (jm1<=(width-1)))){
+		sobelx_out =((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2]+
+                            ((float)data2D[i+1][j-1][0])*Gx[2][0]+((float)data2D[i+1][j][0])*Gx[2][1]+((float)data2D[i+1][j+1][0])*Gx[2][2];
+
+		sobely_out =((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2]+
+                            ((float)data2D[i+1][j-1][0])*Gy[2][0]+((float)data2D[i+1][j][0])*Gy[2][1]+((float)data2D[i+1][j+1][0])*Gy[2][2];
 			}
 		else if (((im1>=0) && (jp1>(width-1))) &&
-                         ((ip1>=0) && (jm1<=(width-1)))){
-			}
-		else if (((im1>=0) && (jp1<=(width-1))) &&
                          ((ip1<=(height-1)) && (jm1<=(width-1)))){
+		sobelx_out =((float)data2D[i-1][j-1][0])*Gx[0][0]+((float)data2D[i-1][j][0])*Gx[0][1]+
+                            ((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1]+
+                            ((float)data2D[i+1][j-1][0])*Gx[2][0]+((float)data2D[i+1][j][0])*Gx[2][1];
+
+		sobely_out =((float)data2D[i-1][j-1][0])*Gy[0][0]+((float)data2D[i-1][j][0])*Gy[0][1]+
+                            ((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1]+
+                            ((float)data2D[i+1][j-1][0])*Gy[2][0]+((float)data2D[i+1][j][0])*Gy[2][1];
 			}/********************************************************************************************************************/
 		else if (((ip1>(height-1)) && (jm1<0)) &&
                          ((im1<=(height-1)) && (jp1>=0))){/*Bottom-Left corner*/
+		sobelx_out =((float)data2D[i-1][j][0])*Gx[0][1]+((float)data2D[i-1][j+1][0])*Gx[0][2]+
+                            ((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2];
+
+		sobely_out =((float)data2D[i-1][j][0])*Gy[0][1]+((float)data2D[i-1][j+1][0])*Gy[0][2]+
+                            ((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2];
 			}
 		else if (((ip1>(height-1)) && (jm1>=0)) &&
-                         ((im1<=(height-1)) && (jp1>=0))){
-			}
-		else if (((ip1<=(height-1)) && (jm1>=0)) &&
                          ((im1<=(height-1)) && (jp1<=(width-1)))){
+		sobelx_out =((float)data2D[i-1][j-1][0])*Gx[0][0]+((float)data2D[i-1][j][0])*Gx[0][1]+((float)data2D[i-1][j+1][0])*Gx[0][2]+
+                            ((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2];
+
+		sobely_out =((float)data2D[i-1][j-1][0])*Gy[0][0]+((float)data2D[i-1][j][0])*Gy[0][1]+((float)data2D[i-1][j+1][0])*Gy[0][2]+
+                            ((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2];
 			}
 		else if (((ip1<=(height-1)) && (jm1<0)) &&
                          ((im1<=(height-1)) && (jp1>=0))){
+		sobelx_out =((float)data2D[i-1][j][0])*Gx[0][1]+((float)data2D[i-1][j+1][0])*Gx[0][2]+
+                            ((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2]+
+                            ((float)data2D[i+1][j][0])*Gx[2][1]+((float)data2D[i+1][j+1][0])*Gx[2][2];
+
+		sobely_out =((float)data2D[i-1][j][0])*Gy[0][1]+((float)data2D[i-1][j+1][0])*Gy[0][2]+
+                            ((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2]+
+                            ((float)data2D[i+1][j][0])*Gy[2][1]+((float)data2D[i+1][j+1][0])*Gy[2][2];
 			}/********************************************************************************************************************/
 		else if (((ip1>(height-1)) && (jp1>(width-1))) &&
                          ((im1<=(height-1)) && (jm1<=(width-1)))){/*Bottom-Right corner*/
+		sobelx_out =((float)data2D[i-1][j-1][0])*Gx[0][0]+((float)data2D[i-1][j][0])*Gx[0][1]+
+                            ((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1];
+
+		sobely_out =((float)data2D[i-1][j-1][0])*Gy[0][0]+((float)data2D[i-1][j][0])*Gy[0][1]+
+                            ((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1];
 			}
 		else if (((ip1>(height-1)) && (jp1<=(width-1))) &&
                          ((im1<=(height-1)) && (jm1<=(width-1)))){
+		sobelx_out =((float)data2D[i-1][j-1][0])*Gx[0][0]+((float)data2D[i-1][j][0])*Gx[0][1]+((float)data2D[i-1][j+1][0])*Gx[0][2]+
+                            ((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2];
+
+		sobely_out =((float)data2D[i-1][j-1][0])*Gy[0][0]+((float)data2D[i-1][j][0])*Gy[0][1]+((float)data2D[i-1][j+1][0])*Gy[0][2]+
+                            ((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2];
 			}
 		else if (((ip1<=(height-1)) && (jp1>(width-1))) &&
                          ((im1<=(height-1)) && (jm1<=(width-1)))){
-			}
-		else if (((ip1<=(height-1)) && (jp1<=(width-1))) &&
-                         ((im1<=(height-1)) && (jm1>=0))){
+		sobelx_out =((float)data2D[i-1][j-1][0])*Gx[0][0]+((float)data2D[i-1][j][0])*Gx[0][1]+
+                            ((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1]+
+                            ((float)data2D[i+1][j-1][0])*Gx[2][0]+((float)data2D[i+1][j][0])*Gx[2][1];
+
+		sobely_out =((float)data2D[i-1][j-1][0])*Gy[0][0]+((float)data2D[i-1][j][0])*Gy[0][1]+
+                            ((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1]+
+                            ((float)data2D[i+1][j-1][0])*Gy[2][0]+((float)data2D[i+1][j][0])*Gy[2][1];
 			}/********************************************************************************************************************/
 		else{
-		filter_out =  ((float)data2D[i-2][j-2][0])*Gaussian_Filter[0][0]+((float)data2D[i-2][j-1][0])*Gaussian_Filter[0][1]+
-                              ((float)data2D[i-2][j  ][0])*Gaussian_Filter[0][2]+((float)data2D[i-2][j+1][0])*Gaussian_Filter[0][3]+
-                              ((float)data2D[i-2][j+2][0])*Gaussian_Filter[0][4]+
-                              ((float)data2D[i-1][j-2][0])*Gaussian_Filter[1][0]+((float)data2D[i-1][j-1][0])*Gaussian_Filter[1][1]+
-                              ((float)data2D[i-1][j  ][0])*Gaussian_Filter[1][2]+((float)data2D[i-1][j+1][0])*Gaussian_Filter[1][3]+ 
-                              ((float)data2D[i-1][j+2][0])*Gaussian_Filter[1][4]+
-                              ((float)data2D[i  ][j-2][0])*Gaussian_Filter[2][0]+((float)data2D[i  ][j-1][0])*Gaussian_Filter[2][1]+
-                              ((float)data2D[i  ][j  ][0])*Gaussian_Filter[2][2]+((float)data2D[i  ][j+1][0])*Gaussian_Filter[2][3]+ 
-                              ((float)data2D[i  ][j+2][0])*Gaussian_Filter[2][4]+
-                              ((float)data2D[i+1][j-2][0])*Gaussian_Filter[3][0]+((float)data2D[i+1][j-1][0])*Gaussian_Filter[3][1]+
-                              ((float)data2D[i+1][j  ][0])*Gaussian_Filter[3][2]+((float)data2D[i+1][j+1][0])*Gaussian_Filter[3][3]+ 
-                              ((float)data2D[i+1][j+2][0])*Gaussian_Filter[3][4]+
-                              ((float)data2D[i+2][j-2][0])*Gaussian_Filter[4][0]+((float)data2D[i+2][j-1][0])*Gaussian_Filter[4][1]+
-                              ((float)data2D[i+2][j  ][0])*Gaussian_Filter[4][2]+((float)data2D[i+2][j+1][0])*Gaussian_Filter[4][3]+ 
-                              ((float)data2D[i+2][j+2][0])*Gaussian_Filter[4][4];
+		sobelx_out =((float)data2D[i-1][j-1][0])*Gx[0][0]+((float)data2D[i-1][j][0])*Gx[0][1]+((float)data2D[i-1][j+1][0])*Gx[0][2]+
+                            ((float)data2D[i  ][j-1][0])*Gx[1][0]+((float)data2D[i  ][j][0])*Gx[1][1]+((float)data2D[i  ][j+1][0])*Gx[1][2]+
+                            ((float)data2D[i+1][j-1][0])*Gx[2][0]+((float)data2D[i+1][j][0])*Gx[2][1]+((float)data2D[i+1][j+1][0])*Gx[2][2];
 
+		sobely_out =((float)data2D[i-1][j-1][0])*Gy[0][0]+((float)data2D[i-1][j][0])*Gy[0][1]+((float)data2D[i-1][j+1][0])*Gy[0][2]+
+                            ((float)data2D[i  ][j-1][0])*Gy[1][0]+((float)data2D[i  ][j][0])*Gy[1][1]+((float)data2D[i  ][j+1][0])*Gy[1][2]+
+                            ((float)data2D[i+1][j-1][0])*Gy[2][0]+((float)data2D[i+1][j][0])*Gy[2][1]+((float)data2D[i+1][j+1][0])*Gy[2][2];
 			}
 
+		magnitude_x = pow(sobelx_out,2);
+		magnitude_y = pow(sobely_out,2);
+		/*Edge strength*/
+		magnitude_ttl = sqrt(magnitude_x + magnitude_y);
 
+/*\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\*/
+		float abs_x = fabs(sobelx_out);
+		float abs_y = fabs(sobely_out);
+		if (abs_x == 0.0)
+			theta = 0.0;
+		else{
+			if (abs_y == 0.0)
+				theta = 0.0;
+			else{
+				/*atan returns radians*/
+				angle = atan(abs_y / abs_x);
+				if (abs_x >= 0.0){
+					if (abs_y >= 0.0)
+						theta = angle;
+					else
+						theta = (2.0*PI-angle);
+					}
+				else{
+					if (abs_y >= 0.0)
+						theta = PI-angle;
+					else
+						theta = PI+angle;
+					}
+
+				}
+			}
+/*\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\*/
+
+		printf("%f\n", DEG(theta));
+		
+		filter_out = (unsigned char)magnitude_ttl;
+		/*filter_out = (unsigned char)theta;*/
+
+		data_buffer[i][j] = filter_out;
 		}
 	}
-
-
-
-
-
 
 
 for(i=0;i<height;i++){

@@ -24,6 +24,7 @@ S. Vagionitis  10/06/2010     Creation
 
 #define PI  		3.1415926535897932384626433832795
 #define RAD(x)		((x)*PI/180.0)
+#define DEG(x)		((x)*180.0/PI)
 #define MIN(a,b)	((a)<=(b)?(a):(b))
 #define MAX(a,b)	((a)>=(b)?(a):(b))
 #define MIN3(a,b,c)	((a)<=(b) ? (a)<=(c)?(a):(c) : (b)<=(c)?(b):(c) )
@@ -42,6 +43,7 @@ S. Vagionitis  10/06/2010     Creation
 int transform_1D_to_2D(unsigned char *, int, int);
 int export_ppm_from_2D(unsigned char, int, int);
 int noise_reduction(int, int);
+int Sobel_operators(int, int);
 
 extern unsigned char ***data2D;
 
