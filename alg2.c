@@ -550,3 +550,140 @@ free(data_buffer);
 return TRUE;
 }
 
+int Sobel_operators(int width, int height)
+{
+int i = 0, j = 0;
+
+float Gx[3][3] = {{-1.0, 0.0, 1.0}, 
+		  {-2.0, 0.0, 2.0}, 
+		  {-1.0, 0.0, 1.0}};
+
+float Gy[3][3] = {{ 1.0,  2.0,  1.0}, 
+		  { 0.0,  0.0,  0.0}, 
+		  {-1.0, -2.0, -1.0}};
+
+/* Allocate temporary memory to store the values after sobel operator has passed.*/
+unsigned char **data_buffer=NULL;
+data_buffer = (unsigned char **)malloc(height * sizeof(unsigned char *));
+if (data_buffer == NULL){
+	printf("noise_reduction: Could not allocate %d bytes.\n", (height * sizeof(unsigned char *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<height;i++){
+		data_buffer[i] = (unsigned char *)malloc(width * sizeof(unsigned char));
+		if (data_buffer[i] == NULL){
+			printf("noise_reduction: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned char)), i);
+			return FALSE;
+			}
+		else{
+			for(j=0;j<width;j++){
+				data_buffer[i][j] = 0;
+				}/*for j*/
+			}
+		}/*for i*/
+	printf("Sobel_operators: Allocated %d bytes.\n", (width * height * sizeof(unsigned char)));
+	}
+
+for(i=0;i<height;i++){
+	int im1 = (i-1), ip1 = (i+1);
+	for(j=0;j<width;j++){
+		int jm1 = (j-1), jp1 = (j+1);
+		unsigned char filter_out = 0.0;
+		float sobelx_out = 0.0, sobely_out = 0.0;
+
+		if (((im1<0) && (jm1<0)) &&
+                    ((ip1>=0) &&(jp1>=0))){/*Top-Left corner*/
+			}
+		else if(((im1<0) && (jm1>=0)) &&
+                        ((ip1>=0) && (jp1<=(width-1)))){
+			}
+		else if(((im1>=0) && (jm1>=0)) &&
+                        ((ip1<=(height-1)) && (jp1<=(width-1)))){
+			}
+		else if(((im1>=0) && (jm1<0)) &&
+                        ((ip1<=(height-1)) && (jp1>=0))){
+			}
+		else if(((im1>=0) && (jm1>=0)) &&
+                        ((ip1<=(height-1)) && (jp1<=(width-1)))){
+			}/********************************************************************************************************************/
+		else if (((im1<0) && (jp1>(width-1))) &&
+                         ((ip1>=0) && (jm1<=(width-1)))){/*Top-Right corner*/
+			}
+		else if (((im1<0) && (jp1<=(width-1))) &&
+                         ((ip1>=0) && (jm1<=(width-1)))){
+			}
+		else if (((im1>=0) && (jp1>(width-1))) &&
+                         ((ip1>=0) && (jm1<=(width-1)))){
+			}
+		else if (((im1>=0) && (jp1<=(width-1))) &&
+                         ((ip1<=(height-1)) && (jm1<=(width-1)))){
+			}/********************************************************************************************************************/
+		else if (((ip1>(height-1)) && (jm1<0)) &&
+                         ((im1<=(height-1)) && (jp1>=0))){/*Bottom-Left corner*/
+			}
+		else if (((ip1>(height-1)) && (jm1>=0)) &&
+                         ((im1<=(height-1)) && (jp1>=0))){
+			}
+		else if (((ip1<=(height-1)) && (jm1>=0)) &&
+                         ((im1<=(height-1)) && (jp1<=(width-1)))){
+			}
+		else if (((ip1<=(height-1)) && (jm1<0)) &&
+                         ((im1<=(height-1)) && (jp1>=0))){
+			}/********************************************************************************************************************/
+		else if (((ip1>(height-1)) && (jp1>(width-1))) &&
+                         ((im1<=(height-1)) && (jm1<=(width-1)))){/*Bottom-Right corner*/
+			}
+		else if (((ip1>(height-1)) && (jp1<=(width-1))) &&
+                         ((im1<=(height-1)) && (jm1<=(width-1)))){
+			}
+		else if (((ip1<=(height-1)) && (jp1>(width-1))) &&
+                         ((im1<=(height-1)) && (jm1<=(width-1)))){
+			}
+		else if (((ip1<=(height-1)) && (jp1<=(width-1))) &&
+                         ((im1<=(height-1)) && (jm1>=0))){
+			}/********************************************************************************************************************/
+		else{
+		filter_out =  ((float)data2D[i-2][j-2][0])*Gaussian_Filter[0][0]+((float)data2D[i-2][j-1][0])*Gaussian_Filter[0][1]+
+                              ((float)data2D[i-2][j  ][0])*Gaussian_Filter[0][2]+((float)data2D[i-2][j+1][0])*Gaussian_Filter[0][3]+
+                              ((float)data2D[i-2][j+2][0])*Gaussian_Filter[0][4]+
+                              ((float)data2D[i-1][j-2][0])*Gaussian_Filter[1][0]+((float)data2D[i-1][j-1][0])*Gaussian_Filter[1][1]+
+                              ((float)data2D[i-1][j  ][0])*Gaussian_Filter[1][2]+((float)data2D[i-1][j+1][0])*Gaussian_Filter[1][3]+ 
+                              ((float)data2D[i-1][j+2][0])*Gaussian_Filter[1][4]+
+                              ((float)data2D[i  ][j-2][0])*Gaussian_Filter[2][0]+((float)data2D[i  ][j-1][0])*Gaussian_Filter[2][1]+
+                              ((float)data2D[i  ][j  ][0])*Gaussian_Filter[2][2]+((float)data2D[i  ][j+1][0])*Gaussian_Filter[2][3]+ 
+                              ((float)data2D[i  ][j+2][0])*Gaussian_Filter[2][4]+
+                              ((float)data2D[i+1][j-2][0])*Gaussian_Filter[3][0]+((float)data2D[i+1][j-1][0])*Gaussian_Filter[3][1]+
+                              ((float)data2D[i+1][j  ][0])*Gaussian_Filter[3][2]+((float)data2D[i+1][j+1][0])*Gaussian_Filter[3][3]+ 
+                              ((float)data2D[i+1][j+2][0])*Gaussian_Filter[3][4]+
+                              ((float)data2D[i+2][j-2][0])*Gaussian_Filter[4][0]+((float)data2D[i+2][j-1][0])*Gaussian_Filter[4][1]+
+                              ((float)data2D[i+2][j  ][0])*Gaussian_Filter[4][2]+((float)data2D[i+2][j+1][0])*Gaussian_Filter[4][3]+ 
+                              ((float)data2D[i+2][j+2][0])*Gaussian_Filter[4][4];
+
+			}
+
+
+		}
+	}
+
+
+
+
+
+
+
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		data2D[i][j][0] = data_buffer[i][j];
+		data2D[i][j][1] = data_buffer[i][j];
+		data2D[i][j][2] = data_buffer[i][j];
+		}
+	}
+
+
+for(i=0;i<height;i++)
+	free(data_buffer[i]);
+free(data_buffer);
+
+return TRUE;
+}
