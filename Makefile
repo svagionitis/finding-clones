@@ -2,8 +2,8 @@
 program = alcon2009
 objs = main.o evaluation.o pnm.o my_alg.o alg1.o alg2.o alg3.o
 CC = gcc
-CFLAGS = -Wall -ansi -O2
-#CFLAGS = -Wall -O2
+#CFLAGS = -Wall -ansi -O2
+CFLAGS = -Wall -g -ggdb -ansi -O2
 LDFLAGS = -lm
 RM = rm -f
 
