@@ -55,6 +55,7 @@ int convert_to_green(int, int);
 int convert_to_blue(int, int);
 int noise_reduction(int, int);
 int Sobel_operator(unsigned char, int, int);
+int non_maximum_suppression(int, int);
 
 extern unsigned char ***data2D;
 extern sobel **sobel_data;

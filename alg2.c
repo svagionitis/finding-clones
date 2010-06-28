@@ -621,7 +621,7 @@ float Gy[3][3] = {{ 1.0,  2.0,  1.0},
 		  { 0.0,  0.0,  0.0}, 
 		  {-1.0, -2.0, -1.0}};
 
-/* Allocate temporary memory to store the values after sobel operator has passed.*/
+/* Allocate memory for magnitude and direction of sobel operator.*/
 sobel_data = (sobel **)malloc(height * sizeof(sobel *));
 if (sobel_data == NULL){
 	printf("Sobel_operator: Could not allocate %d bytes.\n", (height * sizeof(sobel *)));
@@ -894,6 +894,207 @@ for(i=0;i<height;i++){
 for(i=0;i<height;i++)
 	free(data_buffer[i]);
 free(data_buffer);
+
+return TRUE;
+}
+
+
+int non_maximum_suppression(int width, int height)
+{
+int i = 0, j = 0;
+
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+
+		switch(sobel_data[i][j].direction){
+			case 0:/*if the rounded edge direction angle is 0 degrees, checks the north and south directions*/
+				if(((i-1)>=0) && ((i+1)<=(height-1))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i-1][j].magnitude) &&
+					    (sobel_data[i][j].magnitude > sobel_data[i+1][j].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}/*
+				else if(((i-1)>=0) && ((i+1)>(height-1))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i-1][j].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}
+				else if(((i-1)<0) && ((i+1)<=(height-1))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i+1][j].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}*/
+				else{
+					data2D[i][j][0] = 0;
+					data2D[i][j][1] = 0;
+					data2D[i][j][2] = 0;
+					}
+				break;
+			case 1:/*if the rounded edge direction angle is 45 degrees, checks the northwest and southeast directions*/
+				if (((i-1)>=0) && ((i+1)<=(height-1)) && ((j-1)>=0) && ((j+1)<=(width-1))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i-1][j-1].magnitude) && 
+					    (sobel_data[i][j].magnitude > sobel_data[i+1][j+1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}/*
+				else if ((((i-1)>=0) && ((i+1)<=(height-1)) && ((j-1)>=0) && ((j+1)>(width-1))) ||
+                                         (((i-1)>=0) && ((i+1)>(height-1)) && ((j-1)>=0) && ((j+1)<=(width-1))) ||
+					 (((i-1)>=0) && ((i+1)>(height-1)) && ((j-1)>=0) && ((j+1)>(width-1)))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i-1][j-1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}
+				else if ((((i-1)>=0) && ((i+1)<=(height-1)) && ((j-1)<0) && ((j+1)<=(width-1))) || 
+					 (((i-1)<0) && ((i+1)<=(height-1)) && ((j-1)>=0) && ((j+1)<=(width-1))) ||
+					 (((i-1)<0) && ((i+1)<=(height-1)) && ((j-1)<0) && ((j+1)<=(width-1)))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i+1][j+1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}*/
+				else{
+					data2D[i][j][0] = 0;
+					data2D[i][j][1] = 0;
+					data2D[i][j][2] = 0;
+					}
+				break;
+			case 2:/*if the rounded edge direction angle is 90 degrees, checks the east and west directions*/
+				if (((j-1)>=0) && ((j+1)<=(width-1))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i][j+1].magnitude) && 
+					    (sobel_data[i][j].magnitude > sobel_data[i][j-1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}/*
+				else if(((j-1)>=0) && ((j+1)>(width-1))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i][j-1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}
+				else if (((j-1)<0) && ((j+1)<=(width-1))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i][j+1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}*/
+				else{
+					data2D[i][j][0] = 0;
+					data2D[i][j][1] = 0;
+					data2D[i][j][2] = 0;
+					}
+				break;
+			case 3:/*if the rounded edge direction angle is 135 degrees, checks the northeast and southwest directions*/
+				if (((i-1)>=0) && ((i+1)<=(height-1)) && ((j-1)>=0) && ((j+1)<=(width-1))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i-1][j+1].magnitude) && 
+					    (sobel_data[i][j].magnitude > sobel_data[i+1][j-1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}/*
+				else if ((((i-1)>=0) && ((i+1)<=(height-1)) && ((j-1)>=0) && ((j+1)>(width-1))) ||
+					 (((i-1)<0) && ((i+1)<=(height-1)) && ((j-1)>=0) && ((j+1)<=(width-1))) ||
+					 (((i-1)<0) && ((i+1)<=(height-1)) && ((j-1)>=0) && ((j+1)>(width-1)))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i+1][j-1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}
+				else if ((((i-1)>=0) && ((i+1)<=(height-1)) && ((j-1)<0) && ((j+1)<=(width-1))) ||
+					 (((i-1)>=0) && ((i+1)>(height-1)) && ((j-1)>=0) && ((j+1)<=(width-1))) ||
+					 (((i-1)>=0) && ((i+1)>(height-1)) && ((j-1)<0) && ((j+1)<=(width-1)))){
+					if ((sobel_data[i][j].magnitude > sobel_data[i-1][j+1].magnitude)){
+						data2D[i][j][0] = sobel_data[i][j].magnitude;
+						data2D[i][j][1] = sobel_data[i][j].magnitude;
+						data2D[i][j][2] = sobel_data[i][j].magnitude;
+						}
+					else{
+						data2D[i][j][0] = 0;
+						data2D[i][j][1] = 0;
+						data2D[i][j][2] = 0;
+						}
+					}*/
+				else{
+					data2D[i][j][0] = 0;
+					data2D[i][j][1] = 0;
+					data2D[i][j][2] = 0;
+					}
+				break;
+			}/*switch*/
+
+		}
+	}
 
 return TRUE;
 }

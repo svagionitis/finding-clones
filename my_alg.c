@@ -68,6 +68,7 @@ noise_reduction(width, height);
 /*export_ppm_from_2D(4, width, height);*/
 
 Sobel_operator(3, width,height);
+non_maximum_suppression(width, height);
 export_ppm_from_2D(4, width, height);
 
 return NULL;
