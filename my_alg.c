@@ -69,6 +69,11 @@ noise_reduction(width, height);
 
 Sobel_operator(3, width,height);
 non_maximum_suppression(width, height);
+int high = 0, low = 0;
+calculate_thresholds(width, height, &high, &low);
+printf("l:%d h:%d\n", low, high);
+
+hysteresis_thresholding(width, height, high, low);
 export_ppm_from_2D(4, width, height);
 
 return NULL;

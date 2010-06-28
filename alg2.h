@@ -55,6 +55,12 @@ int convert_to_blue(int, int);
 int noise_reduction(int, int);
 int Sobel_operator(unsigned char, int, int);
 int non_maximum_suppression(int, int);
+int calculate_thresholds(int, int, int *, int *);
+
+int hysteresis_thresholding(int, int, int, int);
+int trace(int, int, int, int, int, unsigned char **);
+int range(int, int, int, int);
+
 
 extern unsigned char ***data2D;
 extern sobel **sobel_data;

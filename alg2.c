@@ -1137,3 +1137,92 @@ while (histogram[i] == 0) {
 return TRUE;
 }
 
+
+int hysteresis_thresholding(int width, int height, int high_thres, int low_thres)
+{
+int i = 0, j = 0;
+
+/* Allocate temporary memory to store the values for hysterisis.*/
+unsigned char **data_buffer=NULL;
+data_buffer = (unsigned char **)malloc(height * sizeof(unsigned char *));
+if (data_buffer == NULL){
+	printf("hysteresis_thresholding: Could not allocate %d bytes.\n", (height * sizeof(unsigned char *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<height;i++){
+		data_buffer[i] = (unsigned char *)malloc(width * sizeof(unsigned char));
+		if (data_buffer[i] == NULL){
+			printf("hysteresis_thresholding: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned char)), i);
+			return FALSE;
+			}
+		else{
+			for(j=0;j<width;j++){
+				data_buffer[i][j] = 0;
+				}/*for j*/
+			}
+		}/*for i*/
+	printf("hysteresis_thresholding: Allocated %d bytes.\n", (width * height * sizeof(unsigned char)));
+	}
+
+
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		if (data2D[i][j][0] >= high_thres){
+			trace(width, height, i, j, low_thres, data_buffer);
+			}
+		}/*j*/
+	}/*i*/
+
+
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		data2D[i][j][0] = data_buffer[i][j];
+		data2D[i][j][1] = data_buffer[i][j];
+		data2D[i][j][2] = data_buffer[i][j];
+		}/*j*/
+	}/*i*/
+
+for(i=0;i<height;i++)
+	free(data_buffer[i]);
+free(data_buffer);
+
+return TRUE;
+}
+
+int trace(int width, int height, int i, int j, int low_thres, unsigned char **data_out)
+{
+int i_off = 0, j_off = 0;
+
+if (data_out[i][j] == 0){
+	data_out[i][j] = 255;
+	
+	for (i_off=-1;i_off<=1;i_off++){
+		for (j_off=-1;j_off<=1;j_off++){
+
+			if (!(i == 0 && j_off == 0) && 
+			    range(width, height, i + i_off, j + j_off) && 
+			    data2D[(i + i_off)][(j + j_off)][0] >= low_thres){
+
+				if (trace(width, height, (i + i_off), (j + j_off), low_thres, data_out))
+					return TRUE;
+				}
+
+			}/*j_off*/
+		}/*i_off*/
+	return TRUE;
+	}/*outer if*/
+return FALSE;
+}
+
+int range(int width, int height, int i, int j)
+{
+if ((i < 0) || (i >= height))
+	return FALSE;
+
+if ((j < 0) || (j >= width))
+	return FALSE;
+
+return TRUE;
+}
+
