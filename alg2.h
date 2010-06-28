@@ -46,7 +46,6 @@ typedef struct sobel_t{
 	unsigned char direction;
 	}sobel;
 
-
 int transform_1D_to_2D(unsigned char *, int, int);
 int export_ppm_from_2D(unsigned char, int, int);
 int convert_to_greyscale(int, int);

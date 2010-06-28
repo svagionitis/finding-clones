@@ -1098,3 +1098,42 @@ for(i=0;i<height;i++){
 
 return TRUE;
 }
+
+/*percentage of the high threshold value that the low threshold shall be set at*/
+#define LOW_THRESHOLD_PERCENTAGE 0.8 
+/*percentage of pixels that meet the high threshold - for example 0.15 will ensure 
+that at least 15% of edge pixels are considered to meet the high threshold
+*/
+#define HIGH_THRESHOLD_PERCENTAGE 0.10 
+
+int calculate_thresholds(int width, int height, int *high_thres, int *low_thres)
+{
+int i = 0, j = 0;
+int histogram[256];
+int pixels = 0, high_cutoff = 0;
+memset(histogram, 0, sizeof(histogram));
+
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		histogram[data2D[i][j][0]]++;
+		}
+	}
+
+pixels = ((height*width) - histogram[0]) * HIGH_THRESHOLD_PERCENTAGE;
+high_cutoff = 0;
+i = 255;
+while (high_cutoff < pixels){
+	high_cutoff += histogram[i];
+	i--;
+	}
+
+*high_thres = i;
+i = 1;
+while (histogram[i] == 0) {
+	i++;
+}
+*low_thres = (*high_thres + i) * LOW_THRESHOLD_PERCENTAGE;
+
+return TRUE;
+}
+
