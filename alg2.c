@@ -30,7 +30,7 @@ S. Vagionitis  10/06/2010     Creation
 #include "alcon2009.h"/*For save_ppm function*/
 
 unsigned char ***data2D;
-
+sobel **sobel_data;
 
 int transform_1D_to_2D(unsigned char *image_data, int width, int height)
 {
@@ -201,7 +201,7 @@ int convert_to_green(int width, int height)
 {
 int i = 0, j = 0;
 
-/*Convert to red values*/
+/*Convert to green values*/
 for(i=0;i<height;i++){
 	for(j=0;j<width;j++){
 		data2D[i][j][0] = 0;
@@ -216,7 +216,7 @@ int convert_to_blue(int width, int height)
 {
 int i = 0, j = 0;
 
-/*Convert to red values*/
+/*Convert to blue values*/
 for(i=0;i<height;i++){
 	for(j=0;j<width;j++){
 		data2D[i][j][0] = 0;
@@ -603,7 +603,13 @@ free(data_buffer);
 return TRUE;
 }
 
-int Sobel_operator(int width, int height)
+/*
+type: 0 magnitude with square root
+      1 magnitude with absolute value
+      2 angle, direction
+      3 Calculate magnitude using sqrt and direction
+*/
+int Sobel_operator(unsigned char type, int width, int height)
 {
 int i = 0, j = 0;
 
@@ -616,17 +622,40 @@ float Gy[3][3] = {{ 1.0,  2.0,  1.0},
 		  {-1.0, -2.0, -1.0}};
 
 /* Allocate temporary memory to store the values after sobel operator has passed.*/
+sobel_data = (sobel **)malloc(height * sizeof(sobel *));
+if (sobel_data == NULL){
+	printf("Sobel_operator: Could not allocate %d bytes.\n", (height * sizeof(sobel *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<height;i++){
+		sobel_data[i] = (sobel *)malloc(width * sizeof(sobel));
+		if (sobel_data[i] == NULL){
+			printf("Sobel_operator: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(sobel)), i);
+			return FALSE;
+			}
+		else{
+			for(j=0;j<width;j++){
+				sobel_data[i][j].magnitude = 0;
+				sobel_data[i][j].direction = 0;
+				}/*for j*/
+			}
+		}/*for i*/
+	printf("Sobel_operator: Allocated %d bytes.\n", (width * height * sizeof(sobel)));
+	}
+
+/* Allocate temporary memory to store the values after sobel operator has passed.*/
 unsigned char **data_buffer=NULL;
 data_buffer = (unsigned char **)malloc(height * sizeof(unsigned char *));
 if (data_buffer == NULL){
-	printf("noise_reduction: Could not allocate %d bytes.\n", (height * sizeof(unsigned char *)));
+	printf("Sobel_operator: Could not allocate %d bytes.\n", (height * sizeof(unsigned char *)));
 	return FALSE;
 	}
 else{
 	for (i=0;i<height;i++){
 		data_buffer[i] = (unsigned char *)malloc(width * sizeof(unsigned char));
 		if (data_buffer[i] == NULL){
-			printf("noise_reduction: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned char)), i);
+			printf("Sobel_operator: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned char)), i);
 			return FALSE;
 			}
 		else{
@@ -635,16 +664,15 @@ else{
 				}/*for j*/
 			}
 		}/*for i*/
-	printf("Sobel_operators: Allocated %d bytes.\n", (width * height * sizeof(unsigned char)));
+	printf("Sobel_operator: Allocated %d bytes.\n", (width * height * sizeof(unsigned char)));
 	}
 
 for(i=0;i<height;i++){
 	int im1 = (i-1), ip1 = (i+1);
 	for(j=0;j<width;j++){
 		int jm1 = (j-1), jp1 = (j+1);
-		unsigned char filter_out = 0.0;
 		float sobelx_out = 0.0, sobely_out = 0.0;
-		float magnitude_x = 0.0, magnitude_y = 0.0, magnitude_ttl = 0.0;
+		float magnitude_ttl = 0.0;
 		float angle = 0.0, theta = 0.0;
 
 		if (((im1<0) && (jm1<0)) &&
@@ -761,45 +789,95 @@ for(i=0;i<height;i++){
                             ((float)data2D[i+1][j-1][0])*Gy[2][0]+((float)data2D[i+1][j][0])*Gy[2][1]+((float)data2D[i+1][j+1][0])*Gy[2][2];
 			}
 
-		magnitude_x = pow(sobelx_out,2);
-		magnitude_y = pow(sobely_out,2);
-		/*Edge strength*/
-		magnitude_ttl = sqrt(magnitude_x + magnitude_y);
 
-/*\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\*/
-		float abs_x = fabs(sobelx_out);
-		float abs_y = fabs(sobely_out);
-		if (abs_x == 0.0)
-			theta = 0.0;
-		else{
-			if (abs_y == 0.0)
-				theta = 0.0;
-			else{
-				/*atan returns radians*/
-				angle = atan(abs_y / abs_x);
-				if (abs_x >= 0.0){
-					if (abs_y >= 0.0)
-						theta = angle;
-					else
-						theta = (2.0*PI-angle);
-					}
+		switch(type){
+			float magnitude_x = 0.0, magnitude_y = 0.0;
+			float abs_x = 0.0, abs_y = 0.0;
+			case 0:/*Calculate magnitude using sqrt*/
+				magnitude_x = (sobelx_out*sobelx_out);
+				magnitude_y = (sobely_out*sobely_out);
+				/*Edge strength*/
+				magnitude_ttl = sqrt(magnitude_x + magnitude_y);
+
+				sobel_data[i][j].magnitude = (unsigned char)magnitude_ttl;
+				break;
+			case 1:/*Calculate magnitude using abs*/
+				abs_x = fabs(sobelx_out);
+				abs_y = fabs(sobely_out);
+				/*Edge strength*/
+				magnitude_ttl = abs_x + abs_y;
+
+				sobel_data[i][j].magnitude = (unsigned char)magnitude_ttl;
+				break;
+			case 2:/*Calculate direction*/
+				if (sobelx_out == 0.0)
+					theta = 2.0;
 				else{
-					if (abs_y >= 0.0)
-						theta = PI-angle;
-					else
-						theta = PI+angle;
+					angle = sobely_out / sobelx_out;
+					
+					if (angle < 0.0){
+						if (angle < -2.41421356237)
+							theta = 0.0;
+						else{
+							if (angle < -0.414213562373)
+								theta = 1.0;
+							else
+								theta = 2.0;
+							}
+						}/*angle < 0.0*/
+					else{
+						if(angle > 2.41421356237)
+							theta = 0.0;
+						else{
+							if (angle > 0.414213562373)
+								theta = 3.0;
+							else
+								theta = 2.0;
+							}
+						}
 					}
 
-				}
+				sobel_data[i][j].direction = (unsigned char)theta;
+				break;
+			case 3:/*Calculate magnitude using sqrt and direction*/
+				magnitude_x = (sobelx_out*sobelx_out);
+				magnitude_y = (sobely_out*sobely_out);
+				/*Edge strength*/
+				magnitude_ttl = sqrt(magnitude_x + magnitude_y);
+				sobel_data[i][j].magnitude = (unsigned char)magnitude_ttl;
+
+				if (sobelx_out == 0.0)
+					theta = 2.0;
+				else{
+					angle = sobely_out / sobelx_out;
+					
+					if (angle < 0.0){
+						if (angle < -2.41421356237)
+							theta = 0.0;
+						else{
+							if (angle < -0.414213562373)
+								theta = 1.0;
+							else
+								theta = 2.0;
+							}
+						}/*angle < 0.0*/
+					else{
+						if(angle > 2.41421356237)
+							theta = 0.0;
+						else{
+							if (angle > 0.414213562373)
+								theta = 3.0;
+							else
+								theta = 2.0;
+							}
+						}
+					}
+
+				sobel_data[i][j].direction = (unsigned char)theta;
+				break;
 			}
-/*\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\*/
 
-		printf("%f\n", DEG(theta));
-		
-		filter_out = (unsigned char)magnitude_ttl;
-		/*filter_out = (unsigned char)theta;*/
-
-		data_buffer[i][j] = filter_out;
+		data_buffer[i][j] = sobel_data[i][j].magnitude;
 		}
 	}
 

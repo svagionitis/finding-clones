@@ -64,12 +64,12 @@ transform_1D_to_2D(image, width, height);
 export_ppm_from_2D(3, width, height);
 
 convert_to_greyscale(width, height);
-/*noise_reduction(width, height);*/
+noise_reduction(width, height);
+/*export_ppm_from_2D(4, width, height);*/
+
+Sobel_operator(3, width,height);
 export_ppm_from_2D(4, width, height);
-/*
-Sobel_operator(width,height);
-export_ppm_from_2D(4, width, height);
-*/
+
 return NULL;
 }
 

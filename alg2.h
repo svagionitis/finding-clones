@@ -40,6 +40,13 @@ S. Vagionitis  10/06/2010     Creation
                                  (unsigned char)(0.1140 * (double)(b)))
 
 
+/*Structure for sobel operator*/
+typedef struct sobel_t{
+	unsigned char magnitude;
+	unsigned char direction;
+	}sobel;
+
+
 int transform_1D_to_2D(unsigned char *, int, int);
 int export_ppm_from_2D(unsigned char, int, int);
 int convert_to_greyscale(int, int);
@@ -47,9 +54,10 @@ int convert_to_red(int, int);
 int convert_to_green(int, int);
 int convert_to_blue(int, int);
 int noise_reduction(int, int);
-int Sobel_operator(int, int);
+int Sobel_operator(unsigned char, int, int);
 
 extern unsigned char ***data2D;
+extern sobel **sobel_data;
 
 #endif
 
