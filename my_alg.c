@@ -149,6 +149,7 @@ else{
 /* assign ID to each object and returns the number of objects */
 n = assign_id(mask, width, height, obj_id);
 
+
 /* allocate memories */
 area = (int *)malloc(n * sizeof(int));
 if (area == NULL){
@@ -184,7 +185,7 @@ calculate_length(obj_id, width, height, n, len, image);
 /* calcuate cirularity index */
 morphological_feature_circularity_index(area, len, n, circ);
 
-
+/*printf("n=%d k=%f\n", n, sqrt(n/2));*/
 /* k-means clustering */
 k_means(circ, obj, n);
 
@@ -545,6 +546,7 @@ unsigned int i = 0;
 /* calcuate cirularity index */
 for (i = 0; i < n_object; i++){
 	circ[i] = 4.0*PI * area[i] / (perim[i]*perim[i]);
+	printf("i=%d circ=%f\n", i, circ[i]);
 	}
 
 return TRUE;
