@@ -85,6 +85,7 @@ int bilinear_interpolation_with_weights_propotional_to_square_of_distance(unsign
 int bilinear_interpolation_with_weights_propotional_to_distance(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned char*);
 int linear_interpolation_in_2d_data(unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned char*);
 int reconstruct_image_from_subimages(unsigned char, int, int, unsigned int, unsigned int);
+int final_stage(int, int, unsigned int, unsigned int);
 
 extern unsigned char *****subimage_data;
 extern histogram ***hist_data;

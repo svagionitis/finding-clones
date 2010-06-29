@@ -1451,3 +1451,81 @@ free(data_buffer);
 return TRUE;
 }
 
+
+int final_stage(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
+{
+unsigned int i = 0, j = 0, k = 0, l = 0;
+unsigned int h_mem_alloc = 0;
+unsigned int w_mem_alloc = 0;
+unsigned int data_mem_alloc = 0;
+
+char filename[128];
+memset(filename, '\0', sizeof(filename));
+
+unsigned int wdS = (width / SHIFT) - 1;
+unsigned int wmS = width % SHIFT;
+unsigned int hdS = (height / SHIFT) - 1;
+unsigned int hmS = height % SHIFT;
+
+unsigned char *data_buffer=NULL;
+data_mem_alloc = (3 * width * height);
+data_buffer = (unsigned char *)malloc(data_mem_alloc * sizeof(unsigned char));
+if (data_buffer == NULL){
+	printf("Could not allocate %d bytes.\n", (data_mem_alloc * sizeof(unsigned char)));
+	return FALSE;
+	}
+else{/*Initialize data buffer*/
+	printf("Mem alloc %d bytes.\n", data_mem_alloc * sizeof(unsigned char));
+	for(i=0;i<data_mem_alloc;i++)
+		data_buffer[i] = 0;
+	}
+
+sprintf(filename,"Final_alg1.ppm");
+
+for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
+	unsigned int ssi = SHIFT*i;
+	for (j=0;j<width_subimages;j++){/*Width coordinate of subimage*/
+		unsigned int ssj = SHIFT*j;
+
+		/*------------------------------------------------*/
+		if (i < hdS)
+			h_mem_alloc = M;
+		else
+			h_mem_alloc = SHIFT + hmS;
+		/*------------------------------------------------*/
+		for(k=0;k<h_mem_alloc;k++){
+			unsigned int x = (k + ssi);
+			/*------------------------------------------------*/
+			if (j < wdS)
+				w_mem_alloc = M;
+			else
+				w_mem_alloc = SHIFT + wmS;
+			/*------------------------------------------------*/
+
+			for(l=0;l<w_mem_alloc;l++){
+				unsigned int y = (l + ssj);
+				register unsigned int xyM = (y + x * width) * 3;
+
+				if (subimage_data[i][j][k][l][3] >= subimage_data[i][j][k][l][4]){
+					data_buffer[xyM + 0] = 255;
+					data_buffer[xyM + 1] = 255;
+					data_buffer[xyM + 2] = 255;
+					}
+				else{
+					data_buffer[xyM + 0] = 0;
+					data_buffer[xyM + 1] = 0;
+					data_buffer[xyM + 2] = 0;
+					}
+				}/*l*/
+			}/*k*/
+		}/*j*/
+	}/*i*/
+
+save_ppm(filename, width, height, data_buffer);
+
+free(data_buffer);
+
+return TRUE;
+
+}
+
