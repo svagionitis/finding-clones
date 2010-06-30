@@ -53,13 +53,15 @@ typedef struct cielab_t{
 	}CIELab;
 
 int transform_1D_to_2D_RGB(unsigned char *, int, int);
-int allocate_mem_CIELAB(int, int);
+int allocate_mem_data_CIELAB(int, int);
 int RGB_to_CIELAB(RGB, CIELab *);
 int convert_RGB_to_CIELAB(int, int);
-int Sobel_CIELAB(int, int);
+int first_derivative_CIELAB(unsigned char, int, int, unsigned int *);
+int calculate_histogram_of_gradient(int, int, unsigned int);
 
 extern RGB **data2D_RGB;
 extern CIELab **data2D_CIELAB;
+extern unsigned int **gradient_Map;
 
 #endif
 

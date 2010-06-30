@@ -82,6 +82,13 @@ return NULL;
 object *my_alg_level3(unsigned char *image, int width, int height, int *n_object) 
 {
 
+transform_1D_to_2D_RGB(image, width, height);
+allocate_mem_data_CIELAB(width, height);
+convert_RGB_to_CIELAB(width, height);
+unsigned int max_grad = 0;
+first_derivative_CIELAB(0, width, height, &max_grad);
+calculate_histogram_of_gradient(width, height, max_grad);
+
 return NULL;
 }
 

@@ -265,6 +265,8 @@ int main(int argc, char *argv[])
 	} else {
 		alcon2009_measure_time();
 		obj = my_alg_level3(data, w_img, h_img, &n_object);
+		if (obj == NULL)
+			return -1;
 		time = alcon2009_measure_time();
 	}
 

@@ -31,6 +31,7 @@ S. Vagionitis  10/06/2010     Creation
 
 RGB **data2D_RGB;
 CIELab **data2D_CIELAB;
+unsigned int **gradient_Map;
 
 int transform_1D_to_2D_RGB(unsigned char *image_data, int width, int height)
 {
@@ -39,14 +40,14 @@ unsigned int i = 0, j = 0;
 /* Allocate memory for subimage data*/
 data2D_RGB = (RGB **)malloc(height * sizeof(RGB *));
 if (data2D_RGB == NULL){
-	printf("transform_1D_to_2D: Could not allocate %d bytes.\n", (height * sizeof(RGB *)));
+	printf("transform_1D_to_2D_RGB: Could not allocate %d bytes.\n", (height * sizeof(RGB *)));
 	return FALSE;
 	}
 else{
 	for (i=0;i<height;i++){
 		data2D_RGB[i] = (RGB *)malloc(width * sizeof(RGB));
 		if (data2D_RGB[i] == NULL){
-			printf("transform_1D_to_2D: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(RGB)), i);
+			printf("transform_1D_to_2D_RGB: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(RGB)), i);
 			return FALSE;
 			}
 		else{
@@ -57,7 +58,7 @@ else{
 				}/*for j*/
 			}
 		}/*for i*/
-	printf("transform_1D_to_2D: Allocated %d bytes.\n", (width * height * sizeof(RGB)));
+	printf("transform_1D_to_2D_RGB: Allocated %d bytes.\n", (width * height * sizeof(RGB)));
 	}
 
 
@@ -73,7 +74,7 @@ for (i=0;i<height;i++){
 return TRUE;
 }
 
-int allocate_mem_CIELAB(int width, int height)
+int allocate_mem_data_CIELAB(int width, int height)
 {
 unsigned int i = 0, j = 0;
 
@@ -178,7 +179,7 @@ memset(&temp, 0, sizeof(temp));
 
 for (i=0;i<height;i++){
 	for(j=0;j<width;j++){
-		RGB_to_CIELab(data2D_RGB[i][j], &temp);
+		RGB_to_CIELAB(data2D_RGB[i][j], &temp);
 		data2D_CIELAB[i][j].C = temp.C;
 		data2D_CIELAB[i][j].L = temp.L;
 		data2D_CIELAB[i][j].a = temp.a;
@@ -189,44 +190,66 @@ for (i=0;i<height;i++){
 return TRUE;
 }
 
-int Sobel_CIELAB(int width, int height)
+/*
+type: 0 Sobel
+      1 Prewitt
+*/
+int first_derivative_CIELAB(unsigned char type, int width, int height, unsigned int *max_gradient)
 {
 unsigned int i = 0, j = 0;
+float Gx[3][3], Gy[3][3];
+memset(Gx, 0.0, sizeof(Gx));
+memset(Gy, 0.0, sizeof(Gy));
 
-/*Sobel kernel functions*/
-float Gx[3][3] = {{-1.0, 0.0, 1.0}, 
-		  {-2.0, 0.0, 2.0}, 
-		  {-1.0, 0.0, 1.0}};
 
-float Gy[3][3] = {{ 1.0,  2.0,  1.0}, 
-		  { 0.0,  0.0,  0.0}, 
-		  {-1.0, -2.0, -1.0}};
+switch(type){
+	case 0:
+		/*Sobel kernel functions*/
+		Gx[0][0] = -1.0;Gx[0][1] = 0.0;Gx[0][2] = 1.0;
+		Gx[1][0] = -2.0;Gx[1][1] = 0.0;Gx[1][2] = 2.0;
+		Gx[2][0] = -1.0;Gx[2][1] = 0.0;Gx[2][2] = 1.0;
+
+		Gy[0][0] =  1.0;Gy[0][1] =  2.0;Gy[0][2] =  1.0;
+		Gy[1][0] =  0.0;Gy[1][1] =  0.0;Gy[1][2] =  0.0;
+		Gy[2][0] = -1.0;Gy[2][1] = -2.0;Gy[2][2] = -1.0;
+		break;
+	case 1:
+		/*Prewitt kernel functions*/
+		Gx[0][0] = -1.0;Gx[0][1] = 0.0;Gx[0][2] = 1.0;
+		Gx[1][0] = -1.0;Gx[1][1] = 0.0;Gx[1][2] = 1.0;
+		Gx[2][0] = -1.0;Gx[2][1] = 0.0;Gx[2][2] = 1.0;
+
+		Gy[0][0] =  1.0;Gy[0][1] =  1.0;Gy[0][2] =  1.0;
+		Gy[1][0] =  0.0;Gy[1][1] =  0.0;Gy[1][2] =  0.0;
+		Gy[2][0] = -1.0;Gy[2][1] = -1.0;Gy[2][2] = -1.0;
+		break;
+}
 
 
 /* Allocate temporary memory to store the values after sobel operator has passed and gradient has been computed.*/
-float **data_buffer=NULL;
-data_buffer = (float **)malloc(height * sizeof(float *));
-if (data_buffer == NULL){
-	printf("Sobel_CIELAB: Could not allocate %d bytes.\n", (height * sizeof(float *)));
+gradient_Map = (unsigned int **)malloc(height * sizeof(unsigned int *));
+if (gradient_Map == NULL){
+	printf("Sobel_CIELAB: Could not allocate %d bytes.\n", (height * sizeof(unsigned int *)));
 	return FALSE;
 	}
 else{
 	for (i=0;i<height;i++){
-		data_buffer[i] = (float *)malloc(width * sizeof(float));
-		if (data_buffer[i] == NULL){
-			printf("Sobel_CIELAB: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(float)), i);
+		gradient_Map[i] = (unsigned int *)malloc(width * sizeof(unsigned int));
+		if (gradient_Map[i] == NULL){
+			printf("Sobel_CIELAB: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned int)), i);
 			return FALSE;
 			}
 		else{
 			for(j=0;j<width;j++){
-				data_buffer[i][j] = 0.0;
+				gradient_Map[i][j] = 0;
 				}/*for j*/
 			}
 		}/*for i*/
-	printf("Sobel_CIELAB: Allocated %d bytes.\n", (width * height * sizeof(float)));
+	printf("Sobel_CIELAB: Allocated %d bytes.\n", (width * height * sizeof(unsigned int)));
 	}
 
 
+(*max_gradient) = 0;
 for(i=0;i<height;i++){
 	int im1 = (i-1), ip1 = (i+1);
 	for(j=0;j<width;j++){
@@ -465,19 +488,48 @@ for(i=0;i<height;i++){
 		t = (dLdx*dLdy) + (dadx*dady) + (dbdx*dbdy);
 		h = (dLdy*dLdy) + (dady*dady) + (dbdy*dbdy);
 		qplush = (q + h);
-		lamda = (qplush + sqrt((qplush*qplush) - 4*(q*h - (t*t)))) / 2;
+		lamda = (qplush + sqrt((qplush*qplush) - 4.0*(q*h - (t*t)))) / 2.0;
 
-		data_buffer[i][j] = sqrt(lamda);
-		printf("%.3f ", data_buffer[i][j]);
+		gradient_Map[i][j] = (unsigned int)sqrt(lamda);
+
+		/*Find max value*/
+		if (gradient_Map[i][j] >= (*max_gradient))
+			(*max_gradient) = gradient_Map[i][j];
+
+		printf("%03u ", gradient_Map[i][j]);
 		}
 	printf("\n");
 	}
 
 
+return TRUE;
+}
 
-for(i=0;i<height;i++)
-	free(data_buffer[i]);
-free(data_buffer);
+
+int calculate_histogram_of_gradient(int width, int height, unsigned int max_gradient)
+{
+unsigned int i = 0, j = 0;
+unsigned int *hist_gradient = NULL;
+
+hist_gradient = (unsigned int *)malloc((max_gradient+1) * sizeof(unsigned int));
+if (hist_gradient == NULL){
+	printf("calculate_histogram_of_gradient: Could not allocate %d bytes.\n", (max_gradient+1) * sizeof(unsigned int));
+	return FALSE;
+	}
+else{
+	for (i=0;i<(max_gradient+1);i++)
+		hist_gradient[i] = 0;
+	}
+
+for(i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		hist_gradient[gradient_Map[i][j]]++;
+		}
+	}
+
+for (i=0;i<(max_gradient+1);i++){
+	printf("%u -> %u\n", i, hist_gradient[i]);
+}
 
 return TRUE;
 }
