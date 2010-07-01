@@ -258,6 +258,83 @@ out->b = 200.0 * (vy - vz);
 return TRUE;
 }
 
+
+/* ############################################################################
+Name           : CIELAB_to_RGB
+Description    : Transform CIE L*a*b* values to RGB values.
+
+(Source: http://inkscape.modevia.com/doxygen/html/classorg_1_1siox_1_1CieLab.php)
+
+Arguments             Type                Description
+===================== =================== =====================================
+in(IN)                CIELab              CIE L*a*b* value.
+out(OUT)              RGB *               RGB value.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+
+Locals                Type                Description
+===================== =================== =====================================
+
+############################################################################ */
+int CIELAB_to_RGB(CIELab in, RGB *out)
+{
+float vy = (in.L + 16.0) / 116.0;
+float vx = in.a / 500.0 + vy;
+float vz = vy - in.b / 200.0;
+
+float vx3 = vx * vx * vx;
+float vy3 = vy * vy * vy;
+float vz3 = vz * vz * vz;
+
+if (vy3 > 0.008856)
+	vy = vy3;
+else
+	vy = (vy - 16.0 / 116.0) / 7.787;
+
+if (vx3 > 0.008856)
+	vx = vx3;
+else
+	vx = (vx - 16.0 / 116.0) / 7.787;
+
+if (vz3 > 0.008856)
+	vz = vz3;
+else
+	vz = (vz - 16.0 / 116.0) / 7.787;
+
+vx *= 0.95047; //use white = D65
+vz *= 1.08883;
+
+float vr =(float)(vx *  3.2406 + vy * -1.5372 + vz * -0.4986);
+float vg =(float)(vx * -0.9689 + vy *  1.8758 + vz *  0.0415);
+float vb =(float)(vx *  0.0557 + vy * -0.2040 + vz *  1.0570);
+
+if (vr > 0.0031308)
+	vr = (float)(1.055 * pow(vr, (1.0 / 2.4)) - 0.055);
+else
+	vr = 12.92 * vr;
+
+if (vg > 0.0031308)
+	vg = (float)(1.055 * pow(vg, (1.0 / 2.4)) - 0.055);
+else
+	vg = 12.92 * vg;
+
+if (vb > 0.0031308)
+	vb = (float)(1.055 * pow(vb, (1.0 / 2.4)) - 0.055);
+else
+	vb = 12.92 * vb;
+
+out->r = (unsigned char)vr;
+out->g = (unsigned char)vg;
+out->b = (unsigned char)vb;
+
+return TRUE;
+}
+
 int convert_RGB_to_CIELAB(int width, int height)
 {
 unsigned int i = 0, j = 0;
@@ -704,7 +781,10 @@ if (target_gradient_value <= (unsigned int)(0.1 * (float)max_gradient))
 	Thigh = target_gradient_value;
 else
 	Tlow = target_gradient_value;
-
+/*
+Tlow = 5;
+Thigh = 10;
+*/
 
 
 

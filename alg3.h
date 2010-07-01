@@ -56,6 +56,7 @@ typedef struct cielab_t{
 int transform_1D_to_2D_RGB(unsigned char *, int, int);
 int allocate_mem_data_CIELAB(int, int);
 int RGB_to_CIELAB(RGB, CIELab *);
+int CIELAB_to_RGB(CIELab, RGB *);
 int convert_RGB_to_CIELAB(int, int);
 int first_derivative_CIELAB(unsigned char, int, int, unsigned int *);
 int calculate_histogram_of_gradient(int, int, unsigned int);
