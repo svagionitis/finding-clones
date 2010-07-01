@@ -665,3 +665,51 @@ for (i=0;i<(max_gradient+1);i++){
 return TRUE;
 }
 
+
+/*
+From a practical implementation standpoint, we made this decision 
+of selecting the initial threshold by optaining the percentage 
+ratio of the gradient values corresponding to 80% and 100% area 
+under the histogram curve.
+*/
+#define INITIAL_THRESHOLD 0.80
+int histogram_analysis(int width, int height, unsigned int max_gradient)
+{
+unsigned int i = 0, j = 0;
+unsigned int Thigh = 0, Tlow = 0;
+
+unsigned int total_area = (width*height);
+unsigned int target_percent_area = (unsigned int)(INITIAL_THRESHOLD * (float)total_area);
+unsigned int target_gradient_value = 0;
+/*
+Find the gradient value that correspond to the 80% area under 
+the histogram.
+*/
+unsigned int sum_area = 0;
+for (i=0;i<(max_gradient+1);i++){
+	sum_area += hist_gradient[i];
+	if (sum_area >= target_percent_area){
+		target_gradient_value = i;
+		break;
+		}
+	}
+
+/*
+If 80% area under the histogram curve corresponds to a gradient 
+value that is less than 10% of the maximum gradient valuein the 
+input image, a high threshold value is chosen, else a low initial 
+threshold value is chosen.
+*/
+if (target_gradient_value <= (unsigned int)(0.1 * (float)max_gradient))
+	Thigh = target_gradient_value;
+else
+	Tlow = target_gradient_value;
+
+
+
+
+
+
+return TRUE;
+}
+
