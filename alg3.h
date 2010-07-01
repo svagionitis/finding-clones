@@ -40,6 +40,7 @@ S. Vagionitis  10/06/2010     Creation
                                  (unsigned char)(0.5870 * (double)(g)) + \
                                  (unsigned char)(0.1140 * (double)(b)))
 
+#pragma pack(1)
 
 /*RGB color space*/
 typedef struct rgb_t{
@@ -62,6 +63,7 @@ int calculate_histogram_of_gradient(int, int, unsigned int);
 extern RGB **data2D_RGB;
 extern CIELab **data2D_CIELAB;
 extern unsigned int **gradient_Map;
+extern unsigned int *hist_gradient;
 
 #endif
 

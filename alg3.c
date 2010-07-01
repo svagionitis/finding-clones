@@ -4,7 +4,12 @@ Company        : S. Vagionitis
 Project        : Finding Clones
 Programmer     : S. Vagionitis
 Revisor        : S. Vagionitis
-Description    : Functions for Algorithm 3.
+Description    : Functions for Algorithm 3. Implementation of the algorithm 
+                 described in 
+                 L. G. Ugarriza, E. Saber, V. Amuso, M. Shaw, and R. Bhskar, 
+                 “Automatic image segmentation by dynamic region growth and 
+                  multiresolution merging,” Journal of Image Processing, 
+                  vol. 99, no. 99, 2009
 
 Procedure                          Description
 ================================== ============================================
@@ -25,7 +30,7 @@ Globals        Type                Description
 data2D_RGB     RGB **              Image data in RGB color space.
 data2D_CIELAB  CIELab **           Image data in CIE L*a*b* color space.
 gradient_Map   unsigned int **     Gradient values.
-
+hist_gradient  unsigned int *      Histogram of gradient map.
 
 Programmer     Date           Action
 ============== ============== =================================================
@@ -45,6 +50,7 @@ S. Vagionitis  10/06/2010     Creation
 RGB **data2D_RGB;
 CIELab **data2D_CIELAB;
 unsigned int **gradient_Map;
+unsigned int *hist_gradient;
 
 /* ############################################################################
 Name           : transform_1D_to_2D_RGB
@@ -271,10 +277,33 @@ for (i=0;i<height;i++){
 return TRUE;
 }
 
-/*
-type: 0 Sobel
-      1 Prewitt
-*/
+
+/* ############################################################################
+Name           : first_derivative_CIELAB
+Description    : Calculate gradient values using kernel 
+                 functions(Sobel, Prewitt).
+
+Arguments             Type                Description
+===================== =================== =====================================
+type(IN)              unsigned char       If 0 Sobel kernel function
+                                          If 1 Prewitt kernel function
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+max_gradient(OUT)     unsigned int *      Max gradient value in the image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D_CIELAB(IN)     CIELab **           Image data in CIE L*a*b* color space.
+gradient_Map(OUT)     unsigned int **     Gradient values.
+
+Locals                Type                Description
+===================== =================== =====================================
+
+############################################################################ */
 int first_derivative_CIELAB(unsigned char type, int width, int height, unsigned int *max_gradient)
 {
 unsigned int i = 0, j = 0;
@@ -307,17 +336,17 @@ switch(type){
 }
 
 
-/* Allocate temporary memory to store the values after sobel operator has passed and gradient has been computed.*/
+/* Allocate memory to store the values after sobel operator has passed and gradient has been computed.*/
 gradient_Map = (unsigned int **)malloc(height * sizeof(unsigned int *));
 if (gradient_Map == NULL){
-	printf("Sobel_CIELAB: Could not allocate %d bytes.\n", (height * sizeof(unsigned int *)));
+	printf("first_derivative_CIELAB: Could not allocate %d bytes.\n", (height * sizeof(unsigned int *)));
 	return FALSE;
 	}
 else{
 	for (i=0;i<height;i++){
 		gradient_Map[i] = (unsigned int *)malloc(width * sizeof(unsigned int));
 		if (gradient_Map[i] == NULL){
-			printf("Sobel_CIELAB: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned int)), i);
+			printf("first_derivative_CIELAB: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned int)), i);
 			return FALSE;
 			}
 		else{
@@ -326,7 +355,7 @@ else{
 				}/*for j*/
 			}
 		}/*for i*/
-	printf("Sobel_CIELAB: Allocated %d bytes.\n", (width * height * sizeof(unsigned int)));
+	printf("first_derivative_CIELAB: Allocated %d bytes.\n", (width * height * sizeof(unsigned int)));
 	}
 
 
@@ -587,10 +616,31 @@ return TRUE;
 }
 
 
+/* ############################################################################
+Name           : calculate_histogram_of_gradient
+Description    : 
+
+Arguments             Type                Description
+===================== =================== =====================================
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+max_gradient(IN)      unsigned int        Max gradient value in the image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+hist_gradient(OUT)    unsigned int *      Histogram of gradient map.
+
+Locals                Type                Description
+===================== =================== =====================================
+
+############################################################################ */
 int calculate_histogram_of_gradient(int width, int height, unsigned int max_gradient)
 {
 unsigned int i = 0, j = 0;
-unsigned int *hist_gradient = NULL;
 
 hist_gradient = (unsigned int *)malloc((max_gradient+1) * sizeof(unsigned int));
 if (hist_gradient == NULL){

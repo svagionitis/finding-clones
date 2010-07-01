@@ -63,6 +63,8 @@ S. Vagionitis  10/06/2010     Creation
  */
 #define DIFF_T 0.01
 
+#pragma pack(1)
+
 /*Structure for histogram*/
 typedef struct histogram_t{
 	unsigned int num_pixels;

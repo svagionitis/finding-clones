@@ -4,7 +4,8 @@ Company        : S. Vagionitis
 Project        : Finding Clones
 Programmer     : S. Vagionitis
 Revisor        : S. Vagionitis
-Description    : Functions for Algorithm 2.
+Description    : Functions for Algorithm 2. Implementing some edge detection 
+                 algorithms.
 
 Procedure                     Description
 ============================= =================================================

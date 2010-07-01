@@ -39,6 +39,7 @@ S. Vagionitis  10/06/2010     Creation
                                  (unsigned char)(0.5870 * (double)(g)) + \
                                  (unsigned char)(0.1140 * (double)(b)))
 
+#pragma pack(1)
 
 /*Structure for sobel operator*/
 typedef struct sobel_t{

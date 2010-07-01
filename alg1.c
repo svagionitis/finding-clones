@@ -4,8 +4,13 @@ Company        : S. Vagionitis
 Project        : Finding Clones
 Programmer     : S. Vagionitis
 Revisor        : S. Vagionitis
-Description    : Functions for Algorithm 1.
-
+Description    : Functions for Algorithm 1. Implementation of the algorithm 
+                 described in 
+                 Jiang J.-A., Chang H.-Y., Wu K.-H., Ouyang C.-S., Yang M.-M., 
+                 Yang E.-C., Chen T.-W., Lin T.-T. An adaptive image 
+                 segmentation algorithm for X-ray quarantine inspection of
+                 selected fruits (2008) Computers and Electronics in Agriculture, 
+                 60 (2), pp. 190-200.
 Procedure                                 Description
 ========================================= =====================================
 create_sub_images
