@@ -6,12 +6,25 @@ Programmer     : S. Vagionitis
 Revisor        : S. Vagionitis
 Description    : Functions for Algorithm 3.
 
-Procedure                     Description
-============================= =================================================
+Procedure                          Description
+================================== ============================================
+transform_1D_to_2D_RGB             Transform 1D data to a 2D for better 
+                                   handling
+allocate_mem_data_CIELAB           Allocate memory for 2D data in CIE L*a*b* 
+                                   color space.
+RGB_to_CIELAB                      Transform RGB values to CIE L*a*b* values.
+convert_RGB_to_CIELAB              Convert all image RGB data to CIE L*a*b* 
+                                   data
+first_derivative_CIELAB            Calculate gradient values using kernel 
+                                   functions(Sobel, Prewitt).
+calculate_histogram_of_gradient    Calculate the histogram of gradient values.
 
 
-Globals        Type           Description
-============== ============== =================================================
+Globals        Type                Description
+============== =================== ============================================
+data2D_RGB     RGB **              Image data in RGB color space.
+data2D_CIELAB  CIELab **           Image data in CIE L*a*b* color space.
+gradient_Map   unsigned int **     Gradient values.
 
 
 Programmer     Date           Action
@@ -33,6 +46,30 @@ RGB **data2D_RGB;
 CIELab **data2D_CIELAB;
 unsigned int **gradient_Map;
 
+/* ############################################################################
+Name           : transform_1D_to_2D_RGB
+Description    : Transform 1D data to 2D for better handling and maybe faster.
+
+Arguments             Type                Description
+===================== =================== =====================================
+image_data(IN)        unsigned char *     Image data.
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+FALSE                                     If memory allocation fails.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D_RGB(OUT)       RGB **              Image data in RGB color space.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j                  unsigned int        General purpose indexes.
+
+############################################################################ */
 int transform_1D_to_2D_RGB(unsigned char *image_data, int width, int height)
 {
 unsigned int i = 0, j = 0;
@@ -74,6 +111,30 @@ for (i=0;i<height;i++){
 return TRUE;
 }
 
+
+/* ############################################################################
+Name           : allocate_mem_data_CIELAB
+Description    : Allocate memory for 2D data in CIE L*a*b* color space.
+
+Arguments             Type                Description
+===================== =================== =====================================
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+FALSE                                     If memory allocation fails.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D_CIELAB(OUT)    CIELab **           Image data in CIE L*a*b* color space.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j                  unsigned int        General purpose indexes.
+
+############################################################################ */
 int allocate_mem_data_CIELAB(int width, int height)
 {
 unsigned int i = 0, j = 0;
@@ -107,9 +168,29 @@ else{
 return TRUE;
 }
 
-/*
-Source: http://inkscape.modevia.com/doxygen/html/classorg_1_1siox_1_1CieLab.php
-*/
+
+/* ############################################################################
+Name           : RGB_to_CIELAB
+Description    : Transform RGB values to CIE L*a*b* values.
+
+(Source: http://inkscape.modevia.com/doxygen/html/classorg_1_1siox_1_1CieLab.php)
+
+Arguments             Type                Description
+===================== =================== =====================================
+in(IN)                RGB                 RGB value.
+out(OUT)              CIELab *            CIE L*a*b* value.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+
+Locals                Type                Description
+===================== =================== =====================================
+
+############################################################################ */
 int RGB_to_CIELAB(RGB in, CIELab *out)
 {
 out->C = 0;
@@ -148,7 +229,7 @@ float vz = z / 1.08883;
 
 
 if (vx > 0.008856)
-	vx = (float) pow(vx, 0.3333);
+	vx = (float) pow(vx, 0.3333);/*cube root*/
 else
 	vx = (7.787 * vx) + (16.0 / 116.0);
 
