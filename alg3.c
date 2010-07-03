@@ -753,7 +753,7 @@ under the histogram curve.
 int histogram_analysis(int width, int height, unsigned int max_gradient)
 {
 unsigned int i = 0, j = 0;
-unsigned int Thigh = 0, Tlow = 0;
+unsigned int Thigh = 0, Tlow = 0, T = 0, TplusFive = 0;
 
 unsigned int total_area = (width*height);
 unsigned int target_percent_area = (unsigned int)(INITIAL_THRESHOLD * (float)total_area);
@@ -775,16 +775,23 @@ for (i=0;i<(max_gradient+1);i++){
 If 80% area under the histogram curve corresponds to a gradient 
 value that is less than 10% of the maximum gradient valuein the 
 input image, a high threshold value is chosen, else a low initial 
-threshold value is chosen.
+threshold value is chosen. Keeping in view the problems posed by 
+over and under-segmentation, the low and high threshold values were 
+empirically chosen to be 5 and 10, respectively.
 */
-if (target_gradient_value <= (unsigned int)(0.1 * (float)max_gradient))
-	Thigh = target_gradient_value;
-else
-	Tlow = target_gradient_value;
-/*
-Tlow = 5;
-Thigh = 10;
-*/
+if (target_gradient_value <= (unsigned int)(0.1 * (float)max_gradient)){
+	/*Thigh = target_gradient_value;*/
+	Thigh = 10;
+	T = Thigh;
+	}
+else{
+	/*Tlow = target_gradient_value;*/
+	Tlow = 5;
+	T = Tlow;
+	}
+
+TplusFive = T + 5;
+
 
 
 
@@ -792,4 +799,5 @@ Thigh = 10;
 
 return TRUE;
 }
+
 
