@@ -306,7 +306,7 @@ if (vz3 > 0.008856)
 else
 	vz = (vz - 16.0 / 116.0) / 7.787;
 
-vx *= 0.95047; //use white = D65
+vx *= 0.95047; /*use white = D65*/
 vz *= 1.08883;
 
 float vr =(float)(vx *  3.2406 + vy * -1.5372 + vz * -0.4986);
@@ -685,9 +685,10 @@ for(i=0;i<height;i++){
 
 		printf("%03u ", gradient_Map[i][j]);
 		}
-	printf("\n");
+	/*printf("\n");*/
 	}
 
+printf("\n");
 
 return TRUE;
 }
@@ -736,7 +737,7 @@ for(i=0;i<height;i++){
 	}
 
 for (i=0;i<(max_gradient+1);i++){
-	printf("%u -> %u\n", i, hist_gradient[i]);
+	/*printf("%u\t%u\n", i, hist_gradient[i]);*/
 }
 
 return TRUE;
@@ -753,7 +754,6 @@ under the histogram curve.
 int histogram_analysis(int width, int height, unsigned int max_gradient)
 {
 unsigned int i = 0, j = 0;
-unsigned int Thigh = 0, Tlow = 0, T = 0, TplusFive = 0;
 
 unsigned int total_area = (width*height);
 unsigned int target_percent_area = (unsigned int)(INITIAL_THRESHOLD * (float)total_area);
@@ -779,6 +779,7 @@ threshold value is chosen. Keeping in view the problems posed by
 over and under-segmentation, the low and high threshold values were 
 empirically chosen to be 5 and 10, respectively.
 */
+unsigned int Thigh = 0, Tlow = 0, T = 0;
 if (target_gradient_value <= (unsigned int)(0.1 * (float)max_gradient)){
 	/*Thigh = target_gradient_value;*/
 	Thigh = 10;
@@ -790,7 +791,12 @@ else{
 	T = Tlow;
 	}
 
-TplusFive = T + 5;
+unsigned int TplusFive = T + 5;
+unsigned int AreaUnderTplusFive = hist_gradient[TplusFive];
+
+/*T1, T2, ... T5*/
+unsigned int Tintervals[5] = {0, 0, 0, 0, 0};
+
 
 
 
