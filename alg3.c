@@ -164,6 +164,9 @@ else{
 				data2D_CIELAB[i][j].L = 0.0;
 				data2D_CIELAB[i][j].a = 0.0;
 				data2D_CIELAB[i][j].b = 0.0;
+				data2D_CIELAB[i][j].L8b = 0;
+				data2D_CIELAB[i][j].a8b = 0;
+				data2D_CIELAB[i][j].b8b = 0;
 				}/*for j*/
 			}
 		}/*for i*/
@@ -348,7 +351,13 @@ for (i=0;i<height;i++){
 		data2D_CIELAB[i][j].L = temp.L;
 		data2D_CIELAB[i][j].a = temp.a;
 		data2D_CIELAB[i][j].b = temp.b;
+		data2D_CIELAB[i][j].L8b = (unsigned char)((temp.L / 100.0)*255.0);
+		data2D_CIELAB[i][j].a8b = (unsigned char)(((temp.a + 110.0) / 220.0)*255.0);
+		data2D_CIELAB[i][j].b8b = (unsigned char)(((temp.b + 110.0) / 220.0)*255.0);
+		/*printf("[%.3f %.3f %.3f]", data2D_CIELAB[i][j].L, data2D_CIELAB[i][j].a, data2D_CIELAB[i][j].b);*/
+		/*printf("[%03u %03u %03u]", data2D_CIELAB[i][j].L8b, data2D_CIELAB[i][j].a8b, data2D_CIELAB[i][j].b8b);*/
 		}
+	/*printf("\n");*/
 	}
 
 return TRUE;
@@ -683,12 +692,350 @@ for(i=0;i<height;i++){
 		if (gradient_Map[i][j] >= (*max_gradient))
 			(*max_gradient) = gradient_Map[i][j];
 
-		printf("%03u ", gradient_Map[i][j]);
+		/*printf("%03u ", gradient_Map[i][j]);*/
 		}
 	/*printf("\n");*/
 	}
 
-printf("\n");
+/*printf("\n");*/
+
+return TRUE;
+}
+
+/* ############################################################################
+Name           : first_derivative_CIELAB_8bit
+Description    : Calculate gradient values using kernel 
+                 functions(Sobel, Prewitt) for 8 bit.
+
+Arguments             Type                Description
+===================== =================== =====================================
+type(IN)              unsigned char       If 0 Sobel kernel function
+                                          If 1 Prewitt kernel function
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+max_gradient(OUT)     unsigned int *      Max gradient value in the image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D_CIELAB(IN)     CIELab **           Image data in CIE L*a*b* color space.
+gradient_Map(OUT)     unsigned int **     Gradient values.
+
+Locals                Type                Description
+===================== =================== =====================================
+
+############################################################################ */
+int first_derivative_CIELAB_8bit(unsigned char type, int width, int height, unsigned int *max_gradient)
+{
+unsigned int i = 0, j = 0;
+float Gx[3][3], Gy[3][3];
+memset(Gx, 0.0, sizeof(Gx));
+memset(Gy, 0.0, sizeof(Gy));
+
+
+switch(type){
+	case 0:
+		/*Sobel kernel functions*/
+		Gx[0][0] = -1.0;Gx[0][1] = 0.0;Gx[0][2] = 1.0;
+		Gx[1][0] = -2.0;Gx[1][1] = 0.0;Gx[1][2] = 2.0;
+		Gx[2][0] = -1.0;Gx[2][1] = 0.0;Gx[2][2] = 1.0;
+
+		Gy[0][0] =  1.0;Gy[0][1] =  2.0;Gy[0][2] =  1.0;
+		Gy[1][0] =  0.0;Gy[1][1] =  0.0;Gy[1][2] =  0.0;
+		Gy[2][0] = -1.0;Gy[2][1] = -2.0;Gy[2][2] = -1.0;
+		break;
+	case 1:
+		/*Prewitt kernel functions*/
+		Gx[0][0] = -1.0;Gx[0][1] = 0.0;Gx[0][2] = 1.0;
+		Gx[1][0] = -1.0;Gx[1][1] = 0.0;Gx[1][2] = 1.0;
+		Gx[2][0] = -1.0;Gx[2][1] = 0.0;Gx[2][2] = 1.0;
+
+		Gy[0][0] =  1.0;Gy[0][1] =  1.0;Gy[0][2] =  1.0;
+		Gy[1][0] =  0.0;Gy[1][1] =  0.0;Gy[1][2] =  0.0;
+		Gy[2][0] = -1.0;Gy[2][1] = -1.0;Gy[2][2] = -1.0;
+		break;
+}
+
+
+/* Allocate memory to store the values after sobel operator has passed and gradient has been computed.*/
+gradient_Map = (unsigned int **)malloc(height * sizeof(unsigned int *));
+if (gradient_Map == NULL){
+	printf("first_derivative_CIELAB: Could not allocate %d bytes.\n", (height * sizeof(unsigned int *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<height;i++){
+		gradient_Map[i] = (unsigned int *)malloc(width * sizeof(unsigned int));
+		if (gradient_Map[i] == NULL){
+			printf("first_derivative_CIELAB: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned int)), i);
+			return FALSE;
+			}
+		else{
+			for(j=0;j<width;j++){
+				gradient_Map[i][j] = 0;
+				}/*for j*/
+			}
+		}/*for i*/
+	printf("first_derivative_CIELAB: Allocated %d bytes.\n", (width * height * sizeof(unsigned int)));
+	}
+
+
+(*max_gradient) = 0;
+for(i=0;i<height;i++){
+	int im1 = (i-1), ip1 = (i+1);
+	for(j=0;j<width;j++){
+		int jm1 = (j-1), jp1 = (j+1);
+		float dLdx = 0.0, dLdy = 0.0;
+		float dadx = 0.0, dady = 0.0;
+		float dbdx = 0.0, dbdy = 0.0;
+		float q = 0.0, t = 0.0, h = 0.0, lamda = 0.0, qplush = 0.0;
+
+		if (((im1<0) && (jm1<0)) &&
+                    ((ip1>=0) &&(jp1>=0))){/*Top-Left corner*/
+		dLdx =((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2]+
+		      ((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gx[2][2];
+		dLdy =((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2]+
+		      ((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gy[2][2];
+		dadx =((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2]+
+		      ((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gx[2][2];
+		dady =((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2]+
+		      ((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gy[2][2];
+		dbdx =((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2]+
+		      ((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gx[2][2];
+		dbdy =((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2]+
+		      ((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gy[2][2];
+			}
+		else if(((im1<0) && (jm1>=0)) &&
+                        ((ip1>=0) && (jp1<=(width-1)))){
+dLdx =((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gx[2][2];
+dLdy =((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gy[2][2];
+dadx =((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gx[2][2];
+dady =((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gy[2][2];
+dbdx =((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gx[2][2];
+dbdy =((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gy[2][2];
+			}
+		else if(((im1>=0) && (jm1<0)) &&
+                        ((ip1<=(height-1)) && (jp1>=0))){
+		dLdx =((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gx[2][2];
+		dLdy =((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gy[2][2];
+		dadx =((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gx[2][2];
+		dady =((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gy[2][2];
+		dbdx =((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gx[2][2];
+		dbdy =((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gy[2][2];
+			}/********************************************************************************************************************/
+		else if (((im1<0) && (jp1>(width-1))) &&
+                         ((ip1>=0) && (jm1<=(width-1)))){/*Top-Right corner*/
+		dLdx =((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1];
+		dLdy =((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1];
+		dadx =((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1];
+		dady =((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1];
+		dbdx =((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1];
+		dbdy =((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1];
+			}
+		else if (((im1<0) && (jp1<=(width-1))) &&
+                         ((ip1>=0) && (jm1<=(width-1)))){
+dLdx =((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gx[2][2];
+dLdy =((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gy[2][2];
+dadx =((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gx[2][2];
+dady =((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gy[2][2];
+dbdx =((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gx[2][2];
+dbdy =((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gy[2][2];
+			}
+		else if (((im1>=0) && (jp1>(width-1))) &&
+                         ((ip1<=(height-1)) && (jm1<=(width-1)))){
+		dLdx =((float)data2D_CIELAB[i-1][j-1].L8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1];
+		dLdy =((float)data2D_CIELAB[i-1][j-1].L8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1];
+		dadx =((float)data2D_CIELAB[i-1][j-1].a8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1];
+		dady =((float)data2D_CIELAB[i-1][j-1].a8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1];
+		dbdx =((float)data2D_CIELAB[i-1][j-1].b8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1];
+		dbdy =((float)data2D_CIELAB[i-1][j-1].b8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1];
+			}/********************************************************************************************************************/
+		else if (((ip1>(height-1)) && (jm1<0)) &&
+                         ((im1<=(height-1)) && (jp1>=0))){/*Bottom-Left corner*/
+		dLdx =((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2];
+		dLdy =((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2];
+		dadx =((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2];
+		dady =((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2];
+		dbdx =((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2];
+		dbdy =((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2];
+			}
+		else if (((ip1>(height-1)) && (jm1>=0)) &&
+                         ((im1<=(height-1)) && (jp1<=(width-1)))){
+dLdx =((float)data2D_CIELAB[i-1][j-1].L8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2];
+dLdy =((float)data2D_CIELAB[i-1][j-1].L8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2];
+dadx =((float)data2D_CIELAB[i-1][j-1].a8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2];
+dady =((float)data2D_CIELAB[i-1][j-1].a8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2];
+dbdx =((float)data2D_CIELAB[i-1][j-1].b8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2];
+dbdy =((float)data2D_CIELAB[i-1][j-1].b8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2];
+			}
+		else if (((ip1<=(height-1)) && (jm1<0)) &&
+                         ((im1<=(height-1)) && (jp1>=0))){
+		dLdx =((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gx[2][2];
+		dLdy =((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gy[2][2];
+		dadx =((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gx[2][2];
+		dady =((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gy[2][2];
+		dbdx =((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gx[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gx[2][2];
+		dbdy =((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gy[0][2]+
+                      ((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2]+
+                      ((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gy[2][2];
+			}/********************************************************************************************************************/
+		else if (((ip1>(height-1)) && (jp1>(width-1))) &&
+                         ((im1<=(height-1)) && (jm1<=(width-1)))){/*Bottom-Right corner*/
+		dLdx =((float)data2D_CIELAB[i-1][j-1].L8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1];
+		dLdy =((float)data2D_CIELAB[i-1][j-1].L8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1];
+		dadx =((float)data2D_CIELAB[i-1][j-1].a8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1];
+		dady =((float)data2D_CIELAB[i-1][j-1].a8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1];
+		dbdx =((float)data2D_CIELAB[i-1][j-1].b8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1];
+		dbdy =((float)data2D_CIELAB[i-1][j-1].b8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1];
+			}
+		else if (((ip1>(height-1)) && (jp1<=(width-1))) &&
+                         ((im1<=(height-1)) && (jm1<=(width-1)))){
+dLdx =((float)data2D_CIELAB[i-1][j-1].L8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2];
+dLdy =((float)data2D_CIELAB[i-1][j-1].L8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2];
+dadx =((float)data2D_CIELAB[i-1][j-1].a8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2];
+dady =((float)data2D_CIELAB[i-1][j-1].a8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2];
+dbdx =((float)data2D_CIELAB[i-1][j-1].b8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2];
+dbdy =((float)data2D_CIELAB[i-1][j-1].b8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2];
+			}
+		else if (((ip1<=(height-1)) && (jp1>(width-1))) &&
+                         ((im1<=(height-1)) && (jm1<=(width-1)))){
+		dLdx =((float)data2D_CIELAB[i-1][j-1].L8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1];
+		dLdy =((float)data2D_CIELAB[i-1][j-1].L8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1];
+		dadx =((float)data2D_CIELAB[i-1][j-1].a8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1];
+		dady =((float)data2D_CIELAB[i-1][j-1].a8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1];
+		dbdx =((float)data2D_CIELAB[i-1][j-1].b8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1];
+		dbdy =((float)data2D_CIELAB[i-1][j-1].b8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+
+                      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+
+                      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1];
+			}/********************************************************************************************************************/
+		else{
+dLdx =((float)data2D_CIELAB[i-1][j-1].L8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gx[2][2];
+dLdy =((float)data2D_CIELAB[i-1][j-1].L8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].L8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].L8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].L8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].L8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].L8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].L8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].L8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].L8b)*Gy[2][2];
+dadx =((float)data2D_CIELAB[i-1][j-1].a8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gx[2][2];
+dady =((float)data2D_CIELAB[i-1][j-1].a8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].a8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].a8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].a8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].a8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].a8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].a8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].a8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].a8b)*Gy[2][2];
+dbdx =((float)data2D_CIELAB[i-1][j-1].b8b)*Gx[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gx[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gx[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gx[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gx[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gx[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gx[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gx[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gx[2][2];
+dbdy =((float)data2D_CIELAB[i-1][j-1].b8b)*Gy[0][0]+((float)data2D_CIELAB[i-1][j].b8b)*Gy[0][1]+((float)data2D_CIELAB[i-1][j+1].b8b)*Gy[0][2]+
+      ((float)data2D_CIELAB[i  ][j-1].b8b)*Gy[1][0]+((float)data2D_CIELAB[i  ][j].b8b)*Gy[1][1]+((float)data2D_CIELAB[i  ][j+1].b8b)*Gy[1][2]+
+      ((float)data2D_CIELAB[i+1][j-1].b8b)*Gy[2][0]+((float)data2D_CIELAB[i+1][j].b8b)*Gy[2][1]+((float)data2D_CIELAB[i+1][j+1].b8b)*Gy[2][2];
+			}
+
+		q = (dLdx*dLdx) + (dadx*dadx) + (dbdx*dbdx);
+		t = (dLdx*dLdy) + (dadx*dady) + (dbdx*dbdy);
+		h = (dLdy*dLdy) + (dady*dady) + (dbdy*dbdy);
+		qplush = (q + h);
+		lamda = (qplush + sqrt((qplush*qplush) - 4.0*(q*h - (t*t)))) / 2.0;
+
+		gradient_Map[i][j] = (unsigned int)sqrt(lamda);
+
+		/*Find max value*/
+		if (gradient_Map[i][j] >= (*max_gradient))
+			(*max_gradient) = gradient_Map[i][j];
+
+		/*printf("%u ", gradient_Map[i][j]);*/
+		}
+	/*printf("\n");*/
+	}
+
+/*printf("\n");*/
 
 return TRUE;
 }
@@ -757,7 +1104,11 @@ int histogram_analysis(int width, int height, unsigned int max_gradient)
 unsigned int i = 0, j = 0;
 
 unsigned int total_area = (width*height);
+printf("Total area: %u\n", total_area);
+
 unsigned int MinimumSeedSize = (unsigned int)(0.0001 * (float)total_area);/*0.01% of the input image size.*/
+printf("Minimum Seed Size: %u\n", MinimumSeedSize);
+
 unsigned int target_percent_area = (unsigned int)(INITIAL_THRESHOLD * (float)total_area);
 unsigned int target_gradient_value = 0;
 /*
@@ -773,6 +1124,7 @@ for (i=0;i<(max_gradient+1);i++){
 		}
 	}
 
+printf("target_gradient_value: %u\n", target_gradient_value);
 /*
 If 80% area under the histogram curve corresponds to a gradient 
 value that is less than 10% of the maximum gradient valuein the 
@@ -793,10 +1145,25 @@ else{
 	Tinit = Tlow;
 	}
 
-unsigned int Thresholds[MAX_THRESHOLD_STAGES];
-memset(Thresholds, 0, sizeof(Thresholds));
+printf("Tinit: %u\n", Tinit);
+
+unsigned int *Thresholds;
+Thresholds = (unsigned int *)malloc(MAX_THRESHOLD_STAGES * sizeof(unsigned int));
+if (Thresholds == NULL){
+	printf("Thresholds: Could not allocate %d bytes.\n", MAX_THRESHOLD_STAGES * sizeof(unsigned int));
+	return FALSE;
+	}
+else{
+	for (i=0;i<MAX_THRESHOLD_STAGES;i++)
+		Thresholds[i] = 0;
+	}
+
 
 automatic_threshold_generation(Tinit, max_gradient, Thresholds);
+
+printf("T0:%u T1:%u T2:%u T3:%u T4:%u\n", Thresholds[0], Thresholds[1], Thresholds[2], Thresholds[3], Thresholds[4]);
+
+free(Thresholds);
 
 return TRUE;
 }
@@ -807,7 +1174,7 @@ int calculate_area_under_histogram(unsigned int start, unsigned int end, unsigne
 unsigned int i = 0;
 
 (*area) = 0;
-for (i=start;i<end;i++){
+for (i=start;i<=end;i++){
 	(*area) += hist_gradient[i];
 	}
 
@@ -816,22 +1183,32 @@ return TRUE;
 
 int automatic_threshold_generation(unsigned int Tinit, unsigned int max_gradient, unsigned int *T)
 {
-unsigned int i = 0, stage = 0;
+unsigned int i = 0, stage = 0, area_growth_factor = 0, target_area = 0;
 float Dg = 0.1;
 
 for(stage = 0;stage<MAX_THRESHOLD_STAGES;stage++){
-	unsigned int area_below = 0, area_above = 0;
-	if (stage == 0){
-		calculate_area_under_histogram(0, Tinit, &area_below);
-		calculate_area_under_histogram((Tinit+1), (max_gradient+1), &area_above);
-		}
-	else{
-		calculate_area_under_histogram(0, T[stage-1], &area_below);
-		calculate_area_under_histogram((T[stage-1]+1), (max_gradient+1), &area_above);
+	unsigned int area_below = 0, area_above = 0, Tval = 0;
+	if (stage == 0)
+		Tval = Tinit;
+	else
+		Tval = T[stage-1];
+
+	calculate_area_under_histogram(0, Tval, &area_below);
+	calculate_area_under_histogram((Tval+1), max_gradient, &area_above);
+
+	area_growth_factor = (unsigned int)((float)area_above*(float)(stage+1)*Dg);
+	target_area = area_below + area_growth_factor;
+	unsigned int sum_area = area_below;
+	for (i=(Tval+1);i<(max_gradient+1);i++){
+		sum_area += hist_gradient[i];
+		if (sum_area >= target_area){
+			T[stage] = i;
+			break;
+			}
 		}
 
-	T[stage] = area_below + (unsigned int)((float)area_above*(float)(stage+1)*Dg);
 
+	printf("%u below:%u above:%u T=%u MaxGradient: %u\n", stage, area_below, area_above, area_growth_factor, max_gradient);
 	if (T[stage] >= max_gradient){
 		T[stage] = 0;
 		break;

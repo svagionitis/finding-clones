@@ -87,7 +87,9 @@ allocate_mem_data_CIELAB(width, height);
 convert_RGB_to_CIELAB(width, height);
 unsigned int max_grad = 0;
 first_derivative_CIELAB(0, width, height, &max_grad);
+/*first_derivative_CIELAB_8bit(0, width, height, &max_grad);*/
 calculate_histogram_of_gradient(width, height, max_grad);
+histogram_analysis(width, height, max_grad);
 
 return NULL;
 }

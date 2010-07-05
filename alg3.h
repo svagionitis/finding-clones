@@ -50,7 +50,8 @@ typedef struct rgb_t{
 /*CIE L*a*b* color space*/
 typedef struct cielab_t{
 	unsigned int C;
-	float L, a, b;
+	float L, a, b;/*Range L:0 - 100, a, b:-120 - 120*/
+	unsigned char L8b, a8b, b8b;/*8-bit*/
 	}CIELab;
 
 int transform_1D_to_2D_RGB(unsigned char *, int, int);
@@ -59,6 +60,7 @@ int RGB_to_CIELAB(RGB, CIELab *);
 int CIELAB_to_RGB(CIELab, RGB *);
 int convert_RGB_to_CIELAB(int, int);
 int first_derivative_CIELAB(unsigned char, int, int, unsigned int *);
+int first_derivative_CIELAB_8bit(unsigned char, int, int, unsigned int *);
 int calculate_histogram_of_gradient(int, int, unsigned int);
 int histogram_analysis(int, int, unsigned int);
 int calculate_area_under_histogram(unsigned int, unsigned int, unsigned int *);
