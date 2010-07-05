@@ -60,6 +60,10 @@ int CIELAB_to_RGB(CIELab, RGB *);
 int convert_RGB_to_CIELAB(int, int);
 int first_derivative_CIELAB(unsigned char, int, int, unsigned int *);
 int calculate_histogram_of_gradient(int, int, unsigned int);
+int histogram_analysis(int, int, unsigned int);
+int calculate_area_under_histogram(unsigned int, unsigned int, unsigned int *);
+int automatic_threshold_generation(unsigned int, unsigned int, unsigned int *);
+
 
 extern RGB **data2D_RGB;
 extern CIELab **data2D_CIELAB;

@@ -751,11 +751,13 @@ ratio of the gradient values corresponding to 80% and 100% area
 under the histogram curve.
 */
 #define INITIAL_THRESHOLD 0.80
+#define MAX_THRESHOLD_STAGES 5
 int histogram_analysis(int width, int height, unsigned int max_gradient)
 {
 unsigned int i = 0, j = 0;
 
 unsigned int total_area = (width*height);
+unsigned int MinimumSeedSize = (unsigned int)(0.0001 * (float)total_area);/*0.01% of the input image size.*/
 unsigned int target_percent_area = (unsigned int)(INITIAL_THRESHOLD * (float)total_area);
 unsigned int target_gradient_value = 0;
 /*
@@ -779,31 +781,63 @@ threshold value is chosen. Keeping in view the problems posed by
 over and under-segmentation, the low and high threshold values were 
 empirically chosen to be 5 and 10, respectively.
 */
-unsigned int Thigh = 0, Tlow = 0, T = 0;
+unsigned int Thigh = 0, Tlow = 0, Tinit = 0;
 if (target_gradient_value <= (unsigned int)(0.1 * (float)max_gradient)){
 	/*Thigh = target_gradient_value;*/
 	Thigh = 10;
-	T = Thigh;
+	Tinit = Thigh;
 	}
 else{
 	/*Tlow = target_gradient_value;*/
 	Tlow = 5;
-	T = Tlow;
+	Tinit = Tlow;
 	}
 
-unsigned int TplusFive = T + 5;
-unsigned int AreaUnderTplusFive = hist_gradient[TplusFive];
+unsigned int Thresholds[MAX_THRESHOLD_STAGES];
+memset(Thresholds, 0, sizeof(Thresholds));
 
-/*T1, T2, ... T5*/
-unsigned int Tintervals[5] = {0, 0, 0, 0, 0};
-
-
-
-
-
-
+automatic_threshold_generation(Tinit, max_gradient, Thresholds);
 
 return TRUE;
 }
 
+
+int calculate_area_under_histogram(unsigned int start, unsigned int end, unsigned int *area)
+{
+unsigned int i = 0;
+
+(*area) = 0;
+for (i=start;i<end;i++){
+	(*area) += hist_gradient[i];
+	}
+
+return TRUE;
+}
+
+int automatic_threshold_generation(unsigned int Tinit, unsigned int max_gradient, unsigned int *T)
+{
+unsigned int i = 0, stage = 0;
+float Dg = 0.1;
+
+for(stage = 0;stage<MAX_THRESHOLD_STAGES;stage++){
+	unsigned int area_below = 0, area_above = 0;
+	if (stage == 0){
+		calculate_area_under_histogram(0, Tinit, &area_below);
+		calculate_area_under_histogram((Tinit+1), (max_gradient+1), &area_above);
+		}
+	else{
+		calculate_area_under_histogram(0, T[stage-1], &area_below);
+		calculate_area_under_histogram((T[stage-1]+1), (max_gradient+1), &area_above);
+		}
+
+	T[stage] = area_below + (unsigned int)((float)area_above*(float)(stage+1)*Dg);
+
+	if (T[stage] >= max_gradient){
+		T[stage] = 0;
+		break;
+		}
+	}
+
+return TRUE;
+}
 
