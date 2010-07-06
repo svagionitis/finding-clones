@@ -32,7 +32,8 @@ int save_ppm(const char *filename, int width, int height, unsigned char *data);
 int save_pgm(const char *filename, int width, int height, unsigned char *data);
 
 object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int height, int *n_object);
-object *my_alg_level2(unsigned char *image, int width, int height, int *n_object);
+/*object *my_alg_level2(unsigned char *image, int width, int height, int *n_object);*/
+object *my_alg_level2(unsigned char *image, unsigned char *mask, int width, int height, int *n_object);
 object *my_alg_level3(unsigned char *image, int width, int height, int *n_object);
 
 /*

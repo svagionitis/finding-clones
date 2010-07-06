@@ -85,6 +85,8 @@ static unsigned char ALCON2009_COL_B[10] = {  0,   0, 255,   0, 255, 255,   0, 1
 	}
 #endif
 
+int create_correct_rect(const char *, char *, unsigned char *, int, int);
+
 /* ############################################################################
 Name           : alcon2009_draw_rectangle
 Description    : Draw a rectangle by specifying its color(r,g,b), upper-left 
@@ -226,18 +228,20 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	if (level == '1') {
+	if (level == '1' || level == '2') {
 		printf("Input image file : %s\n", argv[i+0]);
 		printf("Mask image file  : %s\n", argv[i+1]);
 		data = load_ppm(argv[i+0], &w_img, &h_img);
 		mask = load_pgm(argv[i+1], &w_mask, &h_mask);
 		
+		printf("Image: %d %d MAsk: %d %d\n", w_img, h_img, w_mask, h_mask);
+
 		if (w_img != w_mask || h_img != h_mask) {
 			fprintf(stderr, "Size mismatch between the target image and mask image\n");
 			return -1;
 		}
 		input_filename = argv[i];
-	} else if (level == '2' || level == '3') {
+	} else if (/*level == '2' || */level == '3') {
 		printf("Input image file : %s\n", argv[i]);
 		data = load_ppm(argv[i], &w_img, &h_img);
 		mask = NULL;
@@ -258,7 +262,8 @@ int main(int argc, char *argv[])
 		time = alcon2009_measure_time();
 	} else if (level == '2') {
 		alcon2009_measure_time();
-		obj = my_alg_level2(data, w_img, h_img, &n_object);
+		/*obj = my_alg_level2(data, w_img, h_img, &n_object);*/
+		obj = my_alg_level2(data, mask, w_img, h_img, &n_object);
 		if (obj == NULL)
 			return -1;
 		time = alcon2009_measure_time();
@@ -279,9 +284,13 @@ int main(int argc, char *argv[])
 
 		alcon2009_draw_rectangle(data, w_img, h_img, obj[i].x1, obj[i].y1, obj[i].x2, obj[i].y2, r, g, b);
 	}
+	create_correct_rect(ground_truth_filename, input_filename, data, w_img, h_img);
+
 	input_filename[strlen(input_filename)-4] = '\0';
 	sprintf(result_filename, "%s_result.ppm", input_filename);
 	save_ppm(result_filename, w_img, h_img, data);
+
+
 
 	if (eval) {
 		evaluate(obj, n_object, ground_truth_filename);
@@ -303,3 +312,36 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
+int create_correct_rect(const char *filename, char *input_filename, unsigned char *data, int w_img, int h_img)
+{
+int i, n;
+object *obj;
+char result_filename[128];
+
+FILE *f = fopen(filename, "r");
+fscanf(f, "%d\n", &n);
+
+obj = (object *)malloc(n * sizeof(object));
+
+for (i = 0; i < n; i++) {
+	fscanf(f, "%d %d %d %d %d\n", &obj[i].x1, &obj[i].y1, &obj[i].x2, &obj[i].y2, &obj[i].label);
+}
+
+
+for (i = 0; i < n; i++) {
+	int c = obj[i].label % 10; /* return to the original range, if it exceeds 10 */
+	unsigned char r = ALCON2009_COL_R[c];
+	unsigned char g = ALCON2009_COL_G[c];
+	unsigned char b = ALCON2009_COL_B[c];
+
+	alcon2009_draw_rectangle(data, w_img, h_img, obj[i].x1, obj[i].y1, obj[i].x2, obj[i].y2, r, g, b);
+}
+input_filename[strlen(input_filename)-4] = '\0';
+sprintf(result_filename, "%s_correct.ppm", input_filename);
+save_ppm(result_filename, w_img, h_img, data);
+
+
+return 1;
+}
+

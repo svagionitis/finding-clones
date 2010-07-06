@@ -47,6 +47,14 @@ typedef struct rgb_t{
 	unsigned char r, g, b;
 	}RGB;
 
+typedef struct cielab_flt{
+	float L, a, b;/*Range L:0 - 100, a, b:-120 - 120*/
+	}CIELab_float;
+
+typedef struct cielab_uchr{
+	unsigned char L8b, a8b, b8b;/*8-bit*/
+	}CIELab_uchar;
+
 /*CIE L*a*b* color space*/
 typedef struct cielab_t{
 	unsigned int C;

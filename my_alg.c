@@ -56,9 +56,10 @@ object *baseline(unsigned char *, unsigned char *, int, int, int *);
 int morphological_feature_circularity_index(int *, double *, int, double *);
 
 /* non-implemented for level 2 and level 3 */
-object *my_alg_level2(unsigned char *image, int width, int height, int *n_object) 
+/*object *my_alg_level2(unsigned char *image, int width, int height, int *n_object)*/
+object *my_alg_level2(unsigned char *image,  unsigned char *mask, int width, int height, int *n_object) 
 {
-
+/*
 transform_1D_to_2D(image, width, height);
 
 export_ppm_from_2D(3, width, height);
@@ -77,6 +78,9 @@ hysteresis_thresholding(width, height, high, low);
 export_ppm_from_2D(4, width, height);
 
 return NULL;
+*/
+
+return baseline(image, mask, width, height, n_object);
 }
 
 object *my_alg_level3(unsigned char *image, int width, int height, int *n_object) 

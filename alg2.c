@@ -33,6 +33,30 @@ S. Vagionitis  10/06/2010     Creation
 unsigned char ***data2D;
 sobel **sobel_data;
 
+/* ############################################################################
+Name           : transform_1D_to_2D_RGB
+Description    : Transform 1D data to 2D for better handling and maybe faster.
+
+Arguments             Type                Description
+===================== =================== =====================================
+image_data(IN)        unsigned char *     Image data.
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+FALSE                                     If memory allocation fails.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D(OUT)           unsigned char ***   Image data in RGB color space.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j                  unsigned int        General purpose indexes.
+
+############################################################################ */
 int transform_1D_to_2D(unsigned char *image_data, int width, int height)
 {
 unsigned int i = 0, j = 0;
@@ -82,6 +106,34 @@ return TRUE;
 }
 
 
+/* ############################################################################
+Name           : export_ppm_from_2D
+Description    : Create ppm images according to type.
+
+Arguments             Type                Description
+===================== =================== =====================================
+type(IN)              unsigned char       0 for red value pixels
+                                          1 for green value pixels
+                                          2 for blue value pixels
+                                          3 for grey value pixels
+                                          4 for RGB value pixels
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+FALSE                                     If memory allocation fails.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D(IN)            unsigned char ***   Image data in RGB color space.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j, k, l, m         unsigned int        General purpose indexes.
+
+############################################################################ */
 int export_ppm_from_2D(unsigned char type, int width, int height)
 {
 unsigned int i = 0, j = 0;
@@ -165,6 +217,28 @@ free(data_buffer);
 return TRUE;
 }
 
+/* ############################################################################
+Name           : convert_to_greyscale
+Description    : Convert color RGB to greyscale image
+
+Arguments             Type                Description
+===================== =================== =====================================
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D(OUT)           unsigned char ***   Image data in RGB color space.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j                  unsigned int        General purpose indexes.
+
+############################################################################ */
 int convert_to_greyscale(int width, int height)
 {
 int i = 0, j = 0;
@@ -183,6 +257,28 @@ for(i=0;i<height;i++){
 return TRUE;
 }
 
+/* ############################################################################
+Name           : convert_to_red
+Description    : Convert color RGB to red values image.
+
+Arguments             Type                Description
+===================== =================== =====================================
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D(OUT)           unsigned char ***   Image data in RGB color space.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j                  unsigned int        General purpose indexes.
+
+############################################################################ */
 int convert_to_red(int width, int height)
 {
 int i = 0, j = 0;
@@ -198,6 +294,28 @@ for(i=0;i<height;i++){
 return TRUE;
 }
 
+/* ############################################################################
+Name           : convert_to_green
+Description    : Convert color RGB to green values image.
+
+Arguments             Type                Description
+===================== =================== =====================================
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D(OUT)           unsigned char ***   Image data in RGB color space.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j                  unsigned int        General purpose indexes.
+
+############################################################################ */
 int convert_to_green(int width, int height)
 {
 int i = 0, j = 0;
@@ -213,6 +331,28 @@ for(i=0;i<height;i++){
 return TRUE;
 }
 
+/* ############################################################################
+Name           : convert_to_blue
+Description    : Convert color RGB to blue values image.
+
+Arguments             Type                Description
+===================== =================== =====================================
+width(IN)             int                 Width of image.
+height(IN)            int                 Height of image.
+
+Return Values                             Description
+========================================= =====================================
+TRUE                                      If all goes well.
+
+Globals               Type                Description
+===================== =================== =====================================
+data2D(OUT)           unsigned char ***   Image data in RGB color space.
+
+Locals                Type                Description
+===================== =================== =====================================
+i, j                  unsigned int        General purpose indexes.
+
+############################################################################ */
 int convert_to_blue(int width, int height)
 {
 int i = 0, j = 0;
