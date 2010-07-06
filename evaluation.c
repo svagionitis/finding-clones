@@ -537,7 +537,7 @@ void evaluate(object *c, int n_c, const char *filename)
 		 
 		printf("%c (%4d, %4d) (%4d, %4d)    %d     -> ", rep, c[i].x1, c[i].y1, c[i].x2, c[i].y2, c[i].label);
 		if (g == -1) {
-			printf("(----, ----) (----, ----)    -\n");
+			printf("(----, ----) (----, ----)    -");
 		} else {			
 			printf("(%4d, %4d) (%4d, %4d)    %d", gt[g].x1, gt[g].y1, gt[g].x2, gt[g].y2, gt[g].label);
 		}
