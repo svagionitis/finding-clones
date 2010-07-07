@@ -32,6 +32,7 @@ S. Vagionitis  04/06/2010     Creation
 #include <math.h>
 #include <time.h>
 #include <float.h>
+#include <string.h>
 
 #include "alcon2009.h"
 #include "alg1.h"
@@ -54,6 +55,8 @@ void calculate_length(int **obj_id, int width, int height, int n_object, double 
 void k_means(double *x, object *obj, int N);
 object *baseline(unsigned char *, unsigned char *, int, int, int *);
 int morphological_feature_circularity_index(int *, double *, int, double *);
+int color_feature_mean_color_value(int **, int, int, int, int *, unsigned char *, double *);
+
 
 /* non-implemented for level 2 and level 3 */
 /*object *my_alg_level2(unsigned char *image, int width, int height, int *n_object)*/
@@ -137,6 +140,7 @@ int n;	/* number of objects */
 int    *area;	/* area */
 double *len;	/* perimeter length */
 double *circ;	/* circularity index */
+double *clr_mn_value, *input_val;
 
 object *obj;	/* for storing results */
 
@@ -184,19 +188,36 @@ if (obj == NULL){
 	exit(-1);
 	}
 
+clr_mn_value = (double *)malloc(n * sizeof(double));
+if (clr_mn_value == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+
+input_val = (double *)malloc(n * sizeof(double));
+if (input_val == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+
 /* calcuate areas */
 calculate_area(obj_id, width, height, n, area);
-
 /* calcuate perimeter length */
 calculate_length(obj_id, width, height, n, len, image);
+
 
 /* calcuate cirularity index */
 morphological_feature_circularity_index(area, len, n, circ);
 
+color_feature_mean_color_value(obj_id, width, height, n, area, image, clr_mn_value);
 
-/*printf("n=%d k=%f\n", n, sqrt(n/2));*/
+for (i = 0; i < n; i++) {
+	input_val[i] = 0.6*circ[i] + 0.4*clr_mn_value[i];
+	}
+
 /* k-means clustering */
-k_means(circ, obj, n);
+/*k_means(circ, obj, n);*/
+k_means(input_val, obj, n);
 
 /* choose representatives (smallest number for each cluster) */
 for (i = 0; i < n; i++) obj[i].rep = 0;
@@ -218,6 +239,8 @@ free(obj_id);
 free(area);
 free(len);
 free(circ);
+free(clr_mn_value);
+free(input_val);
 
 *n_object = n;
 
@@ -552,13 +575,51 @@ int morphological_feature_circularity_index(int *area, double *perim, int n_obje
 {
 unsigned int i = 0;
 
+printf("Circularity index:\n");
 /* calcuate cirularity index */
 for (i = 0; i < n_object; i++){
 	circ[i] = 4.0*PI * area[i] / (perim[i]*perim[i]);
-	printf("i=%d circ=%f\n", i, circ[i]);
+	printf("%d %.3f\n", i, circ[i]);
 	}
 
 return TRUE;
 }
 
+
+
+int color_feature_mean_color_value(int **obj_id, int width, int height, int n_object, int *area, unsigned char *image, double *color_mean_value)
+{
+unsigned int i = 0, j = 0;
+
+unsigned int *sum = NULL;
+sum = (unsigned int *)malloc(n_object * sizeof(unsigned int));
+if (sum == NULL){
+	printf("color_feature_mean_color_valueCannot allocate %d bytes for memory.\n", (n_object * sizeof(unsigned int)));
+	exit(-1);
+	}
+memset(sum, 0, sizeof(n_object * sizeof(unsigned int)));
+
+
+for (i = 0; i < height; i++) {
+	for (j = 0; j < width; j++) {
+		if (!obj_id[i][j])
+			continue;
+
+		register unsigned int idx = (j + i*width)*3;
+
+		unsigned char val = (unsigned char)((float)(image[idx] + image[idx+1] + image[idx+2]) / 3);
+		sum[obj_id[i][j]-1] += val;
+		}
+	}
+
+printf("Color mean value:\n");
+for (i = 0; i < n_object; i++) {
+	color_mean_value[i] = (double)((double)sum[i] / area[i]) / 255.0;
+	printf("%d %.3f\n", i, color_mean_value[i]);
+	}
+
+
+free(sum);
+return TRUE;
+}
 
