@@ -35,16 +35,13 @@ S. Vagionitis  04/06/2010     Creation
 #include <string.h>
 
 #include "alcon2009.h"
+#include "color_features.h"
 #include "alg1.h"
 #include "alg2.h"
 #include "alg3.h"
 
 #define PI  3.1415926535897932384626433832795
 #define RT2 1.4142135623730950488016887242097 /* = sqrt(2.0) */
-
-#define GREYSCALE(r, g, b)	((unsigned char)(0.2126 * (double)(r)) + \
-                                 (unsigned char)(0.7152 * (double)(g)) + \
-                                 (unsigned char)(0.0722 * (double)(b)))
 
 /* number of clusters */
 #define NUM_CLASS 2
@@ -58,8 +55,6 @@ void calculate_length(int **obj_id, int width, int height, int n_object, double 
 void k_means(double *x, object *obj, int N);
 object *baseline(unsigned char *, unsigned char *, int, int, int *);
 int morphological_feature_circularity_index(int *, double *, int, double *);
-int color_feature_mean_color_value(int **, int, int, int, int *, unsigned char *, double *);
-
 
 /* non-implemented for level 2 and level 3 */
 /*object *my_alg_level2(unsigned char *image, int width, int height, int *n_object)*/
@@ -144,7 +139,7 @@ int n;	/* number of objects */
 int    *area;	/* area */
 double *len;	/* perimeter length */
 double *circ;	/* circularity index */
-double *clr_mn_value, *input_val;
+double *clr_mn_value, *input_val, *clr_std_dev, *clr_skew, *clr_kurtosis;
 
 object *obj;	/* for storing results */
 
@@ -204,6 +199,24 @@ if (input_val == NULL){
 	exit(-1);
 	}
 
+clr_std_dev = (double *)malloc(n * sizeof(double));
+if (clr_std_dev == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+
+clr_skew = (double *)malloc(n * sizeof(double));
+if (clr_skew == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+
+clr_kurtosis = (double *)malloc(n * sizeof(double));
+if (clr_kurtosis == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+
 /* calcuate areas */
 calculate_area(obj_id, width, height, n, area);
 /* calcuate perimeter length */
@@ -213,7 +226,10 @@ calculate_length(obj_id, width, height, n, len, image);
 /* calcuate cirularity index */
 morphological_feature_circularity_index(area, len, n, circ);
 
-color_feature_mean_color_value(obj_id, width, height, n, area, image, clr_mn_value);
+color_feature_mean(obj_id, width, height, n, area, image, clr_mn_value);
+color_feature_standard_deviation(obj_id, width, height, n, area, image, clr_mn_value, clr_std_dev);
+color_feature_skewness(obj_id, width, height, n, area, image, clr_mn_value, clr_skew);
+color_feature_kurtosis(obj_id, width, height, n, area, image, clr_mn_value, clr_kurtosis);
 
 double weight = 0.1;
 for (i = 0; i < n; i++) {
@@ -246,6 +262,9 @@ free(len);
 free(circ);
 free(clr_mn_value);
 free(input_val);
+free(clr_std_dev);
+free(clr_skew);
+free(clr_kurtosis);
 
 *n_object = n;
 
@@ -589,44 +608,3 @@ for (i = 0; i < n_object; i++){
 
 return TRUE;
 }
-
-
-
-int color_feature_mean_color_value(int **obj_id, int width, int height, int n_object, int *area, unsigned char *image, double *color_mean_value)
-{
-unsigned int i = 0, j = 0;
-
-unsigned int *sum = NULL;
-sum = (unsigned int *)malloc(n_object * sizeof(unsigned int));
-if (sum == NULL){
-	printf("color_feature_mean_color_valueCannot allocate %d bytes for memory.\n", (n_object * sizeof(unsigned int)));
-	exit(-1);
-	}
-memset(sum, 0, sizeof(n_object * sizeof(unsigned int)));
-
-
-for (i = 0; i < height; i++) {
-	for (j = 0; j < width; j++) {
-		if (!obj_id[i][j])
-			continue;
-
-		register unsigned int idx = (j + i*width)*3;
-
-		/*unsigned char val = (unsigned char)((float)(image[idx] + image[idx+1] + image[idx+2]) / 3);*/
-		unsigned char val = GREYSCALE(image[idx], image[idx+1], image[idx+2]);
-
-		sum[obj_id[i][j]-1] += val;
-		}
-	}
-
-printf("Color mean value:\n");
-for (i = 0; i < n_object; i++) {
-	color_mean_value[i] = (double)((double)sum[i] / area[i]) / 255.0;
-	printf("%d %.3f\n", i, color_mean_value[i]);
-	}
-
-
-free(sum);
-return TRUE;
-}
-
