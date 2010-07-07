@@ -85,6 +85,7 @@ static unsigned char ALCON2009_COL_B[10] = {  0,   0, 255,   0, 255, 255,   0, 1
 	}
 #endif
 
+int create_result_rect(char *, int, int, object *, int);
 int create_correct_rect(const char *, char *, int, int);
 
 /* ############################################################################
@@ -202,7 +203,7 @@ int main(int argc, char *argv[])
 	object *obj;
 	double time;
 	char *input_filename;
-	char result_filename[128];
+	/*char result_filename[128];*/
 
 	int level = 0;
 	int eval  = 0;
@@ -228,7 +229,7 @@ int main(int argc, char *argv[])
 		return -1;
 	}
 
-	if (level == '1' || level == '2') {
+	if (level == '1' || level == '2' || level == '3') {
 		printf("Input image file : %s\n", argv[i+0]);
 		printf("Mask image file  : %s\n", argv[i+1]);
 		data = load_ppm(argv[i+0], &w_img, &h_img);
@@ -239,12 +240,12 @@ int main(int argc, char *argv[])
 			return -1;
 		}
 		input_filename = argv[i];
-	} else if (/*level == '2' || */level == '3') {
+	}/* else if (level == '2' || level == '3') {
 		printf("Input image file : %s\n", argv[i]);
 		data = load_ppm(argv[i], &w_img, &h_img);
 		mask = NULL;
 		input_filename = argv[i];
-	} else {
+	} */else {
 		fprintf(stderr, "Invalid level\n");
 		return -2;
 	}
@@ -270,27 +271,19 @@ int main(int argc, char *argv[])
 		time = alcon2009_measure_time();
 	} else {
 		alcon2009_measure_time();
-		obj = my_alg_level3(data, w_img, h_img, &n_object);
+		/*obj = my_alg_level3(data, w_img, h_img, &n_object);*/
+		obj = my_alg_level3(data, mask, w_img, h_img, &n_object);
+		for (i = 0; i < n_object; i++) {
+			printf("%d %d %d %d %d %d\n", i, obj[i].label, obj[i].x1, obj[i].y1, obj[i].x2, obj[i].y2);
+			}
+
 		if (obj == NULL)
 			return -1;
 		time = alcon2009_measure_time();
 	}
 
-
-	for (i = 0; i < n_object; i++) {
-		int c = obj[i].label % 10; /* return to the original range, if it exceeds 10 */
-		unsigned char r = ALCON2009_COL_R[c];
-		unsigned char g = ALCON2009_COL_G[c];
-		unsigned char b = ALCON2009_COL_B[c];
-
-		alcon2009_draw_rectangle(data, w_img, h_img, obj[i].x1, obj[i].y1, obj[i].x2, obj[i].y2, r, g, b);
-	}
-	/*create_correct_rect(ground_truth_filename, input_filename, w_img, h_img);*/
-
-	input_filename[strlen(input_filename)-4] = '\0';
-	sprintf(result_filename, "%s_result.ppm", input_filename);
-	save_ppm(result_filename, w_img, h_img, data);
-
+	create_result_rect(input_filename, w_img, h_img, obj, n_object);
+	create_correct_rect(ground_truth_filename, input_filename, w_img, h_img);
 
 
 	if (eval) {
@@ -316,7 +309,7 @@ int main(int argc, char *argv[])
 
 int create_correct_rect(const char *filename, char *input_filename, int w_img, int h_img)
 {
-int i, n;
+int i = 0, n = 0;
 object *obj_gt;
 char result_filename[128];
 
@@ -336,7 +329,7 @@ if (data == NULL){
 	exit(-1);
 	}
 
-data = load_ppm(filename, &w_img, &h_img);
+data = load_ppm(input_filename, &w_img, &h_img);
 for (i = 0; i < n; i++) {
 	int c = obj_gt[i].label % 10; /* return to the original range, if it exceeds 10 */
 	unsigned char r = ALCON2009_COL_R[c];
@@ -345,13 +338,43 @@ for (i = 0; i < n; i++) {
 
 	alcon2009_draw_rectangle(data, w_img, h_img, obj_gt[i].x1, obj_gt[i].y1, obj_gt[i].x2, obj_gt[i].y2, r, g, b);
 }
-input_filename[strlen(input_filename)-4] = '\0';
-sprintf(result_filename, "%s_correct.ppm", input_filename);
+memcpy(result_filename, input_filename, sizeof(result_filename));
+result_filename[strlen(result_filename)-4] = '\0';
+sprintf(result_filename, "%s_correct.ppm", result_filename);
 save_ppm(result_filename, w_img, h_img, data);
-
 
 free(obj_gt);
 free(data);
 return 1;
 }
 
+
+int create_result_rect(char *input_filename, int w_img, int h_img, object *obj, int n)
+{
+int i = 0;
+char result_filename[128];
+
+unsigned char *data = NULL;
+data = (unsigned char *)malloc(3*w_img*h_img);
+if (data == NULL){
+	printf("create_result_rect:Cannot allocate %d bytes for memory.\n", (3*w_img*h_img));
+	exit(-1);
+	}
+
+data = load_ppm(input_filename, &w_img, &h_img);
+for (i = 0; i < n; i++) {
+	int c = obj[i].label % 10; /* return to the original range, if it exceeds 10 */
+	unsigned char r = ALCON2009_COL_R[c];
+	unsigned char g = ALCON2009_COL_G[c];
+	unsigned char b = ALCON2009_COL_B[c];
+
+	alcon2009_draw_rectangle(data, w_img, h_img, obj[i].x1, obj[i].y1, obj[i].x2, obj[i].y2, r, g, b);
+}
+memcpy(result_filename, input_filename, sizeof(result_filename));
+result_filename[strlen(result_filename)-4] = '\0';
+sprintf(result_filename, "%s_result.ppm", result_filename);
+save_ppm(result_filename, w_img, h_img, data);
+
+free(data);
+return 1;
+}

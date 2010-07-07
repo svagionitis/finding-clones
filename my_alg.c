@@ -83,19 +83,21 @@ return NULL;
 return baseline(image, mask, width, height, n_object);
 }
 
-object *my_alg_level3(unsigned char *image, int width, int height, int *n_object) 
+/*object *my_alg_level3(unsigned char *image, int width, int height, int *n_object)*/
+object *my_alg_level3(unsigned char *image,  unsigned char *mask, int width, int height, int *n_object)
 {
-
+/*
 transform_1D_to_2D_RGB(image, width, height);
 allocate_mem_data_CIELAB(width, height);
 convert_RGB_to_CIELAB(width, height);
 unsigned int max_grad = 0;
 first_derivative_CIELAB(0, width, height, &max_grad);
-/*first_derivative_CIELAB_8bit(0, width, height, &max_grad);*/
 calculate_histogram_of_gradient(width, height, max_grad);
 histogram_analysis(width, height, max_grad);
 
 return NULL;
+*/
+return baseline(image, mask, width, height, n_object);
 }
 
 
@@ -153,9 +155,9 @@ else{
 		}
 	}
 
+
 /* assign ID to each object and returns the number of objects */
 n = assign_id(mask, width, height, obj_id);
-
 
 /* allocate memories */
 area = (int *)malloc(n * sizeof(int));
@@ -176,7 +178,6 @@ if (circ == NULL){
 	exit(-1);
 	}
 
-	
 obj  = (object *)malloc(n * sizeof(object));
 if (obj == NULL){
 	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(object)));
@@ -191,6 +192,7 @@ calculate_length(obj_id, width, height, n, len, image);
 
 /* calcuate cirularity index */
 morphological_feature_circularity_index(area, len, n, circ);
+
 
 /*printf("n=%d k=%f\n", n, sqrt(n/2));*/
 /* k-means clustering */
