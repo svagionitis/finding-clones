@@ -42,6 +42,9 @@ S. Vagionitis  04/06/2010     Creation
 #define PI  3.1415926535897932384626433832795
 #define RT2 1.4142135623730950488016887242097 /* = sqrt(2.0) */
 
+#define GREYSCALE(r, g, b)	((unsigned char)(0.2126 * (double)(r)) + \
+                                 (unsigned char)(0.7152 * (double)(g)) + \
+                                 (unsigned char)(0.0722 * (double)(b)))
 
 /* number of clusters */
 #define NUM_CLASS 2
@@ -109,12 +112,12 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	/*********************************MYCODE*********************************/
 
-
+/*
 	unsigned int width_sub = 0, height_sub = 0;
 	create_sub_images(image, width, height, &width_sub, &height_sub);
-
+*/
 	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
-
+/*
 
 	calculate_histogram(3, width, height, width_sub, height_sub);
 
@@ -123,6 +126,7 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);
 
 	final_stage(width, height, width_sub, height_sub);
+*/
 	/*free_mem_subimages(width, height, width_sub, height_sub);*/
 	/*********************************MYCODE*********************************/
 
@@ -211,8 +215,9 @@ morphological_feature_circularity_index(area, len, n, circ);
 
 color_feature_mean_color_value(obj_id, width, height, n, area, image, clr_mn_value);
 
+double weight = 0.1;
 for (i = 0; i < n; i++) {
-	input_val[i] = 0.6*circ[i] + 0.4*clr_mn_value[i];
+	input_val[i] = weight*circ[i] + (1.0 - weight)*clr_mn_value[i];
 	}
 
 /* k-means clustering */
@@ -607,7 +612,9 @@ for (i = 0; i < height; i++) {
 
 		register unsigned int idx = (j + i*width)*3;
 
-		unsigned char val = (unsigned char)((float)(image[idx] + image[idx+1] + image[idx+2]) / 3);
+		/*unsigned char val = (unsigned char)((float)(image[idx] + image[idx+1] + image[idx+2]) / 3);*/
+		unsigned char val = GREYSCALE(image[idx], image[idx+1], image[idx+2]);
+
 		sum[obj_id[i][j]-1] += val;
 		}
 	}
