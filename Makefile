@@ -1,6 +1,6 @@
 # Makefile
 program = alcon2009
-objs = main.o evaluation.o pnm.o my_alg.o alg1.o alg2.o alg3.o color_features.o
+objs = main.o evaluation.o pnm.o my_alg.o alg1.o alg2.o alg3.o color_features.o texture_features.o
 CC = gcc
 #CFLAGS = -Wall -ansi -O2
 CFLAGS = -Wall -g -ggdb -ansi -O2
@@ -33,6 +33,9 @@ alg3.o: alg3.c
 
 color_features.o: color_features.c
 	$(CC) $(CFLAGS) -c color_features.c
+
+texture_features.o: texture_features.c
+	$(CC) $(CFLAGS) -c texture_features.c
 
 .PHONY: clean
 clean:

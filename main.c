@@ -263,9 +263,6 @@ int main(int argc, char *argv[])
 		alcon2009_measure_time();
 		/*obj = my_alg_level2(data, w_img, h_img, &n_object);*/
 		obj = my_alg_level2(data, mask, w_img, h_img, &n_object);
-		for (i = 0; i < n_object; i++) {
-			printf("%d %d %d %d %d %d\n", i, obj[i].label, obj[i].x1, obj[i].y1, obj[i].x2, obj[i].y2);
-			}
 		if (obj == NULL)
 			return -1;
 		time = alcon2009_measure_time();
@@ -273,10 +270,6 @@ int main(int argc, char *argv[])
 		alcon2009_measure_time();
 		/*obj = my_alg_level3(data, w_img, h_img, &n_object);*/
 		obj = my_alg_level3(data, mask, w_img, h_img, &n_object);
-		for (i = 0; i < n_object; i++) {
-			printf("%d %d %d %d %d %d\n", i, obj[i].label, obj[i].x1, obj[i].y1, obj[i].x2, obj[i].y2);
-			}
-
 		if (obj == NULL)
 			return -1;
 		time = alcon2009_measure_time();

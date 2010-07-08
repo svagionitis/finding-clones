@@ -36,6 +36,7 @@ S. Vagionitis  04/06/2010     Creation
 
 #include "alcon2009.h"
 #include "color_features.h"
+#include "texture_features.h"
 #include "alg1.h"
 #include "alg2.h"
 #include "alg3.h"
@@ -133,13 +134,14 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 object *baseline(unsigned char *image, unsigned char *mask, int width, int height, int *n_object)
 {
-int i, j;
+int i = 0, j = 0, k = 0;
 int n;	/* number of objects */
 
 int    *area;	/* area */
 double *len;	/* perimeter length */
 double *circ;	/* circularity index */
 double *clr_mn_value, *input_val, *clr_std_dev, *clr_skew, *clr_kurtosis;
+double ***glcmat;
 
 object *obj;	/* for storing results */
 
@@ -217,6 +219,35 @@ if (clr_kurtosis == NULL){
 	exit(-1);
 	}
 
+glcmat = (double ***)malloc(n * sizeof(double**));
+if (glcmat == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double**)));
+	exit(-1);
+	}
+else{
+	for (i = 0;i < n; i++){
+		glcmat[i] = (double **)malloc(257 * sizeof(double *));
+		if (glcmat[i] == NULL){
+			printf("Cannot allocate %d bytes for memory.\n", (257 * sizeof(double *)));
+			exit(-1);
+			}
+		else{
+			for (j = 0;j < 257; j++){
+				glcmat[i][j] = (double *)malloc(257 * sizeof(double));
+				if (glcmat[i][j] == NULL){
+					printf("Cannot allocate %d bytes for memory.\n", (257 * sizeof(double)));
+					exit(-1);
+					}
+				else{
+					for (k = 0;k < 257;k++){
+						glcmat[i][j][k] = 0.0;
+						}
+					}
+				}/*for j*/
+			}
+		}/*for i*/
+	}
+
 /* calcuate areas */
 calculate_area(obj_id, width, height, n, area);
 /* calcuate perimeter length */
@@ -226,14 +257,26 @@ calculate_length(obj_id, width, height, n, len, image);
 /* calcuate cirularity index */
 morphological_feature_circularity_index(area, len, n, circ);
 
+/*color features*/
+/*
 color_feature_mean(obj_id, width, height, n, area, image, clr_mn_value);
 color_feature_standard_deviation(obj_id, width, height, n, area, image, clr_mn_value, clr_std_dev);
 color_feature_skewness(obj_id, width, height, n, area, image, clr_mn_value, clr_skew);
 color_feature_kurtosis(obj_id, width, height, n, area, image, clr_mn_value, clr_kurtosis);
+*/
 
-double weight = 0.1;
+/*texture features*/
+glcm(0, obj_id, width, height, n, image, glcmat);
+
+double weight = 0.5;
 for (i = 0; i < n; i++) {
-	input_val[i] = weight*circ[i] + (1.0 - weight)*clr_mn_value[i];
+	input_val[i] = circ[i];
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_mn_value[i];*/
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_std_dev[i];*/
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_skew[i];*/
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_kurtosis[i];*/
+	/*input_val[i] = weight*circ[i] + weight*clr_mn_value[i] + weight*clr_std_dev[i] + weight*clr_skew[i] + weight*clr_kurtosis[i];*/
+	/*input_val[i] = weight*clr_mn_value[i] + weight*clr_std_dev[i] + weight*clr_skew[i] + weight*clr_kurtosis[i];*/
 	}
 
 /* k-means clustering */

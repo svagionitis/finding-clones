@@ -1101,7 +1101,7 @@ under the histogram curve.
 #define MAX_THRESHOLD_STAGES 5
 int histogram_analysis(int width, int height, unsigned int max_gradient)
 {
-unsigned int i = 0, j = 0;
+unsigned int i = 0;
 
 unsigned int total_area = (width*height);
 printf("Total area: %u\n", total_area);

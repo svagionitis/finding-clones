@@ -36,13 +36,13 @@ int color_feature_mean(int **obj_id, int width, int height, int n_object, int *a
 {
 unsigned int i = 0, j = 0;
 
-unsigned int *sum = NULL;
-sum = (unsigned int *)malloc(n_object * sizeof(unsigned int));
+double *sum = NULL;
+sum = (double *)malloc(n_object * sizeof(double));
 if (sum == NULL){
-	printf("color_feature_mean:Cannot allocate %d bytes for memory.\n", (n_object * sizeof(unsigned int)));
+	printf("color_feature_mean:Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
 	exit(-1);
 	}
-memset(sum, 0, sizeof(n_object * sizeof(unsigned int)));
+memset(sum, 0, sizeof(n_object * sizeof(double)));
 
 
 for (i = 0; i < height; i++) {
@@ -54,13 +54,13 @@ for (i = 0; i < height; i++) {
 
 		unsigned char val = GREYSCALE(image[idx], image[idx+1], image[idx+2]);
 
-		sum[obj_id[i][j]-1] += (unsigned int)val;
+		sum[obj_id[i][j]-1] += (double)val;
 		}
 	}
 
 printf("Color mean value:\n");
 for (i = 0; i < n_object; i++) {
-	color_mean_value[i] = ((double)sum[i] / area[i]);
+	color_mean_value[i] = (sum[i] / area[i]);
 	printf("%d %.3f\n", i, color_mean_value[i]);
 	}
 
@@ -74,13 +74,13 @@ int color_feature_standard_deviation(int **obj_id, int width, int height, int n_
 {
 unsigned int i = 0, j = 0;
 
-unsigned int *sum = NULL;
-sum = (unsigned int *)malloc(n_object * sizeof(unsigned int));
+double *sum = NULL;
+sum = (double *)malloc(n_object * sizeof(double));
 if (sum == NULL){
-	printf("color_feature_standard_deviation:Cannot allocate %d bytes for memory.\n", (n_object * sizeof(unsigned int)));
+	printf("color_feature_standard_deviation:Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
 	exit(-1);
 	}
-memset(sum, 0, sizeof(n_object * sizeof(unsigned int)));
+memset(sum, 0, sizeof(n_object * sizeof(double)));
 
 
 for (i = 0; i < height; i++) {
@@ -92,13 +92,13 @@ for (i = 0; i < height; i++) {
 
 		unsigned char val = GREYSCALE(image[idx], image[idx+1], image[idx+2]);
 		double tmp = ((double)val - mean[obj_id[i][j]-1]);
-		sum[obj_id[i][j]-1] += (unsigned int)(tmp*tmp);
+		sum[obj_id[i][j]-1] += (tmp*tmp);
 		}
 	}
 
 printf("Color standard deviation:\n");
 for (i = 0; i < n_object; i++) {
-	color_std_dev[i] = sqrt((double)sum[i] / area[i]);
+	color_std_dev[i] = sqrt(sum[i] / area[i]);
 	printf("%d %.3f\n", i, color_std_dev[i]);
 	}
 
@@ -112,13 +112,13 @@ int color_feature_skewness(int **obj_id, int width, int height, int n_object, in
 {
 unsigned int i = 0, j = 0;
 
-unsigned int *sum = NULL;
-sum = (unsigned int *)malloc(n_object * sizeof(unsigned int));
+double *sum = NULL;
+sum = (double *)malloc(n_object * sizeof(double));
 if (sum == NULL){
-	printf("color_feature_skewness:Cannot allocate %d bytes for memory.\n", (n_object * sizeof(unsigned int)));
+	printf("color_feature_skewness:Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
 	exit(-1);
 	}
-memset(sum, 0, sizeof(n_object * sizeof(unsigned int)));
+memset(sum, 0, sizeof(n_object * sizeof(double)));
 
 
 for (i = 0; i < height; i++) {
@@ -130,13 +130,13 @@ for (i = 0; i < height; i++) {
 
 		unsigned char val = GREYSCALE(image[idx], image[idx+1], image[idx+2]);
 		double tmp = ((double)val - mean[obj_id[i][j]-1]);
-		sum[obj_id[i][j]-1] += (unsigned int)(tmp*tmp*tmp);
+		sum[obj_id[i][j]-1] += (tmp*tmp*tmp);
 		}
 	}
 
 printf("Color skewness:\n");
 for (i = 0; i < n_object; i++) {
-	color_skew[i] = pow(((double)sum[i] / area[i]), 1.0/3.0);
+	color_skew[i] = pow(fabs((sum[i] / area[i])), 1.0/3.0);
 	printf("%d %.3f\n", i, color_skew[i]);
 	}
 
@@ -150,13 +150,13 @@ int color_feature_kurtosis(int **obj_id, int width, int height, int n_object, in
 {
 unsigned int i = 0, j = 0;
 
-unsigned int *sum = NULL;
-sum = (unsigned int *)malloc(n_object * sizeof(unsigned int));
+double *sum = NULL;
+sum = (double *)malloc(n_object * sizeof(double));
 if (sum == NULL){
-	printf("color_feature_kurtosis:Cannot allocate %d bytes for memory.\n", (n_object * sizeof(unsigned int)));
+	printf("color_feature_kurtosis:Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
 	exit(-1);
 	}
-memset(sum, 0, sizeof(n_object * sizeof(unsigned int)));
+memset(sum, 0, sizeof(n_object * sizeof(double)));
 
 
 for (i = 0; i < height; i++) {
@@ -168,13 +168,13 @@ for (i = 0; i < height; i++) {
 
 		unsigned char val = GREYSCALE(image[idx], image[idx+1], image[idx+2]);
 		double tmp = ((double)val - mean[obj_id[i][j]-1]);
-		sum[obj_id[i][j]-1] += (unsigned int)(tmp*tmp*tmp*tmp);
+		sum[obj_id[i][j]-1] += (tmp*tmp*tmp*tmp);
 		}
 	}
 
 printf("Color kurtosis:\n");
 for (i = 0; i < n_object; i++) {
-	color_kurtosis[i] = pow(((double)sum[i] / area[i]), 1.0/4.0);
+	color_kurtosis[i] = pow((sum[i] / area[i]), 1.0/4.0);
 	printf("%d %.3f\n", i, color_kurtosis[i]);
 	}
 
