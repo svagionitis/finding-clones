@@ -45,27 +45,28 @@ int glcm(unsigned char type, int **obj_id, int width, int height, int n_object, 
 {
 unsigned int i = 0, j = 0, k = 0;
 unsigned int step = 1;
-unsigned char *grey;
+unsigned char *grey=NULL;
 
 grey = (unsigned char *)malloc((width*height)*sizeof(unsigned char));
 if (grey == NULL){
 	printf("glcm:Cannot allocate %d bytes for memory.\n", ((width*height)*sizeof(unsigned char)));
 	exit(-1);
 	}
-memset(grey, 0, sizeof((width*height)*sizeof(unsigned char)));
+memset(grey, 0, (width*height)*sizeof(unsigned char));
 
 /*Trnasform color data to greyscale*/
 for (i=0;i<(height*width)*3;i+=3){
-	grey[i] = GREYSCALE(image[i+0], image[i+1], image[i+2]);
+	unsigned char r = image[i+0], g = image[i+1], b = image[i+2];
+	grey[(i / 3)] = GREYSCALE(r, g, b);
 	}
 
-unsigned int *pixelCounter;
+unsigned int *pixelCounter=NULL;
 pixelCounter = (unsigned int *)malloc(n_object*sizeof(unsigned int));
 if (pixelCounter == NULL){
 	printf("glcm:Cannot allocate %d bytes for memory.\n", (n_object*sizeof(unsigned int)));
 	exit(-1);
 	}
-memset(pixelCounter, 0, sizeof(n_object*sizeof(unsigned int)));
+memset(pixelCounter, 0, n_object*sizeof(unsigned int));
 
 /*
 The variable a holds the value of the pixel where the Image Processor is sitting its attention.
@@ -160,15 +161,15 @@ switch(type){
 
 /*Normalize GLCM*/
 for (i = 0; i < n_object; i++) {
-	printf("ID: %d\n", i);
+	/*printf("ID: %d\n", i);*/
 	for (j = 0; j < 257; j++) {
 		for (k = 0;k < 257;k++){
 			glcm[i][j][k] /= pixelCounter[i];
-			printf("%.3f ", glcm[i][j][k]);
+			/*printf("%f ", glcm[i][j][k]);*/
 			}
-		printf("\n");
+		/*printf("\n");*/
 		}
-	printf("\n");
+	/*printf("\n");*/
 	}
 
 

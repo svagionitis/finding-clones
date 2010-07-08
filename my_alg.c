@@ -309,6 +309,14 @@ free(clr_std_dev);
 free(clr_skew);
 free(clr_kurtosis);
 
+for (i=0;i<n;i++){
+	for (j=0;j<257;j++){
+		free(glcmat[i][j]);
+		}/*for j*/
+	free(glcmat[i]);
+	}/*for i*/
+free(glcmat);
+
 *n_object = n;
 
 return obj;
