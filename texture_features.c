@@ -162,8 +162,8 @@ switch(type){
 /*Normalize GLCM*/
 for (i = 0; i < n_object; i++) {
 	/*printf("ID: %d\n", i);*/
-	for (j = 0; j < 257; j++) {
-		for (k = 0;k < 257;k++){
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
 			glcm[i][j][k] /= pixelCounter[i];
 			/*printf("%f ", glcm[i][j][k]);*/
 			}
@@ -179,3 +179,155 @@ return TRUE;
 }
 
 
+int texture_feature_angular_second_moment(double ***glcm, int n_object, double *angular_second_moment)
+{
+unsigned int i = 0, j = 0, k = 0;
+
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			angular_second_moment[i] += glcm[i][j][k]*glcm[i][j][k];
+			}
+		}
+	}
+
+printf("Texture angular second moment:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, angular_second_moment[i]);
+	}
+
+return TRUE;
+}
+
+int texture_feature_contrast(double ***glcm, int n_object, double *contrast)
+{
+unsigned int i = 0, j = 0, k = 0;
+
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			contrast[i] += (j-k)*(j-k)*glcm[i][j][k];
+			}
+		}
+	}
+
+printf("Texture contrast:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, contrast[i]);
+	}
+
+return TRUE;
+}
+
+int texture_feature_correlation(double ***glcm, int n_object, double *correlation)
+{
+unsigned int i = 0, j = 0, k = 0;
+double **px, **py;
+double *meanx, *meany;
+double *stdevx, *stdevy;
+
+px = (double **)malloc(n_object * sizeof(double *));
+if (px == NULL){
+	printf("texture_feature_correlation: Could not allocate %d bytes.\n", (n_object * sizeof(double *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<n_object;i++){
+		px[i] = (double *)malloc(256 * sizeof(double));
+		if (px[i] == NULL){
+			printf("texture_feature_correlation: Could not allocate %d bytes for i=%d index.\n", (256 * sizeof(double)), i);
+			return FALSE;
+			}
+		else{
+			for (j = 0; j < 256; j++) {
+				px[i][j] = 0.0;
+				}
+			}
+		}/*for i*/
+	}
+
+
+py = (double **)malloc(n_object * sizeof(double *));
+if (py == NULL){
+	printf("texture_feature_correlation: Could not allocate %d bytes.\n", (n_object * sizeof(double *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<n_object;i++){
+		py[i] = (double *)malloc(256 * sizeof(double));
+		if (py[i] == NULL){
+			printf("texture_feature_correlation: Could not allocate %d bytes for i=%d index.\n", (256 * sizeof(double)), i);
+			return FALSE;
+			}
+		else{
+			for (j = 0; j < 256; j++) {
+				py[i][j] = 0.0;
+				}
+			}
+		}/*for i*/
+	}
+
+meanx = (double *)malloc(n_object * sizeof(double));
+if (meanx == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(meanx, 0, (n_object * sizeof(double)));
+
+meany = (double *)malloc(n_object * sizeof(double));
+if (meany == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(meany, 0, (n_object * sizeof(double)));
+
+stdevx = (double *)malloc(n_object * sizeof(double));
+if (stdevx == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(stdevx, 0, (n_object * sizeof(double)));
+
+stdevy = (double *)malloc(n_object * sizeof(double));
+if (stdevy == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(stdevy, 0, (n_object * sizeof(double)));
+
+
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			px[i][j] += j*glcm[i][j][k];
+			py[i][k] += k*glcm[i][j][k];
+			}
+		}
+	}
+for (i = 0; i < n_object; i++) {
+	printf("ID: %d\n", i);
+	for (j = 0; j < 256; j++) {
+		printf("\t%u %f %f\n", j, px[i][j], py[i][j]);
+		}
+	}
+
+printf("Texture correlation:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, correlation[i]);
+	}
+
+
+
+for(i=0;i<n_object;i++)
+	free(px[i]);
+free(px);
+
+for(i=0;i<n_object;i++)
+	free(py[i]);
+free(py);
+
+free(meanx);free(meany);
+free(stdevx);free(stdevy);
+
+return TRUE;
+}

@@ -34,6 +34,9 @@ S. Vagionitis  08/07/2010     Creation
 
 
 int glcm(unsigned char, int **, int, int, int, unsigned char *, double ***);
+int texture_feature_angular_second_moment(double ***, int, double *);
+int texture_feature_contrast(double ***, int, double *);
+int texture_feature_correlation(double ***, int, double *);
 
 
 

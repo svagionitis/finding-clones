@@ -140,8 +140,11 @@ int n;	/* number of objects */
 int    *area;	/* area */
 double *len;	/* perimeter length */
 double *circ;	/* circularity index */
-double *clr_mn_value, *input_val, *clr_std_dev, *clr_skew, *clr_kurtosis;
-double ***glcmat;
+double *input_val;
+/*Color features*/
+double *clr_mn_value, *clr_std_dev, *clr_skew, *clr_kurtosis;
+/*Texture features*/
+double ***glcmat, *ang_sec_mom, *contr, *corr;
 
 object *obj;	/* for storing results */
 
@@ -188,7 +191,7 @@ if (obj == NULL){
 	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(object)));
 	exit(-1);
 	}
-
+/*Colors*/
 clr_mn_value = (double *)malloc(n * sizeof(double));
 if (clr_mn_value == NULL){
 	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
@@ -219,6 +222,7 @@ if (clr_kurtosis == NULL){
 	exit(-1);
 	}
 
+/*Texture*/
 glcmat = (double ***)malloc(n * sizeof(double**));
 if (glcmat == NULL){
 	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double**)));
@@ -226,20 +230,20 @@ if (glcmat == NULL){
 	}
 else{
 	for (i = 0;i < n; i++){
-		glcmat[i] = (double **)malloc(257 * sizeof(double *));
+		glcmat[i] = (double **)malloc(256 * sizeof(double *));
 		if (glcmat[i] == NULL){
-			printf("Cannot allocate %d bytes for memory.\n", (257 * sizeof(double *)));
+			printf("Cannot allocate %d bytes for memory.\n", (256 * sizeof(double *)));
 			exit(-1);
 			}
 		else{
-			for (j = 0;j < 257; j++){
-				glcmat[i][j] = (double *)malloc(257 * sizeof(double));
+			for (j = 0;j < 256; j++){
+				glcmat[i][j] = (double *)malloc(256 * sizeof(double));
 				if (glcmat[i][j] == NULL){
-					printf("Cannot allocate %d bytes for memory.\n", (257 * sizeof(double)));
+					printf("Cannot allocate %d bytes for memory.\n", (256 * sizeof(double)));
 					exit(-1);
 					}
 				else{
-					for (k = 0;k < 257;k++){
+					for (k = 0;k < 256;k++){
 						glcmat[i][j][k] = 0.0;
 						}
 					}
@@ -247,6 +251,27 @@ else{
 			}
 		}/*for i*/
 	}
+
+ang_sec_mom = (double *)malloc(n * sizeof(double));
+if (ang_sec_mom == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+memset(ang_sec_mom, 0, (n * sizeof(double)));
+
+contr = (double *)malloc(n * sizeof(double));
+if (contr == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+memset(contr, 0, (n * sizeof(double)));
+
+corr = (double *)malloc(n * sizeof(double));
+if (corr == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+memset(corr, 0, (n * sizeof(double)));
 
 /* calcuate areas */
 calculate_area(obj_id, width, height, n, area);
@@ -267,16 +292,27 @@ color_feature_kurtosis(obj_id, width, height, n, area, image, clr_mn_value, clr_
 
 /*texture features*/
 glcm(0, obj_id, width, height, n, image, glcmat);
+/*
+texture_feature_angular_second_moment(glcmat, n, ang_sec_mom);
+texture_feature_contrast(glcmat, n, contr);
+*/
+texture_feature_correlation(glcmat, n, corr);
 
-double weight = 0.5;
+double weight = 0.0;
 for (i = 0; i < n; i++) {
+	/*Morphological feature*/
 	input_val[i] = circ[i];
+	/*Color features*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_mn_value[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_std_dev[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_skew[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_kurtosis[i];*/
 	/*input_val[i] = weight*circ[i] + weight*clr_mn_value[i] + weight*clr_std_dev[i] + weight*clr_skew[i] + weight*clr_kurtosis[i];*/
 	/*input_val[i] = weight*clr_mn_value[i] + weight*clr_std_dev[i] + weight*clr_skew[i] + weight*clr_kurtosis[i];*/
+	/*Texture features*/
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*ang_sec_mom[i];*/
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*contr[i];*/
+	input_val[i] = weight*circ[i] + (1.0 - weight)*corr[i];
 	}
 
 /* k-means clustering */
@@ -310,12 +346,16 @@ free(clr_skew);
 free(clr_kurtosis);
 
 for (i=0;i<n;i++){
-	for (j=0;j<257;j++){
+	for (j=0;j<256;j++){
 		free(glcmat[i][j]);
 		}/*for j*/
 	free(glcmat[i]);
 	}/*for i*/
 free(glcmat);
+
+free(ang_sec_mom);
+free(contr);
+free(corr);
 
 *n_object = n;
 
