@@ -37,6 +37,8 @@ int glcm(unsigned char, int **, int, int, int, unsigned char *, double ***);
 int texture_feature_angular_second_moment(double ***, int, double *);
 int texture_feature_contrast(double ***, int, double *);
 int texture_feature_correlation(double ***, int, double *);
+int texture_feature_variance(double ***, int, double *);
+int texture_feature_inverse_diff_moment(double ***, int, double *);
 
 
 

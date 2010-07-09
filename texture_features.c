@@ -222,9 +222,10 @@ return TRUE;
 int texture_feature_correlation(double ***glcm, int n_object, double *correlation)
 {
 unsigned int i = 0, j = 0, k = 0;
-double **px, **py;
-double *meanx, *meany;
-double *stdevx, *stdevy;
+double **px;/*px = py*/
+double *meanx;/*meanx = meany*/
+double *stdevx;/*stdevx = stdevy*/
+double *sum_sqrx;
 
 px = (double **)malloc(n_object * sizeof(double *));
 if (px == NULL){
@@ -246,40 +247,12 @@ else{
 		}/*for i*/
 	}
 
-
-py = (double **)malloc(n_object * sizeof(double *));
-if (py == NULL){
-	printf("texture_feature_correlation: Could not allocate %d bytes.\n", (n_object * sizeof(double *)));
-	return FALSE;
-	}
-else{
-	for (i=0;i<n_object;i++){
-		py[i] = (double *)malloc(256 * sizeof(double));
-		if (py[i] == NULL){
-			printf("texture_feature_correlation: Could not allocate %d bytes for i=%d index.\n", (256 * sizeof(double)), i);
-			return FALSE;
-			}
-		else{
-			for (j = 0; j < 256; j++) {
-				py[i][j] = 0.0;
-				}
-			}
-		}/*for i*/
-	}
-
 meanx = (double *)malloc(n_object * sizeof(double));
 if (meanx == NULL){
 	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
 	exit(-1);
 	}
 memset(meanx, 0, (n_object * sizeof(double)));
-
-meany = (double *)malloc(n_object * sizeof(double));
-if (meany == NULL){
-	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
-	exit(-1);
-	}
-memset(meany, 0, (n_object * sizeof(double)));
 
 stdevx = (double *)malloc(n_object * sizeof(double));
 if (stdevx == NULL){
@@ -288,46 +261,125 @@ if (stdevx == NULL){
 	}
 memset(stdevx, 0, (n_object * sizeof(double)));
 
-stdevy = (double *)malloc(n_object * sizeof(double));
-if (stdevy == NULL){
+sum_sqrx = (double *)malloc(n_object * sizeof(double));
+if (sum_sqrx == NULL){
 	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
 	exit(-1);
 	}
-memset(stdevy, 0, (n_object * sizeof(double)));
+memset(sum_sqrx, 0, (n_object * sizeof(double)));
 
 
 for (i = 0; i < n_object; i++) {
 	for (j = 0; j < 256; j++) {
 		for (k = 0;k < 256;k++){
-			px[i][j] += j*glcm[i][j][k];
-			py[i][k] += k*glcm[i][j][k];
+			px[i][j] += glcm[i][j][k];
 			}
 		}
 	}
+
+/*Calculate meanx, sum_sqrx*/
 for (i = 0; i < n_object; i++) {
-	printf("ID: %d\n", i);
 	for (j = 0; j < 256; j++) {
-		printf("\t%u %f %f\n", j, px[i][j], py[i][j]);
+		double tmp = j * px[i][j];
+		meanx[i] += tmp;
+		sum_sqrx[i] += j * tmp;
 		}
 	}
+
+/*Calculate standard deviation*/
+for (i = 0; i < n_object; i++) {
+	stdevx[i] = sqrt(sum_sqrx[i] - (meanx[i] * meanx[i]));
+	}
+
+/*Calculate correlation*/
+for (i = 0; i < n_object; i++) {
+	double sum = 0.0;
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			sum += glcm[i][j][k];
+			}
+		}
+	correlation[i] = (sum - (meanx[i]*meanx[i])) / (stdevx[i]*stdevx[i]);
+	}
+
 
 printf("Texture correlation:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, correlation[i]);
 	}
 
-
-
 for(i=0;i<n_object;i++)
 	free(px[i]);
 free(px);
 
-for(i=0;i<n_object;i++)
-	free(py[i]);
-free(py);
-
-free(meanx);free(meany);
-free(stdevx);free(stdevy);
+free(meanx);
+free(stdevx);
+free(sum_sqrx);
 
 return TRUE;
 }
+
+
+int texture_feature_variance(double ***glcm, int n_object, double *variance)
+{
+unsigned int i = 0, j = 0, k = 0;
+double *mean;
+
+mean = (double *)malloc(n_object * sizeof(double));
+if (mean == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(mean, 0, (n_object * sizeof(double)));
+
+
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			mean[i] += j * glcm[i][j][k];
+			}
+		}
+	}
+
+/*Calculate variance*/
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			double tmp = (j - mean[i]);
+			variance[i] += tmp * tmp * glcm[i][j][k];
+			}
+		}
+	}
+
+
+printf("Texture variance:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, variance[i]);
+	}
+
+free(mean);
+return TRUE;
+}
+
+int texture_feature_inverse_diff_moment(double ***glcm, int n_object, double *inverse_diff_moment)
+{
+unsigned int i = 0, j = 0, k = 0;
+
+/*Calculate inverse difference moment*/
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			double tmp = (j - k);
+			inverse_diff_moment[i] += glcm[i][j][k] / (1.0 + (tmp*tmp)) ;
+			}
+		}
+	}
+
+printf("Texture inverse difference moment:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, inverse_diff_moment[i]);
+	}
+
+return TRUE;
+}
+
