@@ -559,3 +559,56 @@ for (i = 0; i < n_object; i++) {
 return TRUE;
 }
 
+int texture_feature_difference_variance(double ***glcm, int n_object, double *difference_variance)
+{
+unsigned int i = 0, j = 0, k = 0;
+double **glcmxmy;
+
+glcmxmy = (double **)malloc(n_object * sizeof(double *));
+if (glcmxmy == NULL){
+	printf("texture_feature_sum_entropy: Could not allocate %d bytes.\n", (n_object * sizeof(double *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<n_object;i++){
+		glcmxmy[i] = (double *)malloc(256 * sizeof(double));
+		if (glcmxmy[i] == NULL){
+			printf("Cannot allocate %d bytes for memory.\n", (256 * sizeof(double)));
+			exit(-1);
+			}
+		else{
+			for (j = 0; j < 256; j++)
+				glcmxmy[i][j] = 0.0;
+			}
+		}
+	}
+
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			glcmxmy[i][abs(j-k)] += glcm[i][j][k];
+			}
+		}
+	}
+
+
+/*Calculate difference variance*/
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+			difference_variance[i] +=  j * j * glcmxmy[i][j];
+		}
+	}
+
+
+printf("Texture difference variance:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, difference_variance[i]);
+	}
+
+for(i=0;i<n_object;i++)
+	free(glcmxmy[i]);
+free(glcmxmy);
+
+return TRUE;
+}
+
