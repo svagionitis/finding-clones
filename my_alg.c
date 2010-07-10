@@ -144,7 +144,8 @@ double *input_val;
 /*Color features*/
 double *clr_mn_value, *clr_std_dev, *clr_skew, *clr_kurtosis;
 /*Texture features*/
-double ***glcmat, *ang_sec_mom, *contr, *corr, *var, *inv_diff_mom;
+double ***glcmat, *ang_sec_mom, *contr, *corr, *var;
+double *inv_diff_mom, *sum_av, *sum_entrp, *sum_varnc, *entrp;
 
 object *obj;	/* for storing results */
 
@@ -287,6 +288,34 @@ if (inv_diff_mom == NULL){
 	}
 memset(inv_diff_mom, 0, (n * sizeof(double)));
 
+sum_av = (double *)malloc(n * sizeof(double));
+if (sum_av == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+memset(sum_av, 0, (n * sizeof(double)));
+
+sum_entrp = (double *)malloc(n * sizeof(double));
+if (sum_entrp == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+memset(sum_entrp, 0, (n * sizeof(double)));
+
+sum_varnc = (double *)malloc(n * sizeof(double));
+if (sum_varnc == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+memset(sum_varnc, 0, (n * sizeof(double)));
+
+entrp = (double *)malloc(n * sizeof(double));
+if (entrp == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+memset(entrp, 0, (n * sizeof(double)));
+
 /* calcuate areas */
 calculate_area(obj_id, width, height, n, area);
 /* calcuate perimeter length */
@@ -311,8 +340,12 @@ texture_feature_angular_second_moment(glcmat, n, ang_sec_mom);
 texture_feature_contrast(glcmat, n, contr);
 texture_feature_correlation(glcmat, n, corr);
 texture_feature_variance(glcmat, n, var);
-*/
 texture_feature_inverse_diff_moment(glcmat, n, inv_diff_mom);
+texture_feature_sum_average(glcmat, n, sum_av);
+texture_feature_sum_entropy(glcmat, n, sum_entrp);
+texture_feature_sum_variance(glcmat, n, sum_entrp, sum_varnc);
+*/
+texture_feature_entropy(glcmat, n, entrp);
 
 double weight = 0.0;
 for (i = 0; i < n; i++) {
@@ -330,7 +363,11 @@ for (i = 0; i < n; i++) {
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*contr[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*corr[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*var[i];*/
-	input_val[i] = weight*circ[i] + (1.0 - weight)*inv_diff_mom[i];
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*inv_diff_mom[i];*/
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*sum_av[i];*/
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*sum_entrp[i];*/
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*sum_varnc[i];*/
+	input_val[i] = weight*circ[i] + (1.0 - weight)*entrp[i];
 	}
 
 /* k-means clustering */
@@ -379,6 +416,10 @@ free(contr);
 free(corr);
 free(var);
 free(inv_diff_mom);
+free(sum_av);
+free(sum_entrp);
+free(sum_varnc);
+free(entrp);
 
 *n_object = n;
 

@@ -383,3 +383,179 @@ for (i = 0; i < n_object; i++) {
 return TRUE;
 }
 
+int texture_feature_sum_average(double ***glcm, int n_object, double *sum_average)
+{
+unsigned int i = 0, j = 0, k = 0;
+double **glcmxpy;
+
+glcmxpy = (double **)malloc(n_object * sizeof(double *));
+if (glcmxpy == NULL){
+	printf("texture_feature_correlation: Could not allocate %d bytes.\n", (n_object * sizeof(double *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<n_object;i++){
+		glcmxpy[i] = (double *)malloc((2 * 256) * sizeof(double));
+		if (glcmxpy[i] == NULL){
+			printf("Cannot allocate %d bytes for memory.\n", ((2 * 256) * sizeof(double)));
+			exit(-1);
+			}
+		else{
+			for (j = 0; j < (2 * 256); j++)
+				glcmxpy[i][j] = 0.0;
+			}
+		}
+	}
+
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			glcmxpy[i][j+k] += glcm[i][j][k];
+			}
+		}
+	}
+
+/*Calculate sum average*/
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j <= (2*256 - 2); j++) {
+			sum_average[i] += j * glcmxpy[i][j];
+		}
+	}
+
+printf("Texture sum average:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, sum_average[i]);
+	}
+
+for(i=0;i<n_object;i++)
+	free(glcmxpy[i]);
+free(glcmxpy);
+
+return TRUE;
+}
+
+int texture_feature_sum_entropy(double ***glcm, int n_object, double *sum_entropy)
+{
+unsigned int i = 0, j = 0, k = 0;
+double **glcmxpy;
+
+glcmxpy = (double **)malloc(n_object * sizeof(double *));
+if (glcmxpy == NULL){
+	printf("texture_feature_sum_entropy: Could not allocate %d bytes.\n", (n_object * sizeof(double *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<n_object;i++){
+		glcmxpy[i] = (double *)malloc((2 * 256) * sizeof(double));
+		if (glcmxpy[i] == NULL){
+			printf("Cannot allocate %d bytes for memory.\n", ((2 * 256) * sizeof(double)));
+			exit(-1);
+			}
+		else{
+			for (j = 0; j < (2 * 256); j++)
+				glcmxpy[i][j] = 0.0;
+			}
+		}
+	}
+
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			glcmxpy[i][j+k] += glcm[i][j][k];
+			}
+		}
+	}
+
+/*Calculate sum entropy*/
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j <= (2*256 - 2); j++) {
+			sum_entropy[i] -= glcmxpy[i][j] * (log10(glcmxpy[i][j] + SMALL_NUMBER)/log10(2.0));
+		}
+	}
+
+printf("Texture sum entropy:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, sum_entropy[i]);
+	}
+
+for(i=0;i<n_object;i++)
+	free(glcmxpy[i]);
+free(glcmxpy);
+
+return TRUE;
+}
+
+int texture_feature_sum_variance(double ***glcm, int n_object, double *sum_entropy, double *sum_variance)
+{
+unsigned int i = 0, j = 0, k = 0;
+double **glcmxpy;
+
+glcmxpy = (double **)malloc(n_object * sizeof(double *));
+if (glcmxpy == NULL){
+	printf("texture_feature_sum_entropy: Could not allocate %d bytes.\n", (n_object * sizeof(double *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<n_object;i++){
+		glcmxpy[i] = (double *)malloc((2 * 256) * sizeof(double));
+		if (glcmxpy[i] == NULL){
+			printf("Cannot allocate %d bytes for memory.\n", ((2 * 256) * sizeof(double)));
+			exit(-1);
+			}
+		else{
+			for (j = 0; j < (2 * 256); j++)
+				glcmxpy[i][j] = 0.0;
+			}
+		}
+	}
+
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			glcmxpy[i][j+k] += glcm[i][j][k];
+			}
+		}
+	}
+
+/*Calculate sum variance*/
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j <= (2*256 - 2); j++) {
+			double tmp = (j - sum_entropy[i]);
+			sum_variance[i] += tmp * tmp * glcmxpy[i][j];
+		}
+	}
+
+printf("Texture sum variance:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, sum_variance[i]);
+	}
+
+for(i=0;i<n_object;i++)
+	free(glcmxpy[i]);
+free(glcmxpy);
+
+return TRUE;
+}
+
+int texture_feature_entropy(double ***glcm, int n_object, double *entropy)
+{
+unsigned int i = 0, j = 0, k = 0;
+
+/*Calculate entropy*/
+for (i = 0; i < n_object; i++) {
+	for (j = 0; j < 256; j++) {
+		for (k = 0;k < 256;k++){
+			entropy[i] += glcm[i][j][k] * (log10(glcm[i][j][k] + SMALL_NUMBER) / log10(2.0));
+			}
+		}
+	entropy[i] = -1.0 * entropy[i];
+	}
+
+printf("Texture entropy:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d %.3f\n", i, entropy[i]);
+	}
+
+return TRUE;
+}
+

@@ -22,6 +22,8 @@ S. Vagionitis  08/07/2010     Creation
 #define FALSE 0
 #endif
 
+#define SMALL_NUMBER	0.000000001
+
 #define MIN(a,b)	((a)<=(b)?(a):(b))
 #define MAX(a,b)	((a)>=(b)?(a):(b))
 #define MIN3(a,b,c)	((a)<=(b) ? (a)<=(c)?(a):(c) : (b)<=(c)?(b):(c) )
@@ -39,6 +41,10 @@ int texture_feature_contrast(double ***, int, double *);
 int texture_feature_correlation(double ***, int, double *);
 int texture_feature_variance(double ***, int, double *);
 int texture_feature_inverse_diff_moment(double ***, int, double *);
+int texture_feature_sum_average(double ***, int, double *);
+int texture_feature_sum_entropy(double ***, int, double *);
+int texture_feature_sum_variance(double ***, int, double *, double *);
+int texture_feature_entropy(double ***, int, double *);
 
 
 
