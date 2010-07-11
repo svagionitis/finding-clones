@@ -46,6 +46,7 @@ int texture_feature_sum_entropy(double ***, int, double *);
 int texture_feature_sum_variance(double ***, int, double *, double *);
 int texture_feature_entropy(double ***, int, double *);
 int texture_feature_difference_variance(double ***, int, double *);
+int texture_feature_difference_entropy(double ***, int, double *);
 
 
 

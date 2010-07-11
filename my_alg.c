@@ -145,7 +145,8 @@ double *input_val;
 double *clr_mn_value, *clr_std_dev, *clr_skew, *clr_kurtosis;
 /*Texture features*/
 double ***glcmat, *ang_sec_mom, *contr, *corr, *var;
-double *inv_diff_mom, *sum_av, *sum_entrp, *sum_varnc, *entrp, *diff_var;
+double *inv_diff_mom, *sum_av, *sum_entrp, *sum_varnc;
+double *entrp, *diff_var, *diff_entrp;
 
 object *obj;	/* for storing results */
 
@@ -323,6 +324,13 @@ if (diff_var == NULL){
 	}
 memset(diff_var, 0, (n * sizeof(double)));
 
+diff_entrp = (double *)malloc(n * sizeof(double));
+if (diff_entrp == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
+	exit(-1);
+	}
+memset(diff_entrp, 0, (n * sizeof(double)));
+
 /* calcuate areas */
 calculate_area(obj_id, width, height, n, area);
 /* calcuate perimeter length */
@@ -352,8 +360,9 @@ texture_feature_sum_average(glcmat, n, sum_av);
 texture_feature_sum_entropy(glcmat, n, sum_entrp);
 texture_feature_sum_variance(glcmat, n, sum_entrp, sum_varnc);
 texture_feature_entropy(glcmat, n, entrp);
-*/
 texture_feature_difference_variance(glcmat, n, diff_var);
+*/
+texture_feature_difference_entropy(glcmat, n, diff_entrp);
 
 double weight = 0.0;
 for (i = 0; i < n; i++) {
@@ -376,7 +385,8 @@ for (i = 0; i < n; i++) {
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*sum_entrp[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*sum_varnc[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*entrp[i];*/
-	input_val[i] = weight*circ[i] + (1.0 - weight)*diff_var[i];
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*diff_var[i];*/
+	input_val[i] = weight*circ[i] + (1.0 - weight)*diff_entrp[i];
 	}
 
 /* k-means clustering */
@@ -430,6 +440,7 @@ free(sum_entrp);
 free(sum_varnc);
 free(entrp);
 free(diff_var);
+free(diff_entrp);
 
 *n_object = n;
 
