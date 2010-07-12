@@ -469,7 +469,7 @@ for (i = 0; i < n_object; i++) {
 /*Calculate sum entropy*/
 for (i = 0; i < n_object; i++) {
 	for (j = 0; j <= (2*256 - 2); j++) {
-			sum_entropy[i] -= glcmxpy[i][j] * (log10(glcmxpy[i][j] + SMALL_NUMBER)/log10(2.0));
+			sum_entropy[i] -= glcmxpy[i][j] * log10(glcmxpy[i][j] + SMALL_NUMBER);
 		}
 	}
 
@@ -545,7 +545,7 @@ unsigned int i = 0, j = 0, k = 0;
 for (i = 0; i < n_object; i++) {
 	for (j = 0; j < 256; j++) {
 		for (k = 0;k < 256;k++){
-			entropy[i] += glcm[i][j][k] * (log10(glcm[i][j][k] + SMALL_NUMBER) / log10(2.0));
+			entropy[i] += glcm[i][j][k] * log10(glcm[i][j][k] + SMALL_NUMBER);
 			}
 		}
 	entropy[i] = -1.0 * entropy[i];
@@ -648,7 +648,7 @@ for (i = 0; i < n_object; i++) {
 /*Calculate difference entropy*/
 for (i = 0; i < n_object; i++) {
 	for (j = 0; j < 256; j++) {
-			difference_entropy[i] +=  glcmxmy[i][j] * (log10(glcmxmy[i][j] + SMALL_NUMBER) / log10(2.0));
+			difference_entropy[i] +=  glcmxmy[i][j] * log10(glcmxmy[i][j] + SMALL_NUMBER);
 		}
 	difference_entropy[i] = -1.0 * difference_entropy[i];
 	}
