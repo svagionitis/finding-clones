@@ -215,6 +215,113 @@ free(centroid);
 return TRUE;
 }
 
+int morphological_feature_object_orientation(int **obj_id, int width, int height, int n_object, unsigned char *image, double *object_orientation)
+{
+unsigned int i = 0;
+
+double *mi00 = NULL;
+mi00 = (double *)malloc(n_object * sizeof(double));
+if (mi00 == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(mi00, 0, (n_object * sizeof(double)));
+
+double *mi11 = NULL;
+mi11 = (double *)malloc(n_object * sizeof(double));
+if (mi11 == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(mi11, 0, (n_object * sizeof(double)));
+
+double *mi20 = NULL;
+mi20 = (double *)malloc(n_object * sizeof(double));
+if (mi20 == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(mi20, 0, (n_object * sizeof(double)));
+
+double *mi02 = NULL;
+mi02 = (double *)malloc(n_object * sizeof(double));
+if (mi02 == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(mi02, 0, (n_object * sizeof(double)));
+
+
+morphological_feature_central_moments(0.0, 0.0, obj_id, width, height, n_object, image, mi00);
+morphological_feature_central_moments(1.0, 1.0, obj_id, width, height, n_object, image, mi11);
+morphological_feature_central_moments(2.0, 0.0, obj_id, width, height, n_object, image, mi20);
+morphological_feature_central_moments(0.0, 2.0, obj_id, width, height, n_object, image, mi02);
+
+
+printf("Object orientation:\n");
+for (i = 0; i < n_object; i++){
+	object_orientation[i] = 0.5*atan((2.0*(mi11[i] / mi00[i])) / ((mi20[i] / mi00[i]) - (mi02[i] / mi00[i])));
+	printf("%d %.3f %.3f\n", i, object_orientation[i], RADIANS_TO_DEGREES(object_orientation[i]));
+	}
+
+free(mi00);
+free(mi11);
+free(mi20);
+free(mi02);
+
+return TRUE;
+}
+
+int morphological_feature_object_eccentricity(int **obj_id, int width, int height, int n_object, unsigned char *image, double *object_eccentricity)
+{
+unsigned int i = 0;
+
+double *mi00 = NULL;
+mi00 = (double *)malloc(n_object * sizeof(double));
+if (mi00 == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(mi00, 0, (n_object * sizeof(double)));
+
+double *mi20 = NULL;
+mi20 = (double *)malloc(n_object * sizeof(double));
+if (mi20 == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(mi20, 0, (n_object * sizeof(double)));
+
+double *mi02 = NULL;
+mi02 = (double *)malloc(n_object * sizeof(double));
+if (mi02 == NULL){
+	printf("Cannot allocate %d bytes for memory.\n", (n_object * sizeof(double)));
+	exit(-1);
+	}
+memset(mi02, 0, (n_object * sizeof(double)));
+
+
+morphological_feature_central_moments(0.0, 0.0, obj_id, width, height, n_object, image, mi00);
+morphological_feature_central_moments(2.0, 0.0, obj_id, width, height, n_object, image, mi20);
+morphological_feature_central_moments(0.0, 2.0, obj_id, width, height, n_object, image, mi02);
+
+
+printf("Object eccentricity:\n");
+for (i = 0; i < n_object; i++){
+	double mei02 = (mi02[i] / mi00[i]);
+	double mei20 = (mi20[i] / mi00[i]);
+	object_eccentricity[i] = fabs((mei02 - mei20) / (mei02 + mei20));
+	printf("%d %.3f\n", i, object_eccentricity[i]);
+	}
+
+free(mi00);
+free(mi20);
+free(mi02);
+
+return TRUE;
+}
+
+
 int morphological_feature_central_invariant_moments(double p, double q, int **obj_id, int width, int height, int n_object, unsigned char *image, double *central_invariant_moment)
 {
 unsigned int i = 0;
@@ -246,7 +353,6 @@ morphological_feature_central_moments(p, q, obj_id, width, height, n_object, ima
 
 
 printf("Central invariant moment(%.0f, %.0f) :\n", p, q);
-/* calcuate cirularity index */
 for (i = 0; i < n_object; i++){
 	central_invariant_moment[i] = mipq[i] / pow(mi00[i], (1.0 + ((p+q)/2.0)));
 	printf("%d %f\n", i, central_invariant_moment[i]);

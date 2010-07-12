@@ -36,11 +36,17 @@ S. Vagionitis  12/07/2010     Creation
 #define PI  3.1415926535897932384626433832795
 #define RT2 1.4142135623730950488016887242097 /* = sqrt(2.0) */
 
+/*Define to change Radians2Degrees and vice versa*/
+#define RADIANS_TO_DEGREES(X)	((180.0/PI)*X)
+#define DEGREES_TO_RADIANS(X)	((PI/180.0)*X)
+
 
 int morphological_feature_circularity_index(int *, double *, int, double *);
 int morphological_feature_object_moment(double, double, int **, int, int, int, unsigned char *, double *);
 int morphological_feature_calculate_centroids(int **, int, int, int, unsigned char *, double **);
 int morphological_feature_central_moments(double, double, int **, int, int, int, unsigned char *, double *);
+int morphological_feature_object_orientation(int **, int, int, int, unsigned char *, double *);
+int morphological_feature_object_eccentricity(int **, int, int, int, unsigned char *, double *);
 int morphological_feature_central_invariant_moments(double, double, int **, int, int, int, unsigned char *, double *);
 
 

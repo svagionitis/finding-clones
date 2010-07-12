@@ -113,8 +113,8 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	create_sub_images(image, width, height, &width_sub, &height_sub);
 */
 	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
-/*
 
+/*
 	calculate_histogram(3, width, height, width_sub, height_sub);
 
 	calculate_threshold(width, height, width_sub, height_sub);
@@ -362,8 +362,12 @@ calculate_length(obj_id, width, height, n, len, image);
 morphological_feature_circularity_index(area, len, n, circ);
 morphological_feature_object_moment(1.0, 1.0, obj_id, width, height, n, image, circ);
 morphological_feature_central_moments(0.0, 0.0, obj_id, width, height, n, image, circ);
+morphological_feature_object_orientation(obj_id, width, height, n, image, circ);
 */
+morphological_feature_object_eccentricity(obj_id, width, height, n, image, circ);
+/*
 morphological_feature_central_invariant_moments(1.0, 1.0, obj_id, width, height, n, image, circ);
+*/
 
 /*color features*/
 /*
