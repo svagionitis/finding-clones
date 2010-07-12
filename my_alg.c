@@ -37,6 +37,7 @@ S. Vagionitis  04/06/2010     Creation
 #include "alcon2009.h"
 #include "color_features.h"
 #include "texture_features.h"
+#include "morphological_features.h"
 #include "alg1.h"
 #include "alg2.h"
 #include "alg3.h"
@@ -55,7 +56,6 @@ void calculate_area(int **obj_id, int width, int height, int n_object, int *area
 void calculate_length(int **obj_id, int width, int height, int n_object, double *len, unsigned char *image);
 void k_means(double *x, object *obj, int N);
 object *baseline(unsigned char *, unsigned char *, int, int, int *);
-int morphological_feature_circularity_index(int *, double *, int, double *);
 
 /* non-implemented for level 2 and level 3 */
 /*object *my_alg_level2(unsigned char *image, int width, int height, int *n_object)*/
@@ -142,7 +142,7 @@ double *len;	/* perimeter length */
 double *circ;	/* circularity index */
 double *input_val;
 /*Color features*/
-double *clr_mn_value, *clr_std_dev, *clr_skew, *clr_kurtosis;
+double *clr_mn_value, *clr_std_dev, *clr_skew, *clr_kurtosis, **clr_hist;
 /*Texture features*/
 double ***glcmat, *ang_sec_mom, *contr, *corr, *var;
 double *inv_diff_mom, *sum_av, *sum_entrp, *sum_varnc;
@@ -222,6 +222,26 @@ clr_kurtosis = (double *)malloc(n * sizeof(double));
 if (clr_kurtosis == NULL){
 	printf("Cannot allocate %d bytes for memory.\n", (n * sizeof(double)));
 	exit(-1);
+	}
+
+clr_hist = (double **)malloc(n*sizeof(double *));
+if (clr_hist == NULL){
+	printf("Could not allocate %d bytes.\n", n*sizeof(double *));
+	exit(0);
+	}
+else{
+	for (i = 0; i < n; i++){
+		clr_hist[i] = (double *)malloc(256*sizeof(double));
+		if (clr_hist[i] == NULL){
+			printf("Could not allocate %d bytes for i=%d index.\n", 256*sizeof(double), i);
+			exit(0);
+			}
+		else{
+			for (j = 0; j<256; j++){
+				clr_hist[i][j] = 0.0;
+				}
+			}
+		}
 	}
 
 /*Texture*/
@@ -338,7 +358,12 @@ calculate_length(obj_id, width, height, n, len, image);
 
 
 /* calcuate cirularity index */
+/*
 morphological_feature_circularity_index(area, len, n, circ);
+morphological_feature_object_moment(1.0, 1.0, obj_id, width, height, n, image, circ);
+morphological_feature_central_moments(0.0, 0.0, obj_id, width, height, n, image, circ);
+*/
+morphological_feature_central_invariant_moments(1.0, 1.0, obj_id, width, height, n, image, circ);
 
 /*color features*/
 /*
@@ -346,11 +371,12 @@ color_feature_mean(obj_id, width, height, n, area, image, clr_mn_value);
 color_feature_standard_deviation(obj_id, width, height, n, area, image, clr_mn_value, clr_std_dev);
 color_feature_skewness(obj_id, width, height, n, area, image, clr_mn_value, clr_skew);
 color_feature_kurtosis(obj_id, width, height, n, area, image, clr_mn_value, clr_kurtosis);
+color_feature_histogram(0, obj_id, width, height, n, area, image, clr_hist);
 */
 
 /*texture features*/
-glcm(0, obj_id, width, height, n, image, glcmat);
 /*
+glcm(0, obj_id, width, height, n, image, glcmat);
 texture_feature_angular_second_moment(glcmat, n, ang_sec_mom);
 texture_feature_contrast(glcmat, n, contr);
 texture_feature_correlation(glcmat, n, corr);
@@ -361,8 +387,8 @@ texture_feature_sum_entropy(glcmat, n, sum_entrp);
 texture_feature_sum_variance(glcmat, n, sum_entrp, sum_varnc);
 texture_feature_entropy(glcmat, n, entrp);
 texture_feature_difference_variance(glcmat, n, diff_var);
-*/
 texture_feature_difference_entropy(glcmat, n, diff_entrp);
+*/
 
 double weight = 0.0;
 for (i = 0; i < n; i++) {
@@ -375,6 +401,7 @@ for (i = 0; i < n; i++) {
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*clr_kurtosis[i];*/
 	/*input_val[i] = weight*circ[i] + weight*clr_mn_value[i] + weight*clr_std_dev[i] + weight*clr_skew[i] + weight*clr_kurtosis[i];*/
 	/*input_val[i] = weight*clr_mn_value[i] + weight*clr_std_dev[i] + weight*clr_skew[i] + weight*clr_kurtosis[i];*/
+
 	/*Texture features*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*ang_sec_mom[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*contr[i];*/
@@ -386,7 +413,7 @@ for (i = 0; i < n; i++) {
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*sum_varnc[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*entrp[i];*/
 	/*input_val[i] = weight*circ[i] + (1.0 - weight)*diff_var[i];*/
-	input_val[i] = weight*circ[i] + (1.0 - weight)*diff_entrp[i];
+	/*input_val[i] = weight*circ[i] + (1.0 - weight)*diff_entrp[i];*/
 	}
 
 /* k-means clustering */
@@ -420,6 +447,10 @@ free(clr_mn_value);
 free(clr_std_dev);
 free(clr_skew);
 free(clr_kurtosis);
+for (i = 0; i < n; i++)
+	free(clr_hist[i]);
+free(clr_hist);
+
 
 /*texture features*/
 for (i=0;i<n;i++){
@@ -741,46 +772,3 @@ void k_means(double *x, object *obj, int n_object)
 	free(cen);
 }
 
-
-
-/* ############################################################################
-Name           : morphological_feature_circularity_index
-Description    : Calculate the circularity index which is a morphological 
-                 feature. Values range from 1, for a perfect circle, to 0 
-                 for a line. It is useful to give an impression of elongation 
-                 as well as roughness of the object's shape. Other significant 
-                 characteristics of this feature are that it is invariant to 
-                 scale, translation and rotation.
-
-Arguments      Type             Description
-============== ================ ===============================================
-area(IN)       int  *           Area covered by the objects.
-perim(IN)      double *         Perimeter of the objects.
-n_object(IN)   int              Number of objects from mask.
-circ(OUT)      double *         Circularity index of objects.
-
-Return Values                   Description
-=============================== ===============================================
-TRUE                            If everything is fine.
-
-Globals        Type             Description
-============== ================ ===============================================
-
-Locals         Type             Description
-============== ================ ===============================================
-i              unsigned in      General purpose index.
-
-############################################################################ */
-int morphological_feature_circularity_index(int *area, double *perim, int n_object, double *circ)
-{
-unsigned int i = 0;
-
-printf("Circularity index:\n");
-/* calcuate cirularity index */
-for (i = 0; i < n_object; i++){
-	circ[i] = 4.0*PI * area[i] / (perim[i]*perim[i]);
-	printf("%d %.3f\n", i, circ[i]);
-	}
-
-return TRUE;
-}

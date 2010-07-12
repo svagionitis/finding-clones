@@ -37,5 +37,6 @@ int color_feature_mean(int **, int, int, int, int *, unsigned char *, double *);
 int color_feature_standard_deviation(int **, int, int, int, int *, unsigned char *, double *, double *);
 int color_feature_skewness(int **, int, int, int, int *, unsigned char *, double *, double *);
 int color_feature_kurtosis(int **, int, int, int, int *, unsigned char *, double *, double *);
+int color_feature_histogram(unsigned char, int **, int, int, int, int *, unsigned char *, double **);
 
 #endif

@@ -182,3 +182,35 @@ for (i = 0; i < n_object; i++) {
 free(sum);
 return TRUE;
 }
+
+/*Color feature histogram*/
+int color_feature_histogram(unsigned char type, int **obj_id, int width, int height, int n_object, int *area, unsigned char *image, double **color_histogram)
+{
+unsigned int i = 0, j = 0;
+
+
+for (i = 0; i < height; i++) {
+	for (j = 0; j < width; j++) {
+		if (!obj_id[i][j])
+			continue;
+
+		register unsigned int idx = (j + i*width)*3;
+
+		unsigned char val = GREYSCALE(image[idx], image[idx+1], image[idx+2]);
+
+		color_histogram[(obj_id[i][j]-1)][val]++;
+		}
+	}
+
+printf("Color histogram per object:\n");
+for (i = 0; i < n_object; i++) {
+	printf("%d\n\t", i);
+	for (j = 0; j< 256; j++){
+		printf("[%u %.1f]", j, color_histogram[i][j]);
+		}
+	printf("\n");
+	}
+
+
+return TRUE;
+}
