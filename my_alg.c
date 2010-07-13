@@ -61,6 +61,25 @@ object *baseline(unsigned char *, unsigned char *, int, int, int *);
 /*object *my_alg_level2(unsigned char *image, int width, int height, int *n_object)*/
 object *my_alg_level2(unsigned char *image,  unsigned char *mask, int width, int height, int *n_object) 
 {
+/*********************************MYCODE*********************************/
+
+
+	unsigned int width_sub = 0, height_sub = 0;
+	create_sub_images(image, width, height, &width_sub, &height_sub);
+
+	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
+
+
+	calculate_histogram(3, width, height, width_sub, height_sub);
+
+	calculate_threshold(width, height, width_sub, height_sub);
+
+	calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);
+
+	final_stage(width, height, width_sub, height_sub);
+
+	/*free_mem_subimages(width, height, width_sub, height_sub);*/
+	/*********************************MYCODE*********************************/
 /*
 transform_1D_to_2D(image, width, height);
 
@@ -82,12 +101,31 @@ export_ppm_from_2D(4, width, height);
 return NULL;
 */
 
-return baseline(image, mask, width, height, n_object);
+return NULL;/*baseline(image, mask, width, height, n_object);*/
 }
 
 /*object *my_alg_level3(unsigned char *image, int width, int height, int *n_object)*/
 object *my_alg_level3(unsigned char *image,  unsigned char *mask, int width, int height, int *n_object)
 {
+/*********************************MYCODE*********************************/
+
+
+	unsigned int width_sub = 0, height_sub = 0;
+	create_sub_images(image, width, height, &width_sub, &height_sub);
+
+	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
+
+
+	calculate_histogram(3, width, height, width_sub, height_sub);
+
+	calculate_threshold(width, height, width_sub, height_sub);
+
+	calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);
+
+	final_stage(width, height, width_sub, height_sub);
+
+	/*free_mem_subimages(width, height, width_sub, height_sub);*/
+	/*********************************MYCODE*********************************/
 /*
 transform_1D_to_2D_RGB(image, width, height);
 allocate_mem_data_CIELAB(width, height);
@@ -99,7 +137,7 @@ histogram_analysis(width, height, max_grad);
 
 return NULL;
 */
-return baseline(image, mask, width, height, n_object);
+return NULL;/*baseline(image, mask, width, height, n_object);*/
 }
 
 

@@ -22,7 +22,7 @@ S. Vagionitis  10/06/2010     Creation
 #define FALSE 0
 #endif
 
-#define ALLOW_PRINTF	FALSE
+#define ALLOW_PRINTF	TRUE
 
 #define PI  		3.1415926535897932384626433832795
 #define RAD(x)		((x)*PI/180.0)
@@ -50,7 +50,7 @@ S. Vagionitis  10/06/2010     Creation
 /*
  * Number of pixels to shift the M x M window.
  */
-#define SHIFT (M/2)
+#define SHIFT (M/4)
 
 
 #define HEIGHT_DIV_SHIFT(h, s)			(((h) / (s)))

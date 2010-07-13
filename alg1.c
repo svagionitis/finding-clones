@@ -114,13 +114,14 @@ unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
 unsigned int h_mem_alloc = 0;
 unsigned int w_mem_alloc = 0;
 
+
 (*width_subimages) =  WIDTH_DIV_SHIFT(width, SHIFT);
 (*height_subimages) = HEIGHT_DIV_SHIFT(height, SHIFT);
 unsigned int sub_hei = (*height_subimages);
 unsigned int sub_wid = (*width_subimages);
 
 #if ALLOW_PRINTF == TRUE
-printf("SHIFT= %d, Width= %d, Height= %d, Width_Sub= %d, Height_Sub= %d\n", SHIFT, width, height, sub_wid, sub_hei);
+printf("SHIFT= %d, Width= %d, Height= %d, Width_Sub= %d, Height_Sub= %d Width_Mod= %d Height_Mod= %d\n", SHIFT, width, height, sub_wid, sub_hei, WIDTH_MOD_SHIFT(width, SHIFT), HEIGHT_MOD_SHIFT(height, SHIFT));
 #endif
 
 /* Allocate memory for subimage data*/
@@ -191,13 +192,12 @@ else{
 #endif
 	}/*else subimage_data*/
 
-
 /* Populate subimage data*/
 for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 	unsigned int ssi = SHIFT*i;
 	for (j=0;j<sub_wid;j++){/*Width coordinate of subimage*/
 		unsigned int ssj = SHIFT*j;
-		
+		/*if (i == 90) return TRUE;*/
 		/*------------------------------------------------*/
 		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
 			h_mem_alloc = M;
@@ -213,6 +213,7 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 			else
 				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
 			/*------------------------------------------------*/
+			/*printf("[%d %d][%d %d]\n", i, j, h_mem_alloc, w_mem_alloc);*/
 
 			for(l=0;l<w_mem_alloc;l++){
 				unsigned char r = 0, g = 0, b = 0;
@@ -1061,11 +1062,16 @@ I2 = subimage_data[h_subim_index][w_subim_index + 1][0][0][4];
 I3 = subimage_data[h_subim_index + 1][w_subim_index + 1][0][0][4];
 I4 = subimage_data[h_subim_index + 1][w_subim_index][0][0][4];
 
-/*R1POW2 = pow((x - 0), 2)     + pow((y - 0), 2);*/
-R1POW2 = x*x     + y*y;
+/*
+R1POW2 = pow((x - 0), 2)     + pow((y - 0), 2);
 R2POW2 = pow((x - 0), 2)     + pow((Max_y - y), 2);
 R3POW2 = pow((Max_x - x), 2) + pow((Max_y - y), 2);
 R4POW2 = pow((Max_x - x), 2) + pow((y - 0), 2);
+*/
+R1POW2 = x*x     + y*y;
+R2POW2 = x*x     + (Max_y - y)*(Max_y - y);
+R3POW2 = (Max_x - x)*(Max_x - x) + (Max_y - y)*(Max_y - y);
+R4POW2 = (Max_x - x)*(Max_x - x) + y*y;
 
 OneDivR1POW2 = 1.0 / R1POW2;
 OneDivR2POW2 = 1.0 / R2POW2;
