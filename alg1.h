@@ -52,6 +52,16 @@ S. Vagionitis  10/06/2010     Creation
  */
 #define SHIFT (M/2)
 
+
+#define HEIGHT_DIV_SHIFT(h, s)			(((h) / (s)))
+#define HEIGHT_DIV_SHIFT_MINUS_ONE(h, s)	(((h) / (s)) - 1)
+#define HEIGHT_MOD_SHIFT(h, s)			((h) % (s))
+
+#define WIDTH_DIV_SHIFT(w, s)			(((w) / (s)))
+#define WIDTH_DIV_SHIFT_MINUS_ONE(w, s)		(((w) / (s)) - 1)
+#define WIDTH_MOD_SHIFT(w, s)			((w) % (s))
+
+
 /*
  * 8-bit colors
  */

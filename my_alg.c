@@ -127,7 +127,7 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	/*********************************MYCODE*********************************/
 
 
-	return baseline(image, mask, width, height, n_object);
+	return NULL/*baseline(image, mask, width, height, n_object)*/;
 }
 
 
