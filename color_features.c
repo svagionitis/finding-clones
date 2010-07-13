@@ -58,10 +58,14 @@ for (i = 0; i < height; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Color mean value:\n");
+#endif
 for (i = 0; i < n_object; i++) {
 	color_mean_value[i] = (sum[i] / area[i]);
+#if ALLOW_PRINTF == TRUE
 	printf("%d %.3f\n", i, color_mean_value[i]);
+#endif
 	}
 
 
@@ -96,10 +100,14 @@ for (i = 0; i < height; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Color standard deviation:\n");
+#endif
 for (i = 0; i < n_object; i++) {
 	color_std_dev[i] = sqrt(sum[i] / area[i]);
+#if ALLOW_PRINTF == TRUE
 	printf("%d %.3f\n", i, color_std_dev[i]);
+#endif
 	}
 
 
@@ -134,10 +142,14 @@ for (i = 0; i < height; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Color skewness:\n");
+#endif
 for (i = 0; i < n_object; i++) {
 	color_skew[i] = pow(fabs((sum[i] / area[i])), 1.0/3.0);
+#if ALLOW_PRINTF == TRUE
 	printf("%d %.3f\n", i, color_skew[i]);
+#endif
 	}
 
 
@@ -172,10 +184,14 @@ for (i = 0; i < height; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Color kurtosis:\n");
+#endif
 for (i = 0; i < n_object; i++) {
 	color_kurtosis[i] = pow((sum[i] / area[i]), 1.0/4.0);
+#if ALLOW_PRINTF == TRUE
 	printf("%d %.3f\n", i, color_kurtosis[i]);
+#endif
 	}
 
 
@@ -202,6 +218,7 @@ for (i = 0; i < height; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Color histogram per object:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d\n\t", i);
@@ -210,7 +227,7 @@ for (i = 0; i < n_object; i++) {
 		}
 	printf("\n");
 	}
-
+#endif
 
 return TRUE;
 }

@@ -127,7 +127,9 @@ unsigned int w_mem_alloc = 0;
 unsigned int sub_hei = (*height_subimages);
 unsigned int sub_wid = (*width_subimages);
 
+#if ALLOW_PRINTF == TRUE
 printf("SHIFT= %d, Width= %d, Height= %d, Width_Sub= %d, Height_Sub= %d\n", SHIFT, width, height, sub_wid, sub_hei);
+#endif
 
 unsigned int wdS = (width / SHIFT) - 1;
 unsigned int wmS = width % SHIFT;
@@ -197,8 +199,9 @@ else{
 				}/*for j*/
 			}/*else subimage_data[i]*/
 		}/*for i*/
-
+#if ALLOW_PRINTF == TRUE
 	printf("Allocated %d bytes for RGB+Greyscale subimages data.\n", (((wdS * M) + wmS) * ((hdS * M) + hmS) * 5 * sizeof(unsigned char)));
+#endif
 	}/*else subimage_data*/
 
 
@@ -408,7 +411,9 @@ if (data_buffer == NULL){
 	return FALSE;
 	}
 else{/*Initialize data buffer*/
+#if ALLOW_PRINTF == TRUE
 	printf("Mem alloc %d bytes.\n", data_mem_alloc * sizeof(unsigned char));
+#endif
 	for(i=0;i<data_mem_alloc;i++)
 		data_buffer[i] = 0;
 	}
@@ -581,7 +586,9 @@ else{
 				}/*for j*/
 			}/*else hist_data[i]*/
 		}/*for i*/
+#if ALLOW_PRINTF == TRUE
 	printf("Allocated %d bytes for Histogram data.\n", (height_subimages * width_subimages * COLORS * sizeof(histogram)));
+#endif
 	}/*else hist_data*/
 
 
@@ -733,7 +740,9 @@ else{
 				}/*for j*/
 			}/*else hist_data[i]*/
 		}/*for i*/
+#if ALLOW_PRINTF == TRUE
 	printf("Allocated %d bytes for Threshold data.\n", (height_subimages * width_subimages * sizeof(unsigned char)));
+#endif
 	}/*else hist_data*/
 
 
@@ -1361,7 +1370,9 @@ if (data_buffer == NULL){
 	return FALSE;
 	}
 else{/*Initialize data buffer*/
+#if ALLOW_PRINTF == TRUE
 	printf("Mem alloc %d bytes.\n", data_mem_alloc * sizeof(unsigned char));
+#endif
 	for(i=0;i<data_mem_alloc;i++)
 		data_buffer[i] = 0;
 	}
@@ -1480,7 +1491,9 @@ if (data_buffer == NULL){
 	return FALSE;
 	}
 else{/*Initialize data buffer*/
+#if ALLOW_PRINTF == TRUE
 	printf("Mem alloc %d bytes.\n", data_mem_alloc * sizeof(unsigned char));
+#endif
 	for(i=0;i<data_mem_alloc;i++)
 		data_buffer[i] = 0;
 	}

@@ -108,13 +108,13 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 
 	/*********************************MYCODE*********************************/
 
-/*
+
 	unsigned int width_sub = 0, height_sub = 0;
 	create_sub_images(image, width, height, &width_sub, &height_sub);
-*/
+
 	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
 
-/*
+
 	calculate_histogram(3, width, height, width_sub, height_sub);
 
 	calculate_threshold(width, height, width_sub, height_sub);
@@ -122,7 +122,7 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	calculate_threshold_with_interpolation(0, width, height, width_sub, height_sub);
 
 	final_stage(width, height, width_sub, height_sub);
-*/
+
 	/*free_mem_subimages(width, height, width_sub, height_sub);*/
 	/*********************************MYCODE*********************************/
 

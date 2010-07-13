@@ -22,6 +22,8 @@ S. Vagionitis  10/06/2010     Creation
 #define FALSE 0
 #endif
 
+#define ALLOW_PRINTF	FALSE
+
 #define PI  		3.1415926535897932384626433832795
 #define RAD(x)		((x)*PI/180.0)
 #define MIN(a,b)	((a)<=(b)?(a):(b))

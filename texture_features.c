@@ -161,15 +161,11 @@ switch(type){
 
 /*Normalize GLCM*/
 for (i = 0; i < n_object; i++) {
-	/*printf("ID: %d\n", i);*/
 	for (j = 0; j < 256; j++) {
 		for (k = 0;k < 256;k++){
 			glcm[i][j][k] /= pixelCounter[i];
-			/*printf("%f ", glcm[i][j][k]);*/
 			}
-		/*printf("\n");*/
 		}
-	/*printf("\n");*/
 	}
 
 
@@ -191,10 +187,12 @@ for (i = 0; i < n_object; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Texture angular second moment:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, angular_second_moment[i]);
 	}
+#endif
 
 return TRUE;
 }
@@ -211,10 +209,12 @@ for (i = 0; i < n_object; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Texture contrast:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, contrast[i]);
 	}
+#endif
 
 return TRUE;
 }
@@ -302,11 +302,12 @@ for (i = 0; i < n_object; i++) {
 	correlation[i] = (sum - (meanx[i]*meanx[i])) / (stdevx[i]*stdevx[i]);
 	}
 
-
+#if ALLOW_PRINTF == TRUE
 printf("Texture correlation:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, correlation[i]);
 	}
+#endif
 
 for(i=0;i<n_object;i++)
 	free(px[i]);
@@ -351,11 +352,12 @@ for (i = 0; i < n_object; i++) {
 		}
 	}
 
-
+#if ALLOW_PRINTF == TRUE
 printf("Texture variance:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, variance[i]);
 	}
+#endif
 
 free(mean);
 return TRUE;
@@ -375,10 +377,12 @@ for (i = 0; i < n_object; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Texture inverse difference moment:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, inverse_diff_moment[i]);
 	}
+#endif
 
 return TRUE;
 }
@@ -422,10 +426,12 @@ for (i = 0; i < n_object; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Texture sum average:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, sum_average[i]);
 	}
+#endif
 
 for(i=0;i<n_object;i++)
 	free(glcmxpy[i]);
@@ -473,10 +479,12 @@ for (i = 0; i < n_object; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Texture sum entropy:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, sum_entropy[i]);
 	}
+#endif
 
 for(i=0;i<n_object;i++)
 	free(glcmxpy[i]);
@@ -525,10 +533,12 @@ for (i = 0; i < n_object; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Texture sum variance:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, sum_variance[i]);
 	}
+#endif
 
 for(i=0;i<n_object;i++)
 	free(glcmxpy[i]);
@@ -551,10 +561,12 @@ for (i = 0; i < n_object; i++) {
 	entropy[i] = -1.0 * entropy[i];
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Texture entropy:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, entropy[i]);
 	}
+#endif
 
 return TRUE;
 }
@@ -600,10 +612,12 @@ for (i = 0; i < n_object; i++) {
 	}
 
 
+#if ALLOW_PRINTF == TRUE
 printf("Texture difference variance:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, difference_variance[i]);
 	}
+#endif
 
 for(i=0;i<n_object;i++)
 	free(glcmxmy[i]);
@@ -653,11 +667,12 @@ for (i = 0; i < n_object; i++) {
 	difference_entropy[i] = -1.0 * difference_entropy[i];
 	}
 
-
+#if ALLOW_PRINTF == TRUE
 printf("Texture difference entropy:\n");
 for (i = 0; i < n_object; i++) {
 	printf("%d %.3f\n", i, difference_entropy[i]);
 	}
+#endif
 
 for(i=0;i<n_object;i++)
 	free(glcmxmy[i]);

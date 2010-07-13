@@ -63,11 +63,15 @@ int morphological_feature_circularity_index(int *area, double *perim, int n_obje
 {
 unsigned int i = 0;
 
+#if ALLOW_PRINTF == TRUE
 printf("Circularity index:\n");
+#endif
 /* calcuate cirularity index */
 for (i = 0; i < n_object; i++){
 	circ[i] = 4.0*PI * area[i] / (perim[i]*perim[i]);
+#if ALLOW_PRINTF == TRUE
 	printf("%d %.3f\n", i, circ[i]);
+#endif
 	}
 
 return TRUE;
@@ -101,12 +105,12 @@ for (i = 0; i < height; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Moment(%.0f, %.0f) :\n", p, q);
-/* calcuate cirularity index */
 for (i = 0; i < n_object; i++){
 	printf("%d %.3f\n", i, moment[i]);
 	}
-
+#endif
 
 free(sum);
 return TRUE;
@@ -144,11 +148,15 @@ morphological_feature_object_moment(0.0, 0.0, obj_id, width, height, n_object, i
 morphological_feature_object_moment(1.0, 0.0, obj_id, width, height, n_object, image, moment10);
 morphological_feature_object_moment(0.0, 1.0, obj_id, width, height, n_object, image, moment01);
 
+#if ALLOW_PRINTF == TRUE
 printf("Centroids :\n");
+#endif
 for (i = 0; i < n_object; i++){
 	centroids[i][0] = moment10[i] / moment00[i];
 	centroids[i][1] = moment01[i] / moment00[i];
+#if ALLOW_PRINTF == TRUE
 	printf("%d %.3f %.3f\n", i, centroids[i][0], centroids[i][1]);
+#endif
 	}
 
 
@@ -201,12 +209,12 @@ for (i = 0; i < height; i++) {
 		}
 	}
 
+#if ALLOW_PRINTF == TRUE
 printf("Central moment(%.0f, %.0f) :\n", p, q);
-/* calcuate cirularity index */
 for (i = 0; i < n_object; i++){
 	printf("%d %.3f\n", i, central_moment[i]);
 	}
-
+#endif
 
 for (i = 0; i < n_object; i++)
 	free(centroid[i]);
@@ -257,11 +265,14 @@ morphological_feature_central_moments(1.0, 1.0, obj_id, width, height, n_object,
 morphological_feature_central_moments(2.0, 0.0, obj_id, width, height, n_object, image, mi20);
 morphological_feature_central_moments(0.0, 2.0, obj_id, width, height, n_object, image, mi02);
 
-
+#if ALLOW_PRINTF == TRUE
 printf("Object orientation:\n");
+#endif
 for (i = 0; i < n_object; i++){
 	object_orientation[i] = 0.5*atan((2.0*(mi11[i] / mi00[i])) / ((mi20[i] / mi00[i]) - (mi02[i] / mi00[i])));
+#if ALLOW_PRINTF == TRUE
 	printf("%d %.3f %.3f\n", i, object_orientation[i], RADIANS_TO_DEGREES(object_orientation[i]));
+#endif
 	}
 
 free(mi00);
@@ -305,13 +316,16 @@ morphological_feature_central_moments(0.0, 0.0, obj_id, width, height, n_object,
 morphological_feature_central_moments(2.0, 0.0, obj_id, width, height, n_object, image, mi20);
 morphological_feature_central_moments(0.0, 2.0, obj_id, width, height, n_object, image, mi02);
 
-
+#if ALLOW_PRINTF == TRUE
 printf("Object eccentricity:\n");
+#endif
 for (i = 0; i < n_object; i++){
 	double mei02 = (mi02[i] / mi00[i]);
 	double mei20 = (mi20[i] / mi00[i]);
 	object_eccentricity[i] = fabs((mei02 - mei20) / (mei02 + mei20));
+#if ALLOW_PRINTF == TRUE
 	printf("%d %.3f\n", i, object_eccentricity[i]);
+#endif
 	}
 
 free(mi00);
@@ -351,11 +365,14 @@ memset(mipq, 0, (n_object * sizeof(double)));
 morphological_feature_central_moments(0.0, 0.0, obj_id, width, height, n_object, image, mi00);
 morphological_feature_central_moments(p, q, obj_id, width, height, n_object, image, mipq);
 
-
+#if ALLOW_PRINTF == TRUE
 printf("Central invariant moment(%.0f, %.0f) :\n", p, q);
+#endif
 for (i = 0; i < n_object; i++){
 	central_invariant_moment[i] = mipq[i] / pow(mi00[i], (1.0 + ((p+q)/2.0)));
+#if ALLOW_PRINTF == TRUE
 	printf("%d %f\n", i, central_invariant_moment[i]);
+#endif
 	}
 
 

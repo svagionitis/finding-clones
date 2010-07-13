@@ -22,6 +22,8 @@ S. Vagionitis  12/07/2010     Creation
 #define FALSE 0
 #endif
 
+#define ALLOW_PRINTF	FALSE
+
 #define SMALL_NUMBER	0.000000001
 
 #define MIN(a,b)	((a)<=(b)?(a):(b))
