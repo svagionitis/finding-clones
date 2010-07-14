@@ -384,37 +384,37 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
 						data_buffer[lkwma + 1] = 0;
 						data_buffer[lkwma + 2] = 0;
-						sprintf(filename,"%03u_%03u_RedSubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
+						sprintf(filename,"%s_%03u_%03u_RedSubimage[%02ux%02u].ppm",output_fn, i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 1:/*Green values*/
 						data_buffer[lkwma + 0] = 0;
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
 						data_buffer[lkwma + 2] = 0;
-						sprintf(filename,"%03u_%03u_GreenSubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
+						sprintf(filename,"%s_%03u_%03u_GreenSubimage[%02ux%02u].ppm",output_fn, i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 2:/*Blue values*/
 						data_buffer[lkwma + 0] = 0;
 						data_buffer[lkwma + 1] = 0;
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
-						sprintf(filename,"%03u_%03u_BlueSubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
+						sprintf(filename,"%s_%03u_%03u_BlueSubimage[%02ux%02u].ppm",output_fn, i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 3:/*Grey values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][3];
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][3];
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][3];
-						sprintf(filename,"%03u_%03u_GreySubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
+						sprintf(filename,"%s_%03u_%03u_GreySubimage[%02ux%02u].ppm",output_fn, i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 4:/*RGB values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
-						sprintf(filename,"%03u_%03u_Subimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
+						sprintf(filename,"%s_%03u_%03u_Subimage[%02ux%02u].ppm",output_fn, i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 5:/*Threshold values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][4];
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][4];
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][4];
-						sprintf(filename,"%03u_%03u_ThresholdSubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
+						sprintf(filename,"%s_%03u_%03u_ThresholdSubimage[%02ux%02u].ppm",output_fn, i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					}
 				}/*l*/

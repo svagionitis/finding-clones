@@ -209,7 +209,8 @@ int main(int argc, char *argv[])
 	int eval  = 0;
 	char *ground_truth_filename = NULL;
 	
-	
+	memset(output_fn, '\0', sizeof(output_fn));
+
 	/* program option analysis */
 	for (i = 1; i < argc; i++) {
 		if (argv[i][0] == '-') {
@@ -239,7 +240,11 @@ int main(int argc, char *argv[])
 			fprintf(stderr, "Size mismatch between the target image and mask image\n");
 			return -1;
 		}
+
 		input_filename = argv[i];
+		memcpy(output_fn, input_filename, sizeof(output_fn));
+		output_fn[strlen(output_fn)-4] = '\0';
+
 	}/* else if (level == '2' || level == '3') {
 		printf("Input image file : %s\n", argv[i]);
 		data = load_ppm(argv[i], &w_img, &h_img);

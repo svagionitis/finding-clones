@@ -21,6 +21,8 @@ S. Vagionitis  02/06/2010     Creation
 
 #define ALLOW_PRINTF	TRUE
 
+char output_fn[128];
+
 typedef struct object_t {
 	int label;	/* label */
 	int rep;	/* representative flag(1:yes,0:no) */
