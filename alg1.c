@@ -68,6 +68,26 @@ unsigned char *****subimage_data;
 histogram ***hist_data;
 unsigned char **Ts;
 
+
+
+int Calculate_Block_Size(unsigned int HeightBlockIndex, unsigned int WidthBlockIndex, int height, int width, unsigned int *HeightBlockSize, unsigned int *WidthBlockSize)
+{
+unsigned int HeightBlockStart = HeightBlockIndex * SHIFT;
+unsigned int WidthBlockStart = WidthBlockIndex * SHIFT;
+
+if ((HeightBlockStart + M) <= height)
+	(*HeightBlockSize) = M;
+else
+	(*HeightBlockSize) = height - HeightBlockStart;
+
+if ((WidthBlockStart + M) <= width)
+	(*WidthBlockSize) = M;
+else
+	(*WidthBlockSize) = width - WidthBlockStart;
+
+return TRUE;
+}
+
 /* ############################################################################
 Name           : create_sub_images
 Description    : Take as input the original image and create the subimages 
@@ -111,12 +131,20 @@ w_mem_alloc           unsigned int        The maximum width of the subimage.
 int create_sub_images(unsigned char *image_data, int width, int height, unsigned int *width_subimages, unsigned int *height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
+unsigned int HeightBlockSize = 0;
+unsigned int WidthBlockSize = 0;
+unsigned int SdM = (SHIFT / M);
 
+if (WIDTH_MOD_SHIFT(width, SHIFT))
+	(*width_subimages) =  WIDTH_DIV_SHIFT(width, SHIFT) + SdM;
+else
+	(*width_subimages) =  WIDTH_DIV_SHIFT(width, SHIFT);
 
-(*width_subimages) =  WIDTH_DIV_SHIFT(width, SHIFT);
-(*height_subimages) = HEIGHT_DIV_SHIFT(height, SHIFT);
+if (HEIGHT_MOD_SHIFT(height, SHIFT))
+	(*height_subimages) = HEIGHT_DIV_SHIFT(height, SHIFT) + SdM;
+else
+	(*height_subimages) = HEIGHT_DIV_SHIFT(height, SHIFT);
+
 unsigned int sub_hei = (*height_subimages);
 unsigned int sub_wid = (*width_subimages);
 
@@ -141,34 +169,23 @@ else{
 			for (j=0;j<sub_wid;j++){
 
 				/*------------------------------------------------*/
-				if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-					h_mem_alloc = M;
-				else
-					h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+				Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 				/*------------------------------------------------*/
 
-				subimage_data[i][j] = (unsigned char ***)malloc(h_mem_alloc * sizeof(unsigned char **));
+				subimage_data[i][j] = (unsigned char ***)malloc(HeightBlockSize * sizeof(unsigned char **));
 				if (subimage_data[i][j] == NULL){
-					printf("Could not allocate %d bytes for j=%d index.\n", (h_mem_alloc * sizeof(unsigned char **)), j);
+					printf("Could not allocate %d bytes for j=%d index.\n", (HeightBlockSize * sizeof(unsigned char **)), j);
 					return FALSE;
 					}
 				else{
-					for(k=0;k<h_mem_alloc;k++){
-
-						/*------------------------------------------------*/
-						if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-							w_mem_alloc = M;
-						else
-							w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-						/*------------------------------------------------*/
-
-						subimage_data[i][j][k] = (unsigned char **)malloc(w_mem_alloc * sizeof(unsigned char *));
+					for(k=0;k<HeightBlockSize;k++){
+						subimage_data[i][j][k] = (unsigned char **)malloc(WidthBlockSize * sizeof(unsigned char *));
 						if (subimage_data[i][j][k] == NULL){
-							printf("Could not allocate %d bytes for k=%d index.\n", (w_mem_alloc * sizeof(unsigned char)), k);
+							printf("Could not allocate %d bytes for k=%d index.\n", (WidthBlockSize * sizeof(unsigned char)), k);
 							return FALSE;
 							}
 						else{
-							for(l=0;l<w_mem_alloc;l++){
+							for(l=0;l<WidthBlockSize;l++){
 								subimage_data[i][j][k][l] = (unsigned char *)malloc(5 * sizeof(unsigned char));
 								if (subimage_data[i][j][k][l] == NULL){
 									printf("Could not allocate %d bytes for l=%d index.\n", (5 * sizeof(unsigned char)), l);
@@ -187,37 +204,22 @@ else{
 				}/*for j*/
 			}/*else subimage_data[i]*/
 		}/*for i*/
-#if ALLOW_PRINTF == TRUE
-	printf("Allocated %d bytes for RGB+Greyscale subimages data.\n", (((WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT) * M) + WIDTH_MOD_SHIFT(width, SHIFT)) * ((HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT) * M) + HEIGHT_MOD_SHIFT(height, SHIFT)) * 5 * sizeof(unsigned char)));
-#endif
 	}/*else subimage_data*/
 
 /* Populate subimage data*/
 for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
-	unsigned int ssi = SHIFT*i;
+	unsigned int HeightBlockStart = i * SHIFT;
 	for (j=0;j<sub_wid;j++){/*Width coordinate of subimage*/
-		unsigned int ssj = SHIFT*j;
-		/*if (i == 90) return TRUE;*/
+		unsigned int WidthBlockStart = j * SHIFT;
 		/*------------------------------------------------*/
-		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-			h_mem_alloc = M;
-		else
-			h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+		Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 		/*------------------------------------------------*/
 
-		for(k=0;k<h_mem_alloc;k++){
-			unsigned int x = (k + ssi);
-			/*------------------------------------------------*/
-			if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-				w_mem_alloc = M;
-			else
-				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-			/*------------------------------------------------*/
-			/*printf("[%d %d][%d %d]\n", i, j, h_mem_alloc, w_mem_alloc);*/
-
-			for(l=0;l<w_mem_alloc;l++){
+		for(k=0;k<HeightBlockSize;k++){
+			unsigned int x = (k + HeightBlockStart);
+			for(l=0;l<WidthBlockSize;l++){
 				unsigned char r = 0, g = 0, b = 0;
-				unsigned int y = (l + ssj);
+				unsigned int y = (l + WidthBlockStart);
 
 				register unsigned int xyM = (y + x * (width)) * 3;
 
@@ -230,7 +232,6 @@ for(i=0;i<sub_hei;i++){/*Height coordinate of subimage*/
 			}/*k*/
 		}/*j*/
 	}/*i*/
-
 
 return TRUE;
 }
@@ -268,37 +269,25 @@ subimage_data(IN)     unsigned char ***** Subimages data.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l, m         unsigned int        General purpose indexes.
-h_mem_alloc           unsigned int        The maximum height of the subimage.
-w_mem_alloc           unsigned int        The maximum width of the subimage.
+HeightBlockSize           unsigned int        The maximum height of the subimage.
+WidthBlockSize           unsigned int        The maximum width of the subimage.
 
 ############################################################################ */
 int free_mem_subimages(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
+unsigned int HeightBlockSize = 0;
+unsigned int WidthBlockSize = 0;
 
 
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
-
 		/*------------------------------------------------*/
-		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-			h_mem_alloc = M;
-		else
-			h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+		Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 		/*------------------------------------------------*/
 
-		for(k=0;k<h_mem_alloc;k++){
-
-			/*------------------------------------------------*/
-			if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-				w_mem_alloc = M;
-			else
-				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-			/*------------------------------------------------*/
-
-			for(l=0;l<w_mem_alloc;l++){
+		for(k=0;k<HeightBlockSize;k++){
+			for(l=0;l<WidthBlockSize;l++){
 				free(subimage_data[i][j][k][l]);
 				}
 			free(subimage_data[i][j][k]);
@@ -353,15 +342,16 @@ subimage_data(IN)     unsigned char ***** Subimages data.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l, m         unsigned int        General purpose indexes.
-h_mem_alloc           unsigned int        The maximum height of the subimage.
-w_mem_alloc           unsigned int        The maximum width of the subimage.
+HeightBlockSize           unsigned int        The maximum height of the subimage.
+WidthBlockSize           unsigned int        The maximum width of the subimage.
 
 ############################################################################ */
 int export_ppm_subimages(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
+unsigned int HeightBlockSize = 0;
+unsigned int WidthBlockSize = 0;
+
 unsigned int data_mem_alloc = 0;
 char filename[128];
 memset(filename, '\0', sizeof(filename));
@@ -375,9 +365,6 @@ if (data_buffer == NULL){
 	return FALSE;
 	}
 else{/*Initialize data buffer*/
-#if ALLOW_PRINTF == TRUE
-	printf("Mem alloc %d bytes.\n", data_mem_alloc * sizeof(unsigned char));
-#endif
 	for(i=0;i<data_mem_alloc;i++)
 		data_buffer[i] = 0;
 	}
@@ -385,66 +372,54 @@ else{/*Initialize data buffer*/
 
 for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 	for (j=0;j<width_subimages;j++){/*Width coordinate of subimage*/
-
 		/*------------------------------------------------*/
-		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-			h_mem_alloc = M;
-		else
-			h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+		Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 		/*------------------------------------------------*/
 
-		for(k=0;k<h_mem_alloc;k++){
-
-			/*------------------------------------------------*/
-			if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-				w_mem_alloc = M;
-			else
-				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-			/*------------------------------------------------*/
-
-			for(l=0;l<w_mem_alloc;l++){
-				register unsigned int lkwma = (l + k*w_mem_alloc)*3;
+		for(k=0;k<HeightBlockSize;k++){
+			for(l=0;l<WidthBlockSize;l++){
+				register unsigned int lkwma = (l + k*WidthBlockSize)*3;
 				switch(type){
 					case 0:/*Red values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
 						data_buffer[lkwma + 1] = 0;
 						data_buffer[lkwma + 2] = 0;
-						sprintf(filename,"%03u_%03u_RedSubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
+						sprintf(filename,"%03u_%03u_RedSubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 1:/*Green values*/
 						data_buffer[lkwma + 0] = 0;
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
 						data_buffer[lkwma + 2] = 0;
-						sprintf(filename,"%03u_%03u_GreenSubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
+						sprintf(filename,"%03u_%03u_GreenSubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 2:/*Blue values*/
 						data_buffer[lkwma + 0] = 0;
 						data_buffer[lkwma + 1] = 0;
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
-						sprintf(filename,"%03u_%03u_BlueSubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
+						sprintf(filename,"%03u_%03u_BlueSubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 3:/*Grey values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][3];
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][3];
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][3];
-						sprintf(filename,"%03u_%03u_GreySubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
+						sprintf(filename,"%03u_%03u_GreySubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 4:/*RGB values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][0];
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][1];
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][2];
-						sprintf(filename,"%03u_%03u_Subimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
+						sprintf(filename,"%03u_%03u_Subimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					case 5:/*Threshold values*/
 						data_buffer[lkwma + 0] = subimage_data[i][j][k][l][4];
 						data_buffer[lkwma + 1] = subimage_data[i][j][k][l][4];
 						data_buffer[lkwma + 2] = subimage_data[i][j][k][l][4];
-						sprintf(filename,"%03u_%03u_ThresholdSubimage[%02ux%02u].ppm",i, j, h_mem_alloc, w_mem_alloc);
+						sprintf(filename,"%03u_%03u_ThresholdSubimage[%02ux%02u].ppm",i, j, HeightBlockSize, WidthBlockSize);
 						break;
 					}
 				}/*l*/
 			}/*k*/
-		save_ppm(filename, w_mem_alloc, h_mem_alloc, data_buffer);
+		save_ppm(filename, WidthBlockSize, HeightBlockSize, data_buffer);
 		}/*j*/
 	}/*i*/
 
@@ -493,8 +468,8 @@ hist_data(OUT)        histogram ***       Histogram from subimages.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l            unsigned int        General purpose indexes.
-h_mem_alloc           unsigned int        The maximum height of the subimage.
-w_mem_alloc           unsigned int        The maximum width of the subimage.
+HeightBlockSize           unsigned int        The maximum height of the subimage.
+WidthBlockSize           unsigned int        The maximum width of the subimage.
 r, g, b               unsigned char       RGB values.
 gry                   unsigned char       Grey value.
 
@@ -502,8 +477,8 @@ gry                   unsigned char       Grey value.
 int calculate_histogram(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0, m = 0;
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
+unsigned int HeightBlockSize = 0;
+unsigned int WidthBlockSize = 0;
 
 unsigned int pixel_value_counter[COLORS], max_pixels = 0;
 memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
@@ -538,33 +513,19 @@ else{
 				}/*for j*/
 			}/*else hist_data[i]*/
 		}/*for i*/
-#if ALLOW_PRINTF == TRUE
-	printf("Allocated %d bytes for Histogram data.\n", (height_subimages * width_subimages * COLORS * sizeof(histogram)));
-#endif
 	}/*else hist_data*/
 
 
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
-
 		/*------------------------------------------------*/
-		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-			h_mem_alloc = M;
-		else
-			h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+		Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 		/*------------------------------------------------*/
 		
 		memset(pixel_value_counter, 0, sizeof(pixel_value_counter));
-		for(k=0;k<h_mem_alloc;k++){
-
-			/*------------------------------------------------*/
-			if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-				w_mem_alloc = M;
-			else
-				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-			/*------------------------------------------------*/
-			max_pixels = (h_mem_alloc*w_mem_alloc);
-			for(l=0;l<w_mem_alloc;l++){
+		for(k=0;k<HeightBlockSize;k++){
+			max_pixels = (HeightBlockSize*WidthBlockSize);
+			for(l=0;l<WidthBlockSize;l++){
 				switch(type){
 					unsigned char r = 0, g = 0, b = 0, gry = 0;
 					case 0:/*Red Histogram*/
@@ -644,7 +605,7 @@ return TRUE;
 Name           : calculate_threshold
 Description    : Calculate threshold values according to the algorithm 
                  from Gonzales, R.C, Woods, R.E., 2002. Digital Image 
-                 Processing, 2nd ed Prentice Hall, Upper Saddle River, NJ, 
+                 ProceHeightBlockStartng, 2nd ed Prentice Hall, Upper Saddle River, NJ, 
                  pp. 598-600(10.3.3 Basic Global Thresholding).
 
 Arguments             Type                Description
@@ -692,9 +653,6 @@ else{
 				}/*for j*/
 			}
 		}/*for i*/
-#if ALLOW_PRINTF == TRUE
-	printf("Allocated %d bytes for Threshold data.\n", (height_subimages * width_subimages * sizeof(unsigned char)));
-#endif
 	}
 
 /* initialize random seed: */
@@ -797,7 +755,7 @@ return TRUE;
 Name           : basic_global_thresholding_algorithm
 Description    : Calculate threshold values according to the algorithm 
                  from Gonzales, R.C, Woods, R.E., 2002. Digital Image 
-                 Processing, 2nd ed Prentice Hall, Upper Saddle River, NJ, 
+                 ProceHeightBlockStartng, 2nd ed Prentice Hall, Upper Saddle River, NJ, 
                  pp. 598-600(10.3.3 Basic Global Thresholding).
 
 
@@ -925,38 +883,30 @@ subimage_data(OUT)    unsigned char ***** Subimages data.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l            unsigned int        General purpose indexes.
-h_mem_alloc           unsigned int        The maximum height of the subimage.
-w_mem_alloc           unsigned int        The maximum width of the subimage.
+HeightBlockSize           unsigned int        The maximum height of the subimage.
+WidthBlockSize           unsigned int        The maximum width of the subimage.
 
 ############################################################################ */
 int calculate_threshold_with_interpolation(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
+unsigned int HeightBlockSize = 0;
+unsigned int WidthBlockSize = 0;
 
 
 /*
- * Assign in (0,0) position in a subimage the 
+ * AHeightBlockStartgn in (0,0) position in a subimage the 
  * Threshold value that it was calculated before. 
  * The others values will be calculated using interpolation.
  */
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 		/*------------------------------------------------*/
-		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-			h_mem_alloc = M;
-		else
-			h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+		Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 		/*------------------------------------------------*/
-		for(k=0;k<h_mem_alloc;k++){
-			/*------------------------------------------------*/
-			if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-				w_mem_alloc = M;
-			else
-				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-			/*------------------------------------------------*/
-			for(l=0;l<w_mem_alloc;l++){
+
+		for(k=0;k<HeightBlockSize;k++){
+			for(l=0;l<WidthBlockSize;l++){
 				subimage_data[i][j][0][0][4] = Ts[i][j];
 				}/*for l*/
 			}/*for k*/
@@ -966,19 +916,11 @@ for (i=0;i<height_subimages;i++){
 for (i=0;i<height_subimages;i++){
 	for (j=0;j<width_subimages;j++){
 		/*------------------------------------------------*/
-		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-			h_mem_alloc = M;
-		else
-			h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+		Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 		/*------------------------------------------------*/
-		for(k=0;k<h_mem_alloc;k++){
-			/*------------------------------------------------*/
-			if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-				w_mem_alloc = M;
-			else
-				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-			/*------------------------------------------------*/
-			for(l=0;l<w_mem_alloc;l++){
+
+		for(k=0;k<HeightBlockSize;k++){
+			for(l=0;l<WidthBlockSize;l++){
 
 				if (!k && !l)/*Don't compute the position (0,0)*/
 					continue;
@@ -986,18 +928,18 @@ for (i=0;i<height_subimages;i++){
 				switch(type){
 					case 0:
 						if ((i < (height_subimages - 1)) && (j < (width_subimages - 1))){
-							bilinear_interpolation_with_weights_propotional_to_square_of_distance(i, j, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
+							bilinear_interpolation_with_weights_propotional_to_square_of_distance(i, j, k, l, HeightBlockSize, WidthBlockSize, &subimage_data[i][j][k][l][4]);
 							}
 						else{
-							linear_interpolation_in_2d_data(i, j, height_subimages, width_subimages, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
+							linear_interpolation_in_2d_data(i, j, height_subimages, width_subimages, k, l, HeightBlockSize, WidthBlockSize, &subimage_data[i][j][k][l][4]);
 							}
 						break;
 					case 1:
 						if ((i < (height_subimages - 1)) && (j < (width_subimages - 1))){
-							bilinear_interpolation_with_weights_propotional_to_distance(i, j, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
+							bilinear_interpolation_with_weights_propotional_to_distance(i, j, k, l, HeightBlockSize, WidthBlockSize, &subimage_data[i][j][k][l][4]);
 							}
 						else{
-							linear_interpolation_in_2d_data(i, j, height_subimages, width_subimages, k, l, h_mem_alloc, w_mem_alloc, &subimage_data[i][j][k][l][4]);
+							linear_interpolation_in_2d_data(i, j, height_subimages, width_subimages, k, l, HeightBlockSize, WidthBlockSize, &subimage_data[i][j][k][l][4]);
 							}
 						break;
 					}
@@ -1276,15 +1218,16 @@ subimage_data(IN)     unsigned char ***** Subimages data.
 Locals                Type                Description
 ===================== =================== =====================================
 i, j, k, l, m         unsigned int        General purpose indexes.
-h_mem_alloc           unsigned int        The maximum height of the subimage.
-w_mem_alloc           unsigned int        The maximum width of the subimage.
+HeightBlockSize           unsigned int        The maximum height of the subimage.
+WidthBlockSize           unsigned int        The maximum width of the subimage.
 
 ############################################################################ */
 int reconstruct_image_from_subimages(unsigned char type, int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
+unsigned int HeightBlockSize = 0;
+unsigned int WidthBlockSize = 0;
+
 unsigned int data_mem_alloc = 0;
 char filename[128];
 memset(filename, '\0', sizeof(filename));
@@ -1297,9 +1240,6 @@ if (data_buffer == NULL){
 	return FALSE;
 	}
 else{/*Initialize data buffer*/
-#if ALLOW_PRINTF == TRUE
-	printf("Mem alloc %d bytes.\n", data_mem_alloc * sizeof(unsigned char));
-#endif
 	for(i=0;i<data_mem_alloc;i++)
 		data_buffer[i] = 0;
 	}
@@ -1327,27 +1267,17 @@ switch(type){
 	}
 
 for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
-	unsigned int ssi = SHIFT*i;
+	unsigned int HeightBlockStart = i * SHIFT;
 	for (j=0;j<width_subimages;j++){/*Width coordinate of subimage*/
-		unsigned int ssj = SHIFT*j;
-
+		unsigned int WidthBlockStart = j * SHIFT;
 		/*------------------------------------------------*/
-		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-			h_mem_alloc = M;
-		else
-			h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+		Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 		/*------------------------------------------------*/
-		for(k=0;k<h_mem_alloc;k++){
-			unsigned int x = (k + ssi);
-			/*------------------------------------------------*/
-			if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-				w_mem_alloc = M;
-			else
-				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-			/*------------------------------------------------*/
 
-			for(l=0;l<w_mem_alloc;l++){
-				unsigned int y = (l + ssj);
+		for(k=0;k<HeightBlockSize;k++){
+			unsigned int x = (k + HeightBlockStart);
+			for(l=0;l<WidthBlockSize;l++){
+				unsigned int y = (l + WidthBlockStart);
 				register unsigned int xyM = (y + x * width) * 3;
 
 				switch(type){
@@ -1398,8 +1328,9 @@ return TRUE;
 int final_stage(int width, int height, unsigned int width_subimages, unsigned int height_subimages)
 {
 unsigned int i = 0, j = 0, k = 0, l = 0;
-unsigned int h_mem_alloc = 0;
-unsigned int w_mem_alloc = 0;
+unsigned int HeightBlockSize = 0;
+unsigned int WidthBlockSize = 0;
+
 unsigned int data_mem_alloc = 0;
 
 char filename[128];
@@ -1413,9 +1344,6 @@ if (data_buffer == NULL){
 	return FALSE;
 	}
 else{/*Initialize data buffer*/
-#if ALLOW_PRINTF == TRUE
-	printf("Mem alloc %d bytes.\n", data_mem_alloc * sizeof(unsigned char));
-#endif
 	for(i=0;i<data_mem_alloc;i++)
 		data_buffer[i] = 0;
 	}
@@ -1423,27 +1351,17 @@ else{/*Initialize data buffer*/
 sprintf(filename,"Final_alg1.ppm");
 
 for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
-	unsigned int ssi = SHIFT*i;
+	unsigned int HeightBlockStart = i * SHIFT;
 	for (j=0;j<width_subimages;j++){/*Width coordinate of subimage*/
-		unsigned int ssj = SHIFT*j;
-
+		unsigned int WidthBlockStart = j * SHIFT;
 		/*------------------------------------------------*/
-		if (i < HEIGHT_DIV_SHIFT_MINUS_ONE(height, SHIFT))
-			h_mem_alloc = M;
-		else
-			h_mem_alloc = SHIFT + HEIGHT_MOD_SHIFT(height, SHIFT);
+		Calculate_Block_Size(i, j, height, width, &HeightBlockSize, &WidthBlockSize);
 		/*------------------------------------------------*/
-		for(k=0;k<h_mem_alloc;k++){
-			unsigned int x = (k + ssi);
-			/*------------------------------------------------*/
-			if (j < WIDTH_DIV_SHIFT_MINUS_ONE(width, SHIFT))
-				w_mem_alloc = M;
-			else
-				w_mem_alloc = SHIFT + WIDTH_MOD_SHIFT(width, SHIFT);
-			/*------------------------------------------------*/
 
-			for(l=0;l<w_mem_alloc;l++){
-				unsigned int y = (l + ssj);
+		for(k=0;k<HeightBlockSize;k++){
+			unsigned int x = (k + HeightBlockStart);
+			for(l=0;l<WidthBlockSize;l++){
+				unsigned int y = (l + WidthBlockStart);
 				register unsigned int xyM = (y + x * width) * 3;
 
 				if (subimage_data[i][j][k][l][3] >= subimage_data[i][j][k][l][4]){
@@ -1468,4 +1386,5 @@ free(data_buffer);
 return TRUE;
 
 }
+
 

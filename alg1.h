@@ -22,8 +22,6 @@ S. Vagionitis  10/06/2010     Creation
 #define FALSE 0
 #endif
 
-#define ALLOW_PRINTF	TRUE
-
 #define PI  		3.1415926535897932384626433832795
 #define RAD(x)		((x)*PI/180.0)
 #define MIN(a,b)	((a)<=(b)?(a):(b))
@@ -50,15 +48,13 @@ S. Vagionitis  10/06/2010     Creation
 /*
  * Number of pixels to shift the M x M window.
  */
-#define SHIFT (M/4)
+#define SHIFT (M/2)
 
 
 #define HEIGHT_DIV_SHIFT(h, s)			(((h) / (s)))
-#define HEIGHT_DIV_SHIFT_MINUS_ONE(h, s)	(((h) / (s)) - 1)
 #define HEIGHT_MOD_SHIFT(h, s)			((h) % (s))
 
 #define WIDTH_DIV_SHIFT(w, s)			(((w) / (s)))
-#define WIDTH_DIV_SHIFT_MINUS_ONE(w, s)		(((w) / (s)) - 1)
 #define WIDTH_MOD_SHIFT(w, s)			((w) % (s))
 
 
@@ -83,6 +79,7 @@ typedef struct histogram_t{
 	float freq;
 	}histogram;
 
+int Calculate_Block_Size(unsigned int, unsigned int, int, int, unsigned int *, unsigned int *);
 int create_sub_images(unsigned char *, int, int, unsigned int *, unsigned int *);
 int free_mem_subimages(int, int, unsigned int, unsigned int);
 int export_ppm_subimages(unsigned char, int, int, unsigned int, unsigned int);

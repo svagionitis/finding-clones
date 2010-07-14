@@ -115,7 +115,6 @@ object *my_alg_level3(unsigned char *image,  unsigned char *mask, int width, int
 
 	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
 
-
 	calculate_histogram(3, width, height, width_sub, height_sub);
 
 	calculate_threshold(width, height, width_sub, height_sub);
@@ -151,7 +150,6 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 	create_sub_images(image, width, height, &width_sub, &height_sub);
 
 	/*export_ppm_subimages(3, width, height, width_sub, height_sub);*/
-
 
 	calculate_histogram(3, width, height, width_sub, height_sub);
 
