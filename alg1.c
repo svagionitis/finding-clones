@@ -1363,26 +1363,6 @@ else{/*Initialize data buffer*/
 		data_buffer[i] = 0;
 	}
 
-unsigned char **data_buffer_2D=NULL;
-data_buffer_2D = (unsigned char **)malloc(height * sizeof(unsigned char *));
-if (data_buffer_2D == NULL){
-	printf("final_stage: Could not allocate %d bytes.\n", (height * sizeof(unsigned char *)));
-	return FALSE;
-	}
-else{
-	for (i=0;i<height;i++){
-		data_buffer_2D[i] = (unsigned char *)malloc(width * sizeof(unsigned char));
-		if (data_buffer_2D[i] == NULL){
-			printf("final_stage: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned char)), i);
-			return FALSE;
-			}
-		else{
-			for(j=0;j<width;j++){
-				data_buffer_2D[i][j] = 0;
-				}
-			}
-		}
-	}
 
 sprintf(filename,"%s_alg1_Final.pgm", output_fn);
 
@@ -1411,30 +1391,18 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 		}/*j*/
 	}/*i*/
 
-
-transform_1D_to_2D_Binary_Images(data_buffer, width, height, data_buffer_2D);
-erode(data_buffer_2D, width, height, 1);
-dilate(data_buffer_2D, width, height, 1);
-for (i=0;i<height;i++){
-	for(j=0;j<width;j++){
-		register unsigned int idx = (j + i*width);
-		data_buffer[idx] = data_buffer_2D[i][j];
-		}
-	}
-
-
+/*
+erode_1D(data_buffer, width, height, 1);
+dilate_1D(data_buffer, width, height, 1);
+opening_1D(data_buffer, width, height, 5);
+*/
+closing_1D(data_buffer, width, height, 1);
 
 
 save_pgm(filename, width, height, data_buffer);
 
-for (i=0;i<height;i++)
-	free(data_buffer_2D[i]);
-free(data_buffer_2D);
 free(data_buffer);
-
-
 return TRUE;
-
 }
 
 
