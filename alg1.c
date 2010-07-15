@@ -63,6 +63,7 @@ S. Vagionitis  10/06/2010     Creation
 
 #include "alg1.h"
 #include "alcon2009.h"/*For save_ppm function*/
+#include "morphological_operations.h"
 
 unsigned char *****subimage_data;
 histogram ***hist_data;
@@ -1261,22 +1262,22 @@ else{/*Initialize data buffer*/
 
 switch(type){
 	case 0:/*Red values*/
-		sprintf(filename,"RedImage.ppm");
+		sprintf(filename,"%s_Reconstructed_RedImage.ppm", output_fn);
 		break;
 	case 1:/*Green values*/
-		sprintf(filename,"GreenImage.ppm");
+		sprintf(filename,"%s_Reconstructed_GreenImage.ppm", output_fn);
 		break;
 	case 2:/*Blue values*/
-		sprintf(filename,"BlueImage.ppm");
+		sprintf(filename,"%s_Reconstructed_BlueImage.ppm", output_fn);
 		break;
 	case 3:/*Grey values*/
-		sprintf(filename,"GreyImage.ppm");
+		sprintf(filename,"%s_Reconstructed_GreyImage.ppm", output_fn);
 		break;
 	case 4:/*RGB values*/
-		sprintf(filename,"RGBImage.ppm");
+		sprintf(filename,"%s_Reconstructed_RGBImage.ppm", output_fn);
 		break;
 	case 5:/*Threshold values*/
-		sprintf(filename,"ThresholdImage.ppm");
+		sprintf(filename,"%s_Reconstructed_ThresholdImage.ppm", output_fn);
 		break;
 	}
 
@@ -1351,10 +1352,10 @@ char filename[128];
 memset(filename, '\0', sizeof(filename));
 
 unsigned char *data_buffer=NULL;
-data_mem_alloc = (3 * width * height);
+data_mem_alloc = (width * height);
 data_buffer = (unsigned char *)malloc(data_mem_alloc * sizeof(unsigned char));
 if (data_buffer == NULL){
-	printf("Could not allocate %d bytes.\n", (data_mem_alloc * sizeof(unsigned char)));
+	printf("final_stage:Could not allocate %d bytes.\n", (data_mem_alloc * sizeof(unsigned char)));
 	return FALSE;
 	}
 else{/*Initialize data buffer*/
@@ -1362,7 +1363,28 @@ else{/*Initialize data buffer*/
 		data_buffer[i] = 0;
 	}
 
-sprintf(filename,"Final_alg1.ppm");
+unsigned char **data_buffer_2D=NULL;
+data_buffer_2D = (unsigned char **)malloc(height * sizeof(unsigned char *));
+if (data_buffer_2D == NULL){
+	printf("final_stage: Could not allocate %d bytes.\n", (height * sizeof(unsigned char *)));
+	return FALSE;
+	}
+else{
+	for (i=0;i<height;i++){
+		data_buffer_2D[i] = (unsigned char *)malloc(width * sizeof(unsigned char));
+		if (data_buffer_2D[i] == NULL){
+			printf("final_stage: Could not allocate %d bytes for i=%d index.\n", (width * sizeof(unsigned char)), i);
+			return FALSE;
+			}
+		else{
+			for(j=0;j<width;j++){
+				data_buffer_2D[i][j] = 0;
+				}
+			}
+		}
+	}
+
+sprintf(filename,"%s_alg1_Final.pgm", output_fn);
 
 for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 	unsigned int HeightBlockStart = i * SHIFT;
@@ -1376,26 +1398,40 @@ for(i=0;i<height_subimages;i++){/*Height coordinate of subimage*/
 			unsigned int x = (k + HeightBlockStart);
 			for(l=0;l<WidthBlockSize;l++){
 				unsigned int y = (l + WidthBlockStart);
-				register unsigned int xyM = (y + x * width) * 3;
+				register unsigned int xyM = (y + x * width);
 
 				if (subimage_data[i][j][k][l][3] >= subimage_data[i][j][k][l][4]){
-					data_buffer[xyM + 0] = 255;
-					data_buffer[xyM + 1] = 255;
-					data_buffer[xyM + 2] = 255;
+					data_buffer[xyM] = 255;
 					}
 				else{
-					data_buffer[xyM + 0] = 0;
-					data_buffer[xyM + 1] = 0;
-					data_buffer[xyM + 2] = 0;
+					data_buffer[xyM] = 0;
 					}
 				}/*l*/
 			}/*k*/
 		}/*j*/
 	}/*i*/
 
-save_ppm(filename, width, height, data_buffer);
 
+transform_1D_to_2D_Binary_Images(data_buffer, width, height, data_buffer_2D);
+erode(data_buffer_2D, width, height, 1);
+dilate(data_buffer_2D, width, height, 1);
+for (i=0;i<height;i++){
+	for(j=0;j<width;j++){
+		register unsigned int idx = (j + i*width);
+		data_buffer[idx] = data_buffer_2D[i][j];
+		}
+	}
+
+
+
+
+save_pgm(filename, width, height, data_buffer);
+
+for (i=0;i<height;i++)
+	free(data_buffer_2D[i]);
+free(data_buffer_2D);
 free(data_buffer);
+
 
 return TRUE;
 

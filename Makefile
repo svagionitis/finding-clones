@@ -1,6 +1,6 @@
 # Makefile
 program = alcon2009
-objs = main.o evaluation.o pnm.o my_alg.o alg1.o alg2.o alg3.o color_features.o texture_features.o morphological_features.o
+objs = main.o evaluation.o pnm.o my_alg.o alg1.o alg2.o alg3.o color_features.o texture_features.o morphological_features.o morphological_operations.o
 CC = gcc
 #CFLAGS = -Wall -ansi -O2
 CFLAGS = -Wall -g -ggdb -ansi -O2
@@ -39,6 +39,9 @@ texture_features.o: texture_features.c
 
 morphological_features.o: morphological_features.c
 	$(CC) $(CFLAGS) -c morphological_features.c
+
+morphological_operations.o: morphological_operations.c
+	$(CC) $(CFLAGS) -c morphological_operations.c
 
 .PHONY: clean
 clean:
