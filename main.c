@@ -262,32 +262,41 @@ int main(int argc, char *argv[])
 
 	if (level == '1') {
 		alcon2009_measure_time();
+/*
 		obj = my_alg_level1(data, mask, w_img, h_img, &n_object);
 		if (obj == NULL){
 			time = alcon2009_measure_time();
 			printf("Time: %lf [sec]\n", time);
 			return -1;
 			}
+*/
+		obj = read_matlab_result(input_filename, &n_object);
 		time = alcon2009_measure_time();
 	} else if (level == '2') {
 		alcon2009_measure_time();
 		/*obj = my_alg_level2(data, w_img, h_img, &n_object);*/
+/*
 		obj = my_alg_level2(data, mask, w_img, h_img, &n_object);
 		if (obj == NULL){
 			time = alcon2009_measure_time();
 			printf("Time: %lf [sec]\n", time);
 			return -1;
 			}
+*/
+		obj = read_matlab_result(input_filename, &n_object);
 		time = alcon2009_measure_time();
 	} else {
 		alcon2009_measure_time();
 		/*obj = my_alg_level3(data, w_img, h_img, &n_object);*/
+/*
 		obj = my_alg_level3(data, mask, w_img, h_img, &n_object);
 		if (obj == NULL){
 			time = alcon2009_measure_time();
 			printf("Time: %lf [sec]\n", time);
 			return -1;
 			}
+*/
+		obj = read_matlab_result(input_filename, &n_object);
 		time = alcon2009_measure_time();
 	}
 

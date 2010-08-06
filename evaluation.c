@@ -39,6 +39,7 @@ S. Vagionitis  02/06/2010     Creation
 #include <stdlib.h>
 #include <float.h>
 #include <math.h>
+#include <string.h>
 
 #include "alcon2009.h"
 
@@ -288,6 +289,71 @@ static object *read_ground_truth(const char *filename, int *n)
 	return obj;
 }
 
+/* ############################################################################
+Name           : read_matlab_result
+Description    : Load matlab result file. Read the matlab result files which include 
+                 the result bounding boxes of the objects in the image.
+
+Arguments      Type           Description
+============== ============== =================================================
+filename(IN)   const char *   The filename of the matlab result file.
+n(OUT)         int *          The number of objects in the matlab result file.
+
+Return Values                 Description
+============================= =================================================
+obj                           Total objects read from file and loaded in 
+                              memory.
+
+Globals        Type           Description
+============== ============== =================================================
+
+Locals         Type           Description
+============== ============== =================================================
+c              int            The number of objects in the matlab result file.
+i              int            Index of the objects in the matlab result file.
+obj            object *       Total objects in memory.
+f              FILE *         File descriptor of matlab result file.
+
+############################################################################ */
+object *read_matlab_result(const char *input_filename, int *n)
+{
+	int c, i, j;
+	object *obj;
+	char result_filename[128];
+
+	memcpy(result_filename, input_filename, sizeof(result_filename));
+	result_filename[strlen(result_filename)-4] = '\0';
+	sprintf(result_filename, "%s_Matlab_Result.txt", result_filename);
+
+	FILE *f = fopen(result_filename, "r");
+	fscanf(f, "%d\n", &c);
+
+	obj = (object *)malloc(c * sizeof(object));
+
+	unsigned int max_label = 0;
+	for (i = 0; i < c; i++) {
+		fscanf(f, "%d %d %d %d %d\n", &obj[i].x1, &obj[i].y1, &obj[i].x2, &obj[i].y2, &obj[i].label);
+		if (obj[i].label > max_label)
+			max_label = obj[i].label;
+	}
+
+	/*Find representative objects for each cluster*/
+	for (j = 0; j < (max_label+1); j++) {
+		for (i = 0; i < c; i++) {
+			if (obj[i].label == j) {
+				obj[i].rep = 1;
+				break;
+			}
+		}
+	}
+
+	*n = c;
+
+	fclose(f);
+
+	return obj;
+}
+
 
 /* ############################################################################
 Name           : calculate_f_measure
@@ -501,7 +567,8 @@ void evaluate(object *c, int n_c, const char *filename)
 
 	/* Calculate F-measure */
 	class_corr = calculate_f_measure(gt, n_gt, c, n_c, corr, &F, &n_label, &n_class);
-	
+
+
 	/* correct labels for showing the result */
 #if 0 /* 2009/5/8 modified */
 	class_result = (int *)malloc(n_c * sizeof(int));

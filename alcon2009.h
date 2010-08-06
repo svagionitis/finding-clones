@@ -46,6 +46,7 @@ object *my_alg_level1(unsigned char *image, unsigned char *mask, int width, int 
 object *my_alg_level2(unsigned char *image, unsigned char *mask, int width, int height, int *n_object);
 object *my_alg_level3(unsigned char *image, unsigned char *mask, int width, int height, int *n_object);
 */
+object *read_matlab_result(const char *, int *);
 void evaluate(object *c, int n_c, const char *filename);
 
 #endif
